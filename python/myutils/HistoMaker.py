@@ -26,7 +26,7 @@ class HistoMaker:
         self.cuts = []
         for options in optionsList:
             self.cuts.append(options['cut'])
-        print "Cuts:",self.cuts
+        #print "Cuts:",self.cuts
         self.tc = TreeCache(self.cuts,samples,path,config)# created cached tree i.e. create new skimmed trees using the list of cuts
         #print self.cuts
         self.tc = TreeCache(self.cuts,samples,path,config)
@@ -63,7 +63,7 @@ class HistoMaker:
         addOverFlow=eval(self.config.get('Plot_general','addOverFlow'))
 
         # get all Histos at once
-        print "The tree in the job is ", job.tree
+        #print "The tree in the job is ", job.tree
         CuttedTree = self.tc.get_tree(job,'1')# retrieve the cuted tree
         # print 'CuttedTree.GetEntries()',CuttedTree.GetEntries()
 #        print 'begin self.optionsList',self.optionsList
@@ -95,18 +95,18 @@ class HistoMaker:
             treeCut = "("+treeCut+")&&"+job.addtreecut 
 #            print 'job.addtreecut ',job.addtreecut 
             #options
-            print 'treeCut',treeCut
-            print 'weightF',weightF
+            #print 'treeCut',treeCut
+            #print 'weightF',weightF
             
             hTree = ROOT.TH1F('%s'%name,'%s'%name,nBins,xMin,xMax)
             hTree.Sumw2()
             hTree.SetTitle(job.name)
-            print('hTree.name() 1 =',hTree.GetName())
-            print('treeVar 1 =',treeVar)
+            #print('hTree.name() 1 =',hTree.GetName())
+            #print('treeVar 1 =',treeVar)
             drawoption = ''
 #            print("START DRAWING")
             if job.type != 'DATA':
-              print "the jobs is not data"
+              #print "the jobs is not data"
               if CuttedTree and CuttedTree.GetEntries():
                 print 'hello'
                 if 'BDT' in treeVar or 'bdt' in treeVar: 
@@ -115,9 +115,9 @@ class HistoMaker:
                     #print drawoption
                 else: 
                     drawoption = '(%s)*(%s)'%(weightF,treeCut)
-                print ('Draw: %s>>%s' %(treeVar,name), drawoption, "goff,e")
+                #print ('Draw: %s>>%s' %(treeVar,name), drawoption, "goff,e")
                 nevents = CuttedTree.Draw('%s>>%s' %(treeVar,name), drawoption, "goff,e")
-                print 'nevents:',hTree.GetEntries(),' hTree.name() 2 =',hTree.GetName()
+                #print 'nevents:',hTree.GetEntries(),' hTree.name() 2 =',hTree.GetName()
                 full=True
                       # if 'RTight' in treeVar or 'RMed' in treeVar: 
                           # drawoption = '(%s)*(%s & %s)'%(weightF,treeCut,BDT_add_cut)
@@ -230,7 +230,7 @@ class HistoMaker:
             return False
 
     def calc_rebin(self, bg_list, nBins_start=1000, tolerance=0.25):
-        print "START calc_rebin"
+        #print "START calc_rebin"
         self.calc_rebin_flag = True
         self.norebin_nBins = copy(self.nBins)
         self.rebin_nBins = nBins_start
@@ -239,7 +239,7 @@ class HistoMaker:
         #add all together:
         print '\n\t...calculating rebinning...'
         for job in bg_list:
-            print "job",job
+            #print "job",job
             htree = self.get_histos_from_tree(job)[0].values()[0]
             print "Integral",job,htree.Integral()
             if not i:
@@ -255,8 +255,8 @@ class HistoMaker:
         binR=self.rebin_nBins
         binL=1
         rel=1.0
-        print "START loop from right"
-        print "totalBG.Draw("","")",totalBG.Integral()
+        #print "START loop from right"
+        #print "totalBG.Draw("","")",totalBG.Integral()
         #---- from right
         while rel > tolerance:
             TotR+=totalBG.GetBinContent(binR)
@@ -294,17 +294,15 @@ class HistoMaker:
         #print 'stepsize %s'% stepsize
         #print 'modulo %s'%modulo
         binlist=[binL]
-        print "jjj"
         for i in range(0,int(self.norebin_nBins)-3):
             binlist.append(binlist[-1]+stepsize)
         binlist[-1]+=modulo
         binlist.append(binR)
         binlist.append(self.rebin_nBins+1)
         #print 'binning set to %s'%binlist
-        print "START REBINNER"
+        #print "START REBINNER"
         self.mybinning = Rebinner(int(self.norebin_nBins),array('d',[-1.0]+[totalBG.GetBinLowEdge(i) for i in binlist]),True)
         self._rebin = True
-        print "STOP calc_rebin"
         print '\t > rebinning is set <\n'
 
     @staticmethod
@@ -317,13 +315,13 @@ class HistoMaker:
         from array import array
         doubleVariable = array('d',[0])
         
-        print "Start orderandadd"
-        print "=================\n"
-        print "Input dict is", histo_dicts
+        #print "Start orderandadd"
+        #print "=================\n"
+        #print "Input dict is", histo_dicts
 
         ordered_histo_dict = {}
-        print "orderandadd-setup",setup
-        print "orderandadd-histo_dicts",histo_dicts
+        #print "orderandadd-setup",setup
+        #print "orderandadd-histo_dicts",histo_dicts
         for sample in setup:
             nSample = 0
             for histo_dict in histo_dicts:
@@ -339,7 +337,7 @@ class HistoMaker:
                     printc('magenta','','\t--> added %s to %s Integral: %s Entries: %s Error: %s'%(subsamplename,sample,integral,entries,error))
                     nSample += 1
         del histo_dicts
-        print "Output dict is", ordered_histo_dict
+        #print "Output dict is", ordered_histo_dict
         return ordered_histo_dict 
 
 

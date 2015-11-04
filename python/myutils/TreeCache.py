@@ -75,7 +75,6 @@ class TreeCache:
         print ('trying to create',tmpSource)
         print ('self.__tmpPath',self.__tmpPath)
         if self.__tmpPath.find('root://t3dcachedb03.psi.ch:1094/') != -1:
-            print ('HI')
             mkdir_command = self.__tmpPath.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch/')
             print('mkdir_command',mkdir_command)
             # RECURSIVELY CREATE REMOTE FOLDER ON PSI SE, but only up to 3 new levels
@@ -96,7 +95,6 @@ class TreeCache:
               print ('mkdir_command',mkdir_command)
               subprocess.call(['srmmkdir '+mkdir_command], shell=True)# delete the files already created ?     
         else:
-            print ('HELLO')
             mkdir_command = self.__tmpPath
             print('mkdir_command',mkdir_command)
             # RECURSIVELY CREATE REMOTE FOLDER ON PSI SE, but only up to 3 new levels
@@ -119,7 +117,9 @@ class TreeCache:
             ## in case there are problems go to the next dataset [probably another process is working on this dataset]
             return (theName,theHash)
         print ('reading',source)
+        print ("I am reading")
         input = ROOT.TFile.Open(source,'read')
+        print ("I read")
         tree = input.Get(sample.tree)
         assert type(tree) is ROOT.TTree
         try:
@@ -137,6 +137,7 @@ class TreeCache:
             sample.count = 1.
             # sample.count_with_PU = 1.
             # sample.count_with_PU2011B = 1.
+        print ("debug1")
         input.cd()
         obj = ROOT.TObject
         for key in ROOT.gDirectory.GetListOfKeys():
@@ -150,6 +151,8 @@ class TreeCache:
         theCut = self.minCut
         if sample.subsample:
             theCut += '& (%s)' %(sample.subcut)
+        print ("the cut is", theCut)
+        #Problem here: not working when empty tree
         cuttedTree=tree.CopyTree(theCut)
         cuttedTree.Write()
         output.Write()
@@ -160,6 +163,7 @@ class TreeCache:
 #        if tmpSourceFile.IsZombie():
 #            print("@ERROR: Zombie file")
         del output
+        print ("debug4")
         return (theName,theHash)
 
 

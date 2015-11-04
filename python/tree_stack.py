@@ -80,6 +80,8 @@ def doPlot():
     print "The variables are", vars, "\n"
     data = config.get(section,'Datas')# read the data corresponding to each CR (section)
     mc = eval(config.get('Plot_general','samples'))# read the list of mc samples
+    total_lumi = eval(config.get('Plot_general','lumi'))
+    print 'total lumi is', total_lumi
 
     print "The list of mc samples is", mc
 
@@ -139,15 +141,17 @@ def doPlot():
     #! Sums up the luminosity of the data:
     lumicounter=0.
     lumi=0.
-    print "Will run over datasamples to sum up the lumi"
-    for job in datasamples:
-        print "hello"
-        print "Datasample is", job
-        lumi+=float(job.lumi)
-        lumicounter+=1.
-
-    if lumicounter > 0:
-        lumi=lumi/lumicounter
+    if datasamples == []:
+        lumi = total_lumi
+    else:
+        print "Will run over datasamples to sum up the lumi"
+        for job in datasamples:
+            print "hello"
+            print "Datasample is", job
+            lumi+=float(job.lumi)
+            lumicounter+=1.
+        if lumicounter > 0:
+            lumi=lumi/lumicounter
     
     print "The lumi is", lumi, "\n"
 
@@ -156,7 +160,7 @@ def doPlot():
 
     print "Getting the histograms from mc and data tmp"
     print "===========================================\n"
-    print "MC samples\n"
+    #print "MC samples\n"
     #! Get the histogram from Plotter
     #! Get the mc histograms
     # multiprocess=16
@@ -172,7 +176,7 @@ def doPlot():
            
        # outputs = p.map(trim_treeMT, myinputs)
 
-    print 'mcsamples',mcsamples
+    #print 'mcsamples',mcsamples
     inputs=[]
     for job in mcsamples:
 #        print 'job.name'

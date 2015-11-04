@@ -632,7 +632,7 @@ for job in info:
 
                 rPt0 = max(0.0001,readerJet0.EvaluateRegression( "jet0Regression" )[0])
                 rPt1 = max(0.0001,readerJet1.EvaluateRegression( "jet1Regression" )[0])
-                
+
                 hJet_pt[0] = rPt0
                 hJet_pt[1] = rPt1
 
