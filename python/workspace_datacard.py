@@ -305,6 +305,7 @@ for syst in systematics:
         if bdt == True:
             #ff[1]='%s_%s'%(sys,Q.lower())
             _treevar = treevar.replace('.nominal','.%s_%s'%(syst,Q.lower()))
+            _treevar = treevar.replace('.Nominal','.%s_%s'%(syst,Q.lower()))
             print _treevar
         elif mjj == True:
             if syst == 'JER' or syst == 'JES':

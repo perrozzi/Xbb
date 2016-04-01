@@ -109,6 +109,7 @@ if [[ $whereToLaunch != "lxplus" ]]; then
   source $VO_CMS_SW_DIR/cmsset_default.sh
   eval `scramv1 runtime -sh`
   export TMPDIR=$CMSSW_BASE/src/tmp
+  #export TMPDIR=/mnt/t3nfs01/data01/shome/gaperrin/VHbb/CMSSW_7_4_3/src/tmp
   if ! [ -e $TMPDIR ]; then mkdir $TMPDIR; fi
 
   cd -   #back to the working dir

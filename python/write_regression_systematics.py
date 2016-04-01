@@ -426,71 +426,23 @@ for job in info:
         newtree.Branch('bTagWeightcErr2Up_new',bTagWeightcErr2Up_new,'bTagWeightcErr2Up_new/F')
         newtree.Branch('bTagWeightcErr2Down_new',bTagWeightcErr2Down_new,'bTagWeightcErr2Down_new/F')
 
-    #Add muon SF
     if channel == "Zmm":
-        vLeptons_SFweight_IdLoose = array('f',[0])
-        vLeptons_SFweight_IsoLoose = array('f',[0])
+    #Add "DY tag (used later for reweighting)
+        isDY = array('i',[0])
+        isDY[0] = -1
+        newtree.Branch('isDY',isDY,'isDY/I')
+    #Add muon SF
+        #vLeptons_SFweight_IdLoose = array('f',[0])
+        #vLeptons_SFweight_IsoLoose = array('f',[0])
         vLeptons_SFweight_HLT = array('f',[0])
 
-        vLeptons_SFweight_IdLoose[0] = 1
-        vLeptons_SFweight_IsoLoose[0] = 1
+        #vLeptons_SFweight_IdLoose[0] = 1
+        #vLeptons_SFweight_IsoLoose[0] = 1
         vLeptons_SFweight_HLT[0] = 1
 
-        newtree.Branch('vLeptons_SFweight_IdLoose',vLeptons_SFweight_IdLoose,'vLeptons_SFweight_IdLoose/F')
-        newtree.Branch('vLeptons_SFweight_IsoLoose',vLeptons_SFweight_IsoLoose,'vLeptons_SFweight_IsoLoose/F')
+        #newtree.Branch('vLeptons_SFweight_IdLoose',vLeptons_SFweight_IdLoose,'vLeptons_SFweight_IdLoose/F')
+        #newtree.Branch('vLeptons_SFweight_IsoLoose',vLeptons_SFweight_IsoLoose,'vLeptons_SFweight_IsoLoose/F')
         newtree.Branch('vLeptons_SFweight_HLT',vLeptons_SFweight_HLT,'vLeptons_SFweight_HLT/F')
-
-        #Old Muon SF
-        #vLeptons_SF_HLT = array('f',2*[0])
-        #vLeptons_SFerr_HLT = array('f',2*[0])
-        #vLeptons_SF_IdLoose = array('f',2*[0])
-        #vLeptons_SFerr_IdLoose = array('f',2*[0])
-        #vLeptons_SF_IdTight = array('f',2*[0])
-        #vLeptons_SFerr_IdTight = array('f',2*[0])
-        #vLeptons_SF_IsoTight = array('f',2*[0])
-        #vLeptons_SFerr_IsoTight = array('f',2*[0])
-        #vLeptons_SF_IsoLoose = array('f',2*[0])
-        #vLeptons_SFerr_IsoLoose = array('f',2*[0])
-        #vLeptons_Eff_HLT = array('f',2*[0])
-        #vLeptons_Efferr_HLT = array('f',2*[0])
-
-        #vLeptons_SF_HLT[0] = 1
-        #vLeptons_SF_HLT[1] = 1
-        #vLeptons_SFerr_HLT[0] = 1
-        #vLeptons_SFerr_HLT[1] = 1
-        #vLeptons_SF_IdLoose[0] = 1
-        #vLeptons_SF_IdLoose[1] = 1
-        #vLeptons_SFerr_IdLoose[0] = 1
-        #vLeptons_SFerr_IdLoose[1] = 1
-        #vLeptons_SF_IdTight[0] = 1
-        #vLeptons_SF_IdTight[1] = 1
-        #vLeptons_SFerr_IdTight[0] = 1
-        #vLeptons_SFerr_IdTight[1] = 1
-        #vLeptons_SF_IsoTight[0] = 1
-        #vLeptons_SF_IsoTight[1] = 1
-        #vLeptons_SFerr_IsoTight[0] = 1
-        #vLeptons_SFerr_IsoTight[1] = 1
-        #vLeptons_SF_IsoLoose[0] = 1
-        #vLeptons_SF_IsoLoose[1] = 1
-        #vLeptons_SFerr_IsoLoose[0] = 1
-        #vLeptons_SFerr_IsoLoose[1] = 1
-        #vLeptons_Eff_HLT[0]
-        #vLeptons_Eff_HLT[1]
-        #vLeptons_Efferr_HLT[0]
-        #vLeptons_Efferr_HLT[1]
-
-        #newtree.Branch('vLeptons_SF_HLT',vLeptons_SF_HLT,'vLeptons_SF_HLT[2]/F')
-        #newtree.Branch('vLeptons_SFerr_HLT',vLeptons_SFerr_HLT,'vLeptons_SFerr_HLT[2]/F')
-        #newtree.Branch('vLeptons_SF_IdLoose',vLeptons_SF_IdLoose,'vLeptons_SF_IdLoose[2]/F')
-        #newtree.Branch('vLeptons_SFerr_IdLoose',vLeptons_SFerr_IdLoose,'vLeptons_SFerr_IdLoose[2]/F')
-        #newtree.Branch('vLeptons_SF_IdTight',vLeptons_SF_IdTight,'vLeptons_SF_IdTight[2]/F')
-        #newtree.Branch('vLeptons_SFerr_IdTight',vLeptons_SFerr_IdTight,'vLeptons_SFerr_IdTight[2]/F')
-        #newtree.Branch('vLeptons_SF_IsoTight',vLeptons_SF_IsoTight,'vLeptons_SF_IsoTight[2]/F')
-        #newtree.Branch('vLeptons_SFerr_IsoTight',vLeptons_SFerr_IsoTight,'vLeptons_SFerr_IsoTight[2]/F')
-        #newtree.Branch('vLeptons_SF_IsoLoose',vLeptons_SF_IsoLoose,'vLeptons_SF_IsoLoose[2]/F')
-        #newtree.Branch('vLeptons_SFerr_IsoLoose',vLeptons_SFerr_IsoLoose,'vLeptons_SFerr_IsoLoose[2]/F')
-        #newtree.Branch('vLeptons_Eff_HLT',vLeptons_Eff_HLT,'vLeptons_Eff_HLT[2]/F')
-        #newtree.Branch('vLeptons_Efferr_HLT',vLeptons_Efferr_HLT,'vLeptons_Efferr_HLT[2]/F')
 
     #Angular Likelihood
     if channel == "Znn":
@@ -716,7 +668,7 @@ for job in info:
 #########################
 
     for entry in range(0,nEntries):
-            if entry>10000: break
+            #if entry>1000: break
             if ((entry%j_out)==0):
                 if ((entry/j_out)==9 and j_out < 1e4): j_out*=10;
                 print strftime("%Y-%m-%d %H:%M:%S", gmtime()),' - processing event',str(entry)+'/'+str(nEntries), '(cout every',j_out,'events)'
@@ -915,48 +867,39 @@ for job in info:
                 #Adding mu SFs
                 ##########################
             if channel == "Zmm":
+                if job.type != 'DATA':
+                    #Add isDY tag
+                    if 'JetsToLL' in job.name: isDY[0] = 1
+                    else: isDY[0] = 0
 
-                pTcut = 22;
-                vLeptons_SFweight_IdLoose = tree.vLeptons_SF_IdCutLoose[0]*tree.vLeptons_SF_IdCutLoose[1]
-                vLeptons_SFweight_IsoLoose = tree.vLeptons_SF_IsoLoose[0]*tree.vLeptons_SF_IsoLoose[1]
+                    #Add trigger SF
+                    pTcut = 22;
 
-                DR = [999, 999]
-                #dr_list = []
+                    DR = [999, 999]
 
-                #dR matching
-                for k in range(0,2):
-                    for l in range(0,len(tree.trgObjects_hltIsoMu18_eta)):
-                        dr_ = deltaR(tree.vLeptons_eta[k], tree.vLeptons_phi[k], tree.trgObjects_hltIsoMu18_eta[l], tree.trgObjects_hltIsoMu18_phi[l])
-                        #dr_list.append(dr_)
-                        #print 'k is', k
-                        #print 'dr_ is ', dr_
-                        if dr_ < DR[k] and tree.vLeptons_pt[k] > 22:
-                        #if  tree.vLeptons_pt[k] > 22:
-                            DR[k] = dr_
+                    #dR matching
+                    for k in range(0,2):
+                        for l in range(0,len(tree.trgObjects_hltIsoMu18_eta)):
+                            dr_ = deltaR(tree.vLeptons_eta[k], tree.vLeptons_phi[k], tree.trgObjects_hltIsoMu18_eta[l], tree.trgObjects_hltIsoMu18_phi[l])
+                            if dr_ < DR[k] and tree.vLeptons_pt[k] > 22:
+                                DR[k] = dr_
 
-                Mu1pass = DR[0] < 0.5
-                Mu2pass = DR[1] < 0.5
+                    Mu1pass = DR[0] < 0.5
+                    Mu2pass = DR[1] < 0.5
 
-                SF1 = tree.vLeptons_SF_HLT_RunD4p2[0]
-                SF2 = tree.vLeptons_SF_HLT_RunD4p2[1]
-                eff1 = tree.vLeptons_Eff_HLT_RunD4p2[0]
-                eff2 = tree.vLeptons_Eff_HLT_RunD4p2[1]
+                    SF1 = tree.vLeptons_SF_HLT_RunD4p2[0]
+                    SF2 = tree.vLeptons_SF_HLT_RunD4p2[1]
+                    eff1 = tree.vLeptons_Eff_HLT_RunD4p2[0]
+                    eff2 = tree.vLeptons_Eff_HLT_RunD4p2[1]
 
-                if not Mu1pass and not Mu2pass:
-                    #print 'No match was found !'
-                    #print 'dr_list is', dr_list
-                    #print 'DR 1 is', DR[0]
-                    #print 'DR 2 is', DR[1]
-                    #print 'pt 1 is', tree.vLeptons_pt[0]
-                    #print 'pt 2 is', tree.vLeptons_pt[1]
-                    vLeptons_SFweight_HLT[0] = 0
-                elif not Mu1pass and Mu2pass:
-                    vLeptons_SFweight_HLT[0] = SF2
-                elif Mu1pass and  not Mu2pass:
-                    effdata = 1 - (1-SF1*eff1)*(1-SF2*eff2);
-                    effmc = 1 - (1-eff1)*(1-eff2);
-                    vLeptons_SFweight_HLT[0] = effdata/effmc
-                #print 'vLeptons_SFweight_HLT[0] is', vLeptons_SFweight_HLT[0]
+                    if not Mu1pass and not Mu2pass:
+                        vLeptons_SFweight_HLT[0] = 0
+                    elif not Mu1pass and Mu2pass:
+                        vLeptons_SFweight_HLT[0] = SF2
+                    elif Mu1pass and  not Mu2pass:
+                        effdata = 1 - (1-SF1*eff1)*(1-SF2*eff2);
+                        effmc = 1 - (1-eff1)*(1-eff2);
+                        vLeptons_SFweight_HLT[0] = effdata/effmc
 
             if applyRegression:
                 HNoReg.HiggsFlag = 1
@@ -1229,12 +1172,22 @@ for job in info:
         # subprocess.call([command], shell=True)
     else:
         command = 'srmrm %s' %(targetStorage.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=/'))
-        print(command)
+        #print(command)
         subprocess.call([command], shell=True)
         # command = 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/dcap'
         # print(command)
         # subprocess.call([command], shell=True)
-        command = 'srmcp -2 -globus_tcp_port_range 20000,25000 file:///%s %s' %(tmpDir+'/'+job.prefix+job.identifier+'.root',targetStorage.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=/'))
+        #Old command
+        #command = 'srmcp -2 -globus_tcp_port_range 20000,25000 file:///%s %s' %(tmpDir+'/'+job.prefix+job.identifier+'.root',targetStorage.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=/'))
+        #New command
+        #print('----------------------')
+        #print('----------------------')
+        #print('----------------------')
+        #print('----------------------')
+        #print("gonna do env | grep PATH | grep PYTHON")
+        #proc = subprocess.Popen('env | grep PATH', stdout=subprocess.PIPE,  shell=True)
+        #tmp = proc.stdout.read()
+        command = 'env -i X509_USER_PROXY=/shome/$USER/.x509up_u`id -u` gfal-copy file:////%s %s' %(tmpDir.replace('/mnt/t3nfs01/data01','')+'/'+job.prefix+job.identifier+'.root',targetStorage.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch/'))
         print(command)
         os.system(command)
         # command = 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/dcap; gfal-copy file:///%s %s' %(tmpDir+'/'+job.prefix+job.identifier+'.root',targetStorage.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch/'))
