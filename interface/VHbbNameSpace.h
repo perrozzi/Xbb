@@ -772,22 +772,6 @@ double ptWeightQCD(int nGenVbosons, double lheHT, int GenVbosons_pdgId){
 
   return SF>0?SF:0;
 }
-// weights correction for EWK NLO correction (DO NOT USE, temporary fix !!!)
-double ptWeightEWK_Zlltmp(int nGenVbosons,double GenVbosons_pt,int VtypeSim,int GenVbosons_pdgId, int isDY, int nGenHiggsBoson){
-    double SF = 1.;
-    if (nGenVbosons ==1 & isDY == 1 & abs(GenVbosons_pdgId) == 23 & nGenHiggsBoson == 0)
-    {
-        if (VtypeSim == 0 || VtypeSim == 1 || VtypeSim == 4 || VtypeSim == 5)
-        {
-            {
-                //for Z options
-                if (GenVbosons_pt > 100. && GenVbosons_pt < 3000) SF = -0.1808051+6.04146*(TMath::Power((GenVbosons_pt+759.098),-0.242556));
-            }
-        }
-    }
-    return SF>0?SF:0;
-}
-
 
 // weights correction for EWK NLO correction (for ZllHbb only !!!)
 double ptWeightEWK_Zll(int nGenVbosons,double GenVbosons_pt,int VtypeSim,int GenVbosons_pdgId, int nGenTop, int nGenHiggsBoson){
