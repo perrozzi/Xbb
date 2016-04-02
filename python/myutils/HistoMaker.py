@@ -44,7 +44,11 @@ class HistoMaker:
 
     def get_histos_from_tree(self,job,cutOverWrite=None,quick=True):
         start_time = time.time()
-        print "get_histos_from_tree START for ",job.name
+
+        print "=============================================================\n"
+        print "THE SAMPLE IS ",job.name
+        print "=============================================================\n"
+
         '''Function that produce the trees from a HistoMaker'''
          
         print "Begin to extract the histos from trees (get_histos_from_tree)"
@@ -216,6 +220,7 @@ class HistoMaker:
                 gDict[group] = hTree
 #            print("STOP %s"%treeVar)
             hTreeList.append(gDict)
+            First_iter = False
         if CuttedTree: CuttedTree.IsA().Destructor(CuttedTree)
         del CuttedTree
         print "Finished to extract the histos from trees (get_histos_from_tree)"
