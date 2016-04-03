@@ -887,10 +887,10 @@ for job in info:
                     Mu1pass = DR[0] < 0.5
                     Mu2pass = DR[1] < 0.5
 
-                    SF1 = tree.vLeptons_SF_HLT_RunD4p2[0]
-                    SF2 = tree.vLeptons_SF_HLT_RunD4p2[1]
-                    eff1 = tree.vLeptons_Eff_HLT_RunD4p2[0]
-                    eff2 = tree.vLeptons_Eff_HLT_RunD4p2[1]
+                    SF1 = tree.vLeptons_SF_HLT_RunD4p2[0]*0.1801911165 + tree.vLeptons_SF_HLT_RunD4p3[0]*0.8198088835
+                    SF2 = tree.vLeptons_SF_HLT_RunD4p2[1]*0.1801911165 + tree.vLeptons_SF_HLT_RunD4p3[1]*0.8198088835
+                    eff1 = tree.vLeptons_Eff_HLT_RunD4p2[0]*0.1801911165 + tree.vLeptons_Eff_HLT_RunD4p3[0]*0.8198088835
+                    eff2 = tree.vLeptons_Eff_HLT_RunD4p2[1]*0.1801911165 + tree.vLeptons_Eff_HLT_RunD4p3[1]*0.8198088835
 
                     if not Mu1pass and not Mu2pass:
                         vLeptons_SFweight_HLT[0] = 0
