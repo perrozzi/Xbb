@@ -1,116 +1,92 @@
+import hashlib
 import logging
 import multiprocessing as mp
 import os
 import Queue
-import re
-import subprocess as sp
 
 import ROOT
 
-from context_managers import open_root, gfalFS_mount
+from context_managers import open_root
 
 
 ROOT.gROOT.SetBatch(True)
 
 class TreeCopier(object):
     """
-    Copy all files of a sample and merge them into a single file.
+    Skim and copy the files of a sample according to a list of LFNs.
 
     Parameters
     ----------
-    prep_in  : str
-               The GRID storage location of the samples.
-    prep_out : str
-               The local output directory storing the copied .root files.
-    sample   : str
-               The sample subdirectory within the GRID storage location.
-               e.g. V14/ZH_HToBB_ZToNuNu_M125_13TeV_amcatnloFXFX_madspin_pythia8
-    prefix   : str
-               A prefix for the merged sample file name.
-    cut      : str
-               The sample selection cut.
-    temp     : bool
-               Flag whether the copies are temporary and should be removed
-               after merging. The default is True.
+    primary_dataset : str
+                      The primary dataset name of the sample.
+    LFN_path        : str
+                      The path to the directory storing the LFN files.
+    xrd_redirector  : str
+                      The XRootD redirector prepended to the LFNs.
+                      Global  : cms-xrd-global.cern.ch
+                      EU/Asia : xrootd-cms.infn.it
+                      US      : cmsxrootd.fnal.gov
+                      The default is the global redirector.
+    cut             : str
+                      The selection cut used to skim the sample.
+    prep_out        : str
+                      The local output directory storing the prepared samples.
+    prefix          : str
+                      The prefix for the sample subdirectory and merged file names.
+    merge           : bool
+                      Flag whether the files should be merged. The default is True.
     """
-    def __init__(self, prep_in, prep_out, sample, prefix, cut, temp=True):
-
-        logging.basicConfig(
-            format = '%(asctime)s - %(name)s - %(levelname)s\n%(message)s\n',
-            datefmt = '%d-%b-%Y %H:%M:%S',
-            level = logging.DEBUG
-        )
+    def __init__(self, primary_dataset='', LFN_path='', xrd_redirector='cms-xrd-global.cern.ch', cut='', prep_out='', prefix='', merge=True):
 
         self.logger = logging.getLogger('TreeCopier')
 
-        source = os.path.join(prep_in, sample)
-        file_paths = self._check_files(prep_out, source)
+        # Parse the file for the list of LFNs.
+        LFN_file = os.path.join(LFN_path, primary_dataset + '.txt')
+        with open(LFN_file, 'r') as infile:
+            self.LFNs = [line.strip() for line in infile.readlines() if not line.isspace()]
+        self.logger.debug('The LFN list is %s', self.LFNs)
 
-        outdir = os.path.join(prep_out, sample)
-        copy_paths = self._copy_files(file_paths, outdir, cut)
-
-        merge_path = os.path.join(prep_out, prefix + sample + '.root')
-        self._merge_files(copy_paths, merge_path)
-
-        if temp:
-            for copy_path in copy_paths:
-                os.remove(copy_path)
-            os.rmdir(outdir)
-
-    def _check_files(self, mount_path, remote_url):
-
-        self.logger.debug('Checking for .root files in "%s".', remote_url)
-
-        # Substitute the protocol in front of the LFN's base path with
-        # an xrootd redirector recognized by ROOT for remote file access.
-        # Investigate TGFALFile syntax for use in ROOT 6.
-        xrd_prefix = 'root://cms-xrd-global.cern.ch//'
-        basepath = re.sub('.*(?=/store/)', xrd_prefix, remote_url)
-
-        # Search the directory tree for .root files.
-        file_paths = []
-
-        with gfalFS_mount(mount_path, remote_url) as mount:
-            for dirpath, dirnames, filenames in os.walk(mount):
-                if filenames:
-                    relpath = os.path.relpath(dirpath, mount)
-                    file_paths.extend([
-                        os.path.join(basepath, relpath, filename)
-                        for filename in filenames if filename.endswith('.root')
-                    ])
-
-        if file_paths:
-            self.logger.debug('Located %s .root files.', len(file_paths))
-            return file_paths
-        else:
-            raise IOError('Unable to locate any .root files.')
-
-    def _copy_files(self, file_paths, copy_dir, cut):
-        """
-        Copy files in parallel and return a list of successfully copied files.
-        """
-        self.logger.debug('Copying files to "%s".', copy_dir)
-        self.logger.debug('The selection cut is "%s".', cut)
-
-        # Safely create the output directory of the copied files.
+        # Create the output directory for the copied files.
+        self.copy_dir = os.path.join(prep_out, prefix + primary_dataset)
         try:
-            os.makedirs(copy_dir)
+            os.makedirs(self.copy_dir)
+            self.logger.info('The copy destination is %s', self.copy_dir)
         except OSError:
-            if not os.path.isdir(copy_dir):
+            if not os.path.isdir(self.copy_dir):
                 raise
 
-        # Fill the task queue with tuples of paths to the file and copy, respectively.
-        task_queue = mp.Queue()
-        for file_path in file_paths:
-            copy_path = os.path.join(copy_dir, os.path.basename(file_path))
-            task_queue.put((file_path, copy_path))
+        # Set the remaining attributes.
+        self.xrd_redirector = xrd_redirector
+        self.logger.info('Using XRootD redirector %s', self.xrd_redirector)
 
-        # Prepare a message queue to receive log messages.
+        self.cut = cut
+        self.logger.info('The skimming cut is %s', self.cut)
+
+        # Copy the files, merging the if requested.
+        while self.LFNs:
+            self._copy_files()
+        if merge:
+            self._merge_files()
+
+    def _copy_files(self):
+        """
+        Copy the files in parallel, managing the processes and queues.
+        """
+        # Fill a task queue with the LFNs.
+        task_queue = mp.Queue()
+        for LFN in self.LFNs:
+            task_queue.put(LFN)
+
+        # Prepare a result queue to receive the LFNs of successful copies.
+        result_queue = mp.Queue()
+
+        # Prepare a message queue to receive asynchronous log messages.
         message_queue = mp.Queue()
 
-        # Instantiate the file copy worker processes.
+        # Instantiate the file copy worker processes. There are two less than the maximum number of
+        # detected CPUs to account for the main calling process and the message listener process.
         workers = [
-            mp.Process(target = self._copy_file_worker, args = (task_queue, message_queue, cut))
+            mp.Process(target = self._copy_file_worker, args = (task_queue, result_queue, message_queue))
             for cpu in xrange(mp.cpu_count() - 2)
         ]
 
@@ -131,28 +107,51 @@ class TreeCopier(object):
         message_queue.put(None)
         listener.join()
 
-        return [os.path.join(copy_dir, filename) for filename in os.listdir(copy_dir)]
+        # Remove the LFNs returned through the result queue.
+        result_queue.put(None)
+        for result in iter(result_queue.get, None):
+            self.LFNs.remove(result)
 
-    def _copy_file_worker(self, task_queue, message_queue, cut):
+    def _copy_file_worker(self, task_queue, result_queue, message_queue):
 
-        # Consume tasks from the queue until the sentinel value is received.
-        for file_path, copy_path in iter(task_queue.get, None):
+        # Consume LFNs from the task queue until the sentinel value is received.
+        for LFN in iter(task_queue.get, None):
 
-            with open_root(file_path, 'r') as infile, open_root(copy_path, 'w'):
+            # Form the input file url.
+            input_url = 'root://{0}//{1}'.format(self.xrd_redirector, LFN)
+            # Form the output file path. The file name is a hash digest of the bare LFN.
+            output_path = os.path.join(self.copy_dir, hashlib.sha256(LFN).hexdigest() + '.root')
+
+            with open_root(input_url, 'r') as infile, open_root(output_path, 'w'):
                 # Copy any objects present besides the tree.
                 for key in infile.GetListOfKeys():
                     if key.GetName() == 'tree':
                         continue
                     obj = key.ReadObj()
                     obj.Write()
-                # Copy the tree with the selection.
+                # Copy the tree with the skimming cut.
                 intree = infile.Get('tree')
-                outtree = intree.CopyTree(cut)
+                outtree = intree.CopyTree(self.cut)
                 n_in = intree.GetEntriesFast()
                 n_out = outtree.GetEntriesFast()
                 outtree.Write()
 
-            message_queue.put_nowait('[PID {0!s}] Selected {1!s} out of {2!s} entries from "{3}".'.format(os.getpid(), n_out, n_in, file_path))
+            # Check whether the output file is corrupted. If it passes all tests, return the LFN in the result queue.
+            try:
+                with open_root(output_path, 'r') as outfile:
+                    if not outfile.GetNkeys():
+                        msg = '[PID {0!s}] Copy Failed: No TKeys were written to the output file.\n{1}'.format(os.getpid(), LFN)
+                    elif outfile.TestBit(ROOT.TFile.kRecovered):
+                        msg = '[PID {0!s}] Copy Failed: The kRecovered bit is set for the output file.\n{1}'.format(os.getpid(), LFN)
+                    elif outfile.IsZombie():
+                        msg = '[PID {0!s}] Copy Failed: The kZombie bit is set for the output file.\n{1}'.format(os.getpid(), LFN)
+                    else:
+                        msg = '[PID {0!s}] Copy Successful: Selected {1!s} out of {2!s} entries.\n{3}'.format(os.getpid(), n_out, n_in, LFN)
+                        result_queue.put(LFN)
+            except IOError:
+                msg = '[PID {0!s}] Copy Failed: Unable to open the output file for error checking.\n{1}'.format(os.getpid(), LFN)
+
+            message_queue.put(msg)
 
     def _message_listener(self, message_queue):
         while True:
@@ -164,16 +163,19 @@ class TreeCopier(object):
             except Queue.Empty:
                 pass
 
-    def _merge_files(self, file_paths, merge_path):
+    def _merge_files(self):
 
-        self.logger.debug('Merging the files to "%s"', merge_path)
+        merge_path = self.copy_dir + '.root'
+        self.logger.debug('Merging the files to %s', merge_path)
 
         # Set the first positional argument, isLocal, to false to prevent the
         # files to merge from being copied to a temporary directory, as they
         # are already available locally. PyROOT doesn't support keyword args.
         merge_file = ROOT.TFileMerger(ROOT.kFALSE)
         merge_file.OutputFile(merge_path, 'RECREATE')
-        for file_path in file_paths:
-            merge_file.AddFile(file_path)
+
+        for file_name in os.listdir(self.copy_dir):
+            merge_file.AddFile(os.path.abspath(os.path.join(self.copy_dir, file_name)))
+
         merge_file.Merge()
 

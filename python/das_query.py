@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import os
 import re
@@ -15,24 +17,20 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        'sample_config',
-        help = 'The path to the sample configuration file, e.g. "LucaZllHbb13TeVconfig/samples_nosplit.ini".'
+        'config_dir',
+        help = 'The path to the configuration directory, e.g. "SeanZvvHbb13TeVconfig".'
     )
 
-    parser.add_argument(
-        '--outdir',
-        default = '',
-        help = 'The output directory to store the file query results. The default is the directory storing the sample configuration file.'
-    )
+    args = parser.parse_args(argv)
 
-    return parser.parse_args(argv)
+    return args.config_dir
 
-def parse_sample_config(sample_config):
+def parse_sample_config(config_dir):
     """
-    Return the query options and a list of primary dataset names.
+    Return a list of primary dataset names, the query options, and the output directory name.
     """
     parser = myutils.BetterConfigParser()
-    parser.read(sample_config)
+    parser.read(os.path.join(config_dir, 'samples_nosplit.ini'))
 
     # The first two section headers, "General" and "Samples_running", are skipped.
     sections = parser.sections()
@@ -48,14 +46,15 @@ def parse_sample_config(sample_config):
 
     dbs_instance = parser.get('General', 'dbs_instance')
     query_filter = parser.get('General', 'query_filter')
+    LFN_dir = parser.get('General', 'LFN_dir')
 
-    return primary_datasets, processed_dataset, data_tier, dbs_instance, query_filter
+    return primary_datasets, processed_dataset, data_tier, dbs_instance, query_filter, LFN_dir
 
 def main(argv=None):
 
-    args = parse_command_line(argv)
+    config_dir = parse_command_line(argv)
 
-    primary_datasets, processed_dataset, data_tier, dbs_instance, query_filter = parse_sample_config(args.sample_config)
+    primary_datasets, processed_dataset, data_tier, dbs_instance, query_filter, LFN_dir = parse_sample_config(config_dir)
 
     for primary_dataset in primary_datasets:
 
@@ -102,7 +101,7 @@ def main(argv=None):
             continue
 
         # Create the output directory.
-        outdir = os.path.join(os.path.dirname(args.sample_config), args.outdir)
+        outdir = os.path.join(config_dir, LFN_dir)
 
         try:
             os.makedirs(outdir)
