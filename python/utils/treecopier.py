@@ -1,8 +1,6 @@
 import hashlib
-import logging
-import multiprocessing as mp
+import multiprocessing
 import os
-import Queue
 
 import ROOT
 
@@ -38,144 +36,136 @@ class TreeCopier(object):
     """
     def __init__(self, primary_dataset='', LFN_path='', xrd_redirector='cms-xrd-global.cern.ch', cut='', prep_out='', prefix='', merge=True):
 
-        self.logger = logging.getLogger('TreeCopier')
-
         # Parse the file for the list of LFNs.
         LFN_file = os.path.join(LFN_path, primary_dataset + '.txt')
         with open(LFN_file, 'r') as infile:
             self.LFNs = [line.strip() for line in infile.readlines() if not line.isspace()]
-        self.logger.debug('The LFN list is %s', self.LFNs)
+        print 'LFN List: {!s}\n'.format(self.LFNs)
 
         # Create the output directory for the copied files.
         self.copy_dir = os.path.join(prep_out, prefix + primary_dataset)
         try:
             os.makedirs(self.copy_dir)
-            self.logger.info('The copy destination is %s', self.copy_dir)
+            print 'Copy Destination: {}\n'.format(self.copy_dir)
         except OSError:
             if not os.path.isdir(self.copy_dir):
                 raise
 
         # Set the remaining attributes.
         self.xrd_redirector = xrd_redirector
-        self.logger.info('Using XRootD redirector %s', self.xrd_redirector)
+        print 'XRootD Redirector: {}\n'.format(self.xrd_redirector)
 
         self.cut = cut
-        self.logger.info('The skimming cut is %s', self.cut)
+        print 'Skimming Cut: {}\n'.format(self.cut)
 
-        # Copy the files, merging the if requested.
         while self.LFNs:
             self._copy_files()
+
         if merge:
+            self.merge_path = self.copy_dir + '.root'
+            print 'Merged File: {}\n'.format(self.merge_path)
             self._merge_files()
 
     def _copy_files(self):
         """
-        Copy the files in parallel, managing the processes and queues.
+        Copy the files in parallel, then remove all the
+        successfully copied LFNs from the LFN list.
         """
-        # Fill a task queue with the LFNs.
-        task_queue = mp.Queue()
+        task_queue = multiprocessing.Queue()
+        result_queue = multiprocessing.Queue()
+
+        workers = [
+            TreeCopyWorker(task_queue, result_queue, self.xrd_redirector, self.copy_dir, self.cut)
+            for cpu in xrange(multiprocessing.cpu_count())
+        ]
+
+        for worker in workers:
+            worker.start()
+
         for LFN in self.LFNs:
             task_queue.put(LFN)
 
-        # Prepare a result queue to receive the LFNs of successful copies.
-        result_queue = mp.Queue()
-
-        # Prepare a message queue to receive asynchronous log messages.
-        message_queue = mp.Queue()
-
-        # Instantiate the file copy worker processes. There are two less than the maximum number of
-        # detected CPUs to account for the main calling process and the message listener process.
-        workers = [
-            mp.Process(target = self._copy_file_worker, args = (task_queue, result_queue, message_queue))
-            for cpu in xrange(mp.cpu_count() - 2)
-        ]
-
-        # Instantiate and start the message listener process.
-        listener = mp.Process(target = self._message_listener, args = (message_queue,))
-        listener.start()
-
-        # For each worker process, queue a sentinel value and start running.
         for worker in workers:
             task_queue.put(None)
-            worker.start()
 
-        # Ensure the calling process waits for the workers to terminate.
         for worker in workers:
             worker.join()
 
-        # Ensure the calling process waits for the listener to terminate.
-        message_queue.put(None)
-        listener.join()
-
-        # Remove the LFNs returned through the result queue.
         result_queue.put(None)
         for result in iter(result_queue.get, None):
             self.LFNs.remove(result)
 
-    def _copy_file_worker(self, task_queue, result_queue, message_queue):
-
-        # Consume LFNs from the task queue until the sentinel value is received.
-        for LFN in iter(task_queue.get, None):
-
-            # Form the input file url.
-            input_url = 'root://{0}//{1}'.format(self.xrd_redirector, LFN)
-            # Form the output file path. The file name is a hash digest of the bare LFN.
-            output_path = os.path.join(self.copy_dir, hashlib.sha256(LFN).hexdigest() + '.root')
-
-            with open_root(input_url, 'r') as infile, open_root(output_path, 'w'):
-                # Copy any objects present besides the tree.
-                for key in infile.GetListOfKeys():
-                    if key.GetName() == 'tree':
-                        continue
-                    obj = key.ReadObj()
-                    obj.Write()
-                # Copy the tree with the skimming cut.
-                intree = infile.Get('tree')
-                outtree = intree.CopyTree(self.cut)
-                n_in = intree.GetEntriesFast()
-                n_out = outtree.GetEntriesFast()
-                outtree.Write()
-
-            # Check whether the output file is corrupted. If it passes all tests, return the LFN in the result queue.
-            try:
-                with open_root(output_path, 'r') as outfile:
-                    if not outfile.GetNkeys():
-                        msg = '[PID {0!s}] Copy Failed: No TKeys were written to the output file.\n{1}'.format(os.getpid(), LFN)
-                    elif outfile.TestBit(ROOT.TFile.kRecovered):
-                        msg = '[PID {0!s}] Copy Failed: The kRecovered bit is set for the output file.\n{1}'.format(os.getpid(), LFN)
-                    elif outfile.IsZombie():
-                        msg = '[PID {0!s}] Copy Failed: The kZombie bit is set for the output file.\n{1}'.format(os.getpid(), LFN)
-                    else:
-                        msg = '[PID {0!s}] Copy Successful: Selected {1!s} out of {2!s} entries.\n{3}'.format(os.getpid(), n_out, n_in, LFN)
-                        result_queue.put(LFN)
-            except IOError:
-                msg = '[PID {0!s}] Copy Failed: Unable to open the output file for error checking.\n{1}'.format(os.getpid(), LFN)
-
-            message_queue.put(msg)
-
-    def _message_listener(self, message_queue):
-        while True:
-            try:
-                message = message_queue.get_nowait()
-                if message is None:
-                    break
-                self.logger.info(message)
-            except Queue.Empty:
-                pass
-
     def _merge_files(self):
-
-        merge_path = self.copy_dir + '.root'
-        self.logger.debug('Merging the files to %s', merge_path)
-
-        # Set the first positional argument, isLocal, to false to prevent the
-        # files to merge from being copied to a temporary directory, as they
-        # are already available locally. PyROOT doesn't support keyword args.
-        merge_file = ROOT.TFileMerger(ROOT.kFALSE)
-        merge_file.OutputFile(merge_path, 'RECREATE')
+        """
+        The first positional argument, isLocal, is set to false to prevent the
+        files to merge from being copied to a temporary directory, as they are
+        already available locally. PyROOT doesn't support keyword args.
+        """
+        merger = ROOT.TFileMerger(ROOT.kFALSE)
+        merger.OutputFile(self.merge_path, 'RECREATE')
 
         for file_name in os.listdir(self.copy_dir):
-            merge_file.AddFile(os.path.abspath(os.path.join(self.copy_dir, file_name)))
+            merger.AddFile(os.path.abspath(os.path.join(self.copy_dir, file_name)))
 
-        merge_file.Merge()
+        merger.Merge()
+
+class TreeCopyWorker(multiprocessing.Process):
+    """
+    A worker process which consumes LFNs from the task queue, returning
+    them through the result queue if they were successfully copied.
+    """
+    def __init__(self, task_queue, result_queue, xrd_redirector, copy_dir, cut):
+        super(TreeCopyWorker, self).__init__()
+        self.task_queue = task_queue
+        self.result_queue = result_queue
+        self.xrd_redirector = xrd_redirector
+        self.copy_dir = copy_dir
+        self.cut = cut
+
+    def run(self):
+        for LFN in iter(self.task_queue.get, None):
+            input_url = 'root://{0}//{1}'.format(self.xrd_redirector, LFN)
+            output_path = os.path.join(self.copy_dir, hashlib.sha256(LFN).hexdigest() + '.root')
+            n_selected, n_total = self._copy_file(input_url, output_path)
+            status = self._check_file(output_path)
+            if status is not None:
+                print '[PID {0!s}] Failure: {1}\n{2}\n'.format(os.getpid(), status, LFN)
+            else:
+                print '[PID {0!s}] Success: Selected {1!s} out of {2!s} entries.\n{3}\n'.format(os.getpid(), n_selected, n_total, LFN)
+                self.result_queue.put(LFN)
+
+    def _copy_file(self, input_url, output_path):
+        """
+        Copy the file at the remote url, saving a skimmed copy locally.
+        Objects other than the TTree 'tree' are copied directly.
+        """
+        with open_root(input_url, 'r') as infile, open_root(output_path, 'w'):
+            for key in infile.GetListOfKeys():
+                if key.GetName() == 'tree':
+                    continue
+                obj = key.ReadObj()
+                obj.Write()
+            intree = infile.Get('tree')
+            n_total = intree.GetEntriesFast()
+            outtree = intree.CopyTree(self.cut)
+            n_selected = outtree.GetEntriesFast()
+            outtree.Write()
+        return n_selected, n_total
+
+    def _check_file(self, output_path):
+        """
+        Check that the file is not corrupted.
+        """
+        try:
+            with open_root(output_path, 'r') as outfile:
+                if not outfile.GetNkeys():
+                    return 'Missing TKeys'
+                elif outfile.TestBit(ROOT.TFile.kRecovered):
+                    return 'kRecovered'
+                elif outfile.IsZombie():
+                    return 'kZombie'
+                else:
+                    return None
+        except IOError:
+            return 'Unable to open for error checking.'
 

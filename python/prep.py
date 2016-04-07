@@ -1,22 +1,12 @@
 #!/usr/bin/env python
 
 import argparse
-import logging
 import os
 import sys
 
 import myutils
 import utils
 
-
-# Configure logging.
-logging.basicConfig(
-    format = '%(asctime)s - %(name)s - %(levelname)s\n%(message)s\n',
-    datefmt = '%d-%b-%Y %H:%M:%S',
-    level = logging.DEBUG,
-)
-
-logger = logging.getLogger('prep')
 
 def parse_command_line(argv):
 
@@ -62,24 +52,24 @@ def parse_sample_config(samples_info):
 def main(argv=None):
 
     config_dir, sample_name = parse_command_line(argv)
-    logger.debug('Configuration Directory: %s', config_dir)
-    logger.debug('Sample Name: %s', sample_name)
+    print 'Configuration Directory: {}\n'.format(config_dir)
+    print 'Sample Name: {}\n'.format(sample_name)
 
     prep_out, samples_info = parse_path_config(config_dir)
-    logger.debug('Preparation Directory: %s', prep_out)
-    logger.debug('Sample Configuration File: %s', samples_info)
+    print 'Preparation Directory: {}\n'.format(prep_out)
+    print 'Sample Configuration File: {}\n'.format(samples_info)
 
     LFN_dir, samples = parse_sample_config(samples_info)
-    logger.debug('LFN Directory: %s', LFN_dir)
+    print 'LFN Directory: {}\n'.format(LFN_dir)
 
     for sample in samples:
         if (sample.name != sample_name) or sample.subsample:
             continue
 
-        logger.info('Sample to Prepare: %s', sample.name)
+        print 'Sample to Prepare: {}\n'.format(sample.name)
 
         LFN_path = os.path.join(config_dir, LFN_dir)
-        logger.debug('LFN File Path: %s', LFN_path)
+        print 'LFN File Path: {}\n'.format(LFN_path)
 
         utils.TreeCopier(sample.identifier, LFN_path, 'xrootd-cms.infn.it', sample.addtreecut, prep_out, sample.prefix)
 
