@@ -102,6 +102,15 @@ Datacardbin=config.get('dc:%s'%var,'dcBin')
 anType = config.get('dc:%s'%var,'type')
 setup=eval(config.get('LimitGeneral','setup'))
 
+import os
+if os.path.exists("../interface/DrawFunctions_C.so"):
+    print 'ROOT.gROOT.LoadMacro("../interface/DrawFunctions_C.so")'
+    ROOT.gROOT.LoadMacro("../interface/DrawFunctions_C.so")
+
+if os.path.exists("../interface/VHbbNameSpace_h.so"):
+    print 'ROOT.gROOT.LoadMacro("../interface/VHbbNameSpace_h.so")'
+    ROOT.gROOT.LoadMacro("../interface/VHbbNameSpace_h.so")
+
 print "Using",('dc:%s'%var,'var')
 print name
 print title
