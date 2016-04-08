@@ -1,7 +1,4 @@
 from contextlib import contextmanager
-import tempfile as tf
-import subprocess as sp
-import os
 
 import ROOT
 
@@ -36,20 +33,4 @@ def open_root(filename='', mode=''):
         yield root_file
     finally:
         root_file.Close()
-
-@contextmanager
-def gfalFS_mount(mount_path='', remote_url=''):
-    """
-    A context manager for temporary gfalFS mounts.
-    """
-    tmpdir = tf.mkdtemp(dir = mount_path)
-    sp.check_call(['gfalFS', tmpdir, remote_url])
-
-    try:
-        if not os.path.ismount(tmpdir):
-            raise RuntimeError('Failed to mount "{}". Please check your GRID proxy and the status of the remote file system.'.format(remote_url))
-        yield tmpdir
-    finally:
-        sp.check_call(['gfalFS_umount', tmpdir])
-        os.rmdir(tmpdir)
 
