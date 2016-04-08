@@ -45,9 +45,11 @@ def parse_sample_config(samples_info):
     parser.read(samples_info)
 
     LFN_dir = parser.get('General', 'LFN_dir')
+    xrd_redirector = parser.get('General', 'xrd_redirector')
+    merge = parser.getboolean('General', 'merge')
     samples = myutils.ParseInfo(samples_info, '')
 
-    return LFN_dir, samples
+    return LFN_dir, xrd_redirector, merge, samples
 
 def main(argv=None):
 
@@ -59,8 +61,9 @@ def main(argv=None):
     print 'Preparation Directory: {}\n'.format(prep_out)
     print 'Sample Configuration File: {}\n'.format(samples_info)
 
-    LFN_dir, samples = parse_sample_config(samples_info)
+    LFN_dir, xrd_redirector, merge, samples = parse_sample_config(samples_info)
     print 'LFN Directory: {}\n'.format(LFN_dir)
+    print 'XRootD Redirector: {}\n'.format(xrd_redirector)
 
     for sample in samples:
         if (sample.name != sample_name) or sample.subsample:
@@ -71,7 +74,9 @@ def main(argv=None):
         LFN_path = os.path.join(config_dir, LFN_dir)
         print 'LFN File Path: {}\n'.format(LFN_path)
 
-        utils.TreeCopier(sample.identifier, LFN_path, 'xrootd-cms.infn.it', sample.addtreecut, prep_out, sample.prefix)
+        print 'Skimming Cut: {}\n'.format(sample.addtreecut)
+
+        utils.TreeCopier(sample.identifier, LFN_path, xrd_redirector, sample.addtreecut, prep_out, sample.prefix)
 
 if __name__ == '__main__':
 

@@ -21,9 +21,6 @@ class TreeCopier(object):
                       The path to the directory storing the LFN files.
     xrd_redirector  : str
                       The XRootD redirector prepended to the LFNs.
-                      Global  : cms-xrd-global.cern.ch
-                      EU/Asia : xrootd-cms.infn.it
-                      US      : cmsxrootd.fnal.gov
                       The default is the global redirector.
     cut             : str
                       The selection cut used to skim the sample.
@@ -40,7 +37,7 @@ class TreeCopier(object):
         LFN_file = os.path.join(LFN_path, primary_dataset + '.txt')
         with open(LFN_file, 'r') as infile:
             self.LFNs = [line.strip() for line in infile.readlines() if not line.isspace()]
-        print 'LFN List: {!s}\n'.format(self.LFNs)
+        print 'Number of LFNs: {!s}\n'.format(len(self.LFNs))
 
         # Create the output directory for the copied files.
         self.copy_dir = os.path.join(prep_out, prefix + primary_dataset)
@@ -53,10 +50,7 @@ class TreeCopier(object):
 
         # Set the remaining attributes.
         self.xrd_redirector = xrd_redirector
-        print 'XRootD Redirector: {}\n'.format(self.xrd_redirector)
-
         self.cut = cut
-        print 'Skimming Cut: {}\n'.format(self.cut)
 
         while self.LFNs:
             self._copy_files()

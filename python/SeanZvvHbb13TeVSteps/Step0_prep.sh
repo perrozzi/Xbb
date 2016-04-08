@@ -1,47 +1,47 @@
 # Signal Samples
-bash runAll.sh ZH   ZvvHbb13TeV prep >& log/logPrepZH;
-bash runAll.sh ggZH ZvvHbb13TeV prep >& log/logPrepggZH;
-bash runAll.sh WH   ZvvHbb13TeV prep >& log/logPrepWH;
+python prep.py SeanZvvHbb13TeVconfig ZH   >& ../LOG/prep_ZH.log;
+python prep.py SeanZvvHbb13TeVconfig ggZH >& ../LOG/prep_ggZH.log;
+python prep.py SeanZvvHbb13TeVconfig WH   >& ../LOG/prep_WH.log;
 
 # W+Jets Samples
-bash runAll.sh WJetsHT0      ZvvHbb13TeV prep >& log/logPrepWJetsHT0;
-bash runAll.sh WJetsMadHT100 ZvvHbb13TeV prep >& log/logPrepWJetsMadHT100;
-bash runAll.sh WJetsMadHT200 ZvvHbb13TeV prep >& log/logPrepWJetsMadHT200;
-bash runAll.sh WJetsMadHT400 ZvvHbb13TeV prep >& log/logPrepWJetsMadHT400;
-bash runAll.sh WJetsMadHT600 ZvvHbb13TeV prep >& log/logPrepWJetsMadHT600;
+python prep.py SeanZvvHbb13TeVconfig WJetsHT0      >& ../LOG/prep_WJetsHT0.log;
+python prep.py SeanZvvHbb13TeVconfig WJetsMadHT100 >& ../LOG/prep_WJetsMadHT100.log;
+python prep.py SeanZvvHbb13TeVconfig WJetsMadHT200 >& ../LOG/prep_WJetsMadHT200.log;
+python prep.py SeanZvvHbb13TeVconfig WJetsMadHT400 >& ../LOG/prep_WJetsMadHT400.log;
+python prep.py SeanZvvHbb13TeVconfig WJetsMadHT600 >& ../LOG/prep_WJetsMadHT600.log;
 
 # Z+Jets Samples
-bash runAll.sh ZJetsHT0      ZvvHbb13TeV prep >& log/logPrepZJetsHT0;
-bash runAll.sh ZJetsMadHT100 ZvvHbb13TeV prep >& log/logPrepZJetsMadHT100;
-bash runAll.sh ZJetsMadHT200 ZvvHbb13TeV prep >& log/logPrepZJetsMadHT200;
-bash runAll.sh ZJetsMadHT400 ZvvHbb13TeV prep >& log/logPrepZJetsMadHT400;
-bash runAll.sh ZJetsMadHT600 ZvvHbb13TeV prep >& log/logPrepZJetsMadHT600;
+python prep.py SeanZvvHbb13TeVconfig ZJetsHT0      >& ../LOG/prep_ZJetsHT0.log;
+python prep.py SeanZvvHbb13TeVconfig ZJetsMadHT100 >& ../LOG/prep_ZJetsMadHT100.log;
+python prep.py SeanZvvHbb13TeVconfig ZJetsMadHT200 >& ../LOG/prep_ZJetsMadHT200.log;
+python prep.py SeanZvvHbb13TeVconfig ZJetsMadHT400 >& ../LOG/prep_ZJetsMadHT400.log;
+python prep.py SeanZvvHbb13TeVconfig ZJetsMadHT600 >& ../LOG/prep_ZJetsMadHT600.log;
 
 # TTbar Samples
-bash runAll.sh TT    ZvvHbb13TeV prep >& log/logPrepTT;
-bash runAll.sh TTPow ZvvHbb13TeV prep >& log/logPrepTTPow;
+python prep.py SeanZvvHbb13TeVconfig TT    >& ../LOG/prep_TT.log;
+python prep.py SeanZvvHbb13TeVconfig TTPow >& ../LOG/prep_TTPow.log;
 
 # Single Top Samples
-bash runAll.sh ST_s          ZvvHbb13TeV prep >& log/logPrepST_s;
-bash runAll.sh ST_t          ZvvHbb13TeV prep >& log/logPrepST_t;
-bash runAll.sh ST_tW_antitop ZvvHbb13TeV prep >& log/logPrepST_tW_antitop;
-bash runAll.sh ST_tW_top     ZvvHbb13TeV prep >& log/logPrepST_tW_top;
+python prep.py SeanZvvHbb13TeVconfig ST_s          >& ../LOG/prep_ST_s.log;
+python prep.py SeanZvvHbb13TeVconfig ST_t          >& ../LOG/prep_ST_t.log;
+python prep.py SeanZvvHbb13TeVconfig ST_tW_antitop >& ../LOG/prep_ST_tW_antitop.log;
+python prep.py SeanZvvHbb13TeVconfig ST_tW_top     >& ../LOG/prep_ST_tW_top.log;
 
 # QCD Samples
-bash runAll.sh QCDHT100  ZvvHbb13TeV prep >& log/logPrepQCDHT100;
-bash runAll.sh QCDHT200  ZvvHbb13TeV prep >& log/logPrepQCDHT200;
-bash runAll.sh QCDHT300  ZvvHbb13TeV prep >& log/logPrepQCDHT300;
-bash runAll.sh QCDHT500  ZvvHbb13TeV prep >& log/logPrepQCDHT500;
-bash runAll.sh QCDHT700  ZvvHbb13TeV prep >& log/logPrepQCDHT700;
-bash runAll.sh QCDHT1000 ZvvHbb13TeV prep >& log/logPrepQCDHT1000;
-bash runAll.sh QCDHT1500 ZvvHbb13TeV prep >& log/logPrepQCDHT1500;
-bash runAll.sh QCDHT2000 ZvvHbb13TeV prep >& log/logPrepQCDHT2000;
+python prep.py SeanZvvHbb13TeVconfig QCDHT100  >& ../LOG/prep_QCDHT100.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT200  >& ../LOG/prep_QCDHT200.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT300  >& ../LOG/prep_QCDHT300.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT500  >& ../LOG/prep_QCDHT500.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT700  >& ../LOG/prep_QCDHT700.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT1000 >& ../LOG/prep_QCDHT1000.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT1500 >& ../LOG/prep_QCDHT1500.log;
+python prep.py SeanZvvHbb13TeVconfig QCDHT2000 >& ../LOG/prep_QCDHT2000.log;
 
 # Diboson Samples
-bash runAll.sh WWpythia  ZvvHbb13TeV prep >& log/logPrepWWpythia;
-bash runAll.sh WZpythia  ZvvHbb13TeV prep >& log/logPrepWZpythia;
-bash runAll.sh ZZpythia  ZvvHbb13TeV prep >& log/logPrepZZpythia;
-bash runAll.sh ZZTo2Q2Nu ZvvHbb13TeV prep >& log/logPrepZZTo2Q2Nu;
+python prep.py SeanZvvHbb13TeVconfig WWpythia  >& ../LOG/prep_WWpythia.log;
+python prep.py SeanZvvHbb13TeVconfig WZpythia  >& ../LOG/prep_WZpythia.log;
+python prep.py SeanZvvHbb13TeVconfig ZZpythia  >& ../LOG/prep_ZZpythia.log;
+python prep.py SeanZvvHbb13TeVconfig ZZTo2Q2Nu >& ../LOG/prep_ZZTo2Q2Nu.log;
 
-bash runAll.sh MET ZvvHbb13TeV prep >& log/logPrepMET;
+python prep.py SeanZvvHbb13TeVconfig MET >& ../LOG/prep_MET.log;
 
