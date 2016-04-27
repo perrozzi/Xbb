@@ -23,6 +23,8 @@ class TreeCache:
             print("\x1b[31;5;1m\n\t>>> %s: Please set your TMPDIR and try again... <<<\n\x1b[0m" %os.getlogin())
             sys.exit(-1)
 
+        self.whereToLaunch = config.get('Configuration','whereToLaunch')):
+
         self.__doCache = True
         if config.has_option('Directories','tmpSamples'):
             self.__tmpPath = config.get('Directories','tmpSamples')
@@ -64,7 +66,10 @@ class TreeCache:
         checksum = self.get_checksum(source)
         theHash = hashlib.sha224('%s_s%s_%s' %(sample,checksum,self.minCut)).hexdigest()
         self.__hashDict[theName] = theHash
-        tmpSource = '%s/tmp_%s.root'%(self.__tmpPath,theHash)
+        if not self.whereToLaunch == 'PSI':
+            tmpSource = '%s/tmp_%s.root'%(self.__tmpPath,theHash)
+        else:
+            tmpSource = os.environ["TMPDIR"]+'/'+'tmp_'+theHash+'.root'
 
         print('the tmp source is ', tmpSource)
         #print ('self.__doCache',self.__doCache,'self.file_exists(tmpSource)',self.file_exists(tmpSource))
@@ -124,7 +129,6 @@ class TreeCache:
         print ("I read")
         tree = input.Get(sample.tree)
         assert type(tree) is ROOT.TTree
-
         print ("debug1")
         input.cd()
         obj = ROOT.TObject
@@ -150,6 +154,13 @@ class TreeCache:
 #        tmpSourceFile = ROOT.TFile.Open(tmpSource,'read')
 #        if tmpSourceFile.IsZombie():
 #            print("@ERROR: Zombie file")
+
+        if self.whereToLaunch == 'PSI':
+            srmpathOUT = tmpSource.replace('gsidcap://t3se01.psi.ch:22128/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=').replace('dcap://t3se01.psi.ch:22125/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=').replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=')
+            command = 'srmcp -2 -globus_tcp_port_range 20000,25000 file:///'+tmpSource+' '+srmpathOUT.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=')
+            print(command)
+            subprocess.call([command], shell=True)
+
         del output
         print ("debug4")
         print ("I've done " + theName + " in " + str(time.time() - start_time) + " s.")
@@ -161,7 +172,6 @@ class TreeCache:
         for job in self.__sampleList:
             inputs.append((self,"_trim_tree",(job)))
         multiprocess=0
-        # if('pisa' in self.config.get('Configuration','whereToLaunch')):
         multiprocess=int(self.config.get('Configuration','nprocesses'))
         outputs = []
         print('launching __cache_samples with ',multiprocess,' processes')
