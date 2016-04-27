@@ -328,12 +328,14 @@ elif opts.task == 'prep':
             submit(sample,repDict)
 
 
-elif opts.task == 'singleprep' or opts.task == 'singlesys' or opts.task == 'mergesingleprep' or opts.task == 'mergesinglesys':
+elif opts.task == 'singleprep' or opts.task == 'singlesys' or opts.task == 'singleplot' or opts.task == 'mergesingleprep' or opts.task == 'mergesinglesys':
     if ( opts.samples == ""):
         if opts.task == 'singleprep' or opts.task == 'mergesingleprep':
             path = config.get("Directories","PREPin")
         elif opts.task == 'singlesys' or opts.task == 'mergesinglesys':
             path = config.get("Directories","SYSin")
+        elif opts.task == 'singleplot':
+            path = config.get("Directories","plottingSamples")
         info = ParseInfo(samplesinfo,path)
         sample_list = []
         for job in info:
@@ -344,7 +346,7 @@ elif opts.task == 'singleprep' or opts.task == 'singlesys' or opts.task == 'merg
 
     for sample in sample_list:
         if sample == '': continue
-        if opts.task == 'singleprep' or opts.task == 'singlesys':
+        if opts.task == 'singleprep' or opts.task == 'singlesys' or opts.task == 'singleplot':
             files = getfilelist(sample)
             files_per_job = int(opts.nevents_split_nfiles_single) if int(opts.nevents_split_nfiles_single) > 0 else int(config.get("Configuration","files_per_job"))
             files_split=[files[x:x+files_per_job] for x in xrange(0, len(files), files_per_job)]

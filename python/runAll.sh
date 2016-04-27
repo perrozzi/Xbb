@@ -201,6 +201,11 @@ if [ $task = "plot" ]; then
     ./tree_stack.py --region $sample --config ${energy}config/${configList}
 fi
 
+if [ $task = "singleplot" ]; then
+    echo "./prepare_plot_trees.py --samples $sample --config ${energy}config/${configList} --filelist ${optional_filelist}"
+    ./prepare_plot_trees.py --samples $sample --config ${energy}config/${configList} --filelist "${optional_filelist}"
+fi
+
 if [ $task = "dc" ]; then
     echo "./workspace_datacard.py --variable $sample --config ${energy}config/${configList}  --config ${energy}config/datacards.ini"
     ./workspace_datacard.py --variable $sample --config ${energy}config/${configList}  --config ${energy}config/datacards.ini
