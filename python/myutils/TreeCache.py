@@ -23,7 +23,7 @@ class TreeCache:
             print("\x1b[31;5;1m\n\t>>> %s: Please set your TMPDIR and try again... <<<\n\x1b[0m" %os.getlogin())
             sys.exit(-1)
 
-        self.whereToLaunch = config.get('Configuration','whereToLaunch')):
+        self.whereToLaunch = config.get('Configuration','whereToLaunch')
 
         self.__doCache = True
         if config.has_option('Directories','tmpSamples'):
@@ -112,6 +112,23 @@ class TreeCache:
             if my_user in mkdir_command and not os.path.exists(mkdir_command):
               print ('mkdir_command',mkdir_command)
               subprocess.call(['mkdir '+mkdir_command], shell=True)# delete the files already created ?     
+
+        if os.path.isfile(tmpSource) and not forceReDo:
+            f = ROOT.TFile.Open(tmpSource,'read')
+            if not f:
+                print ('file is null')
+                return (theName,theHash)
+            # f.Print()
+            if f.GetNkeys() == 0 or f.TestBit(ROOT.TFile.kRecovered) or f.IsZombie():
+                print ('f.GetNkeys()',f.GetNkeys(),'f.TestBit(ROOT.TFile.kRecovered)',f.TestBit(ROOT.TFile.kRecovered),'f.IsZombie()',f.IsZombie())
+                print ('File', tmpSource, 'already exists but is buggy, gonna delete and rewrite it.')
+                #command = 'rm %s' %(outputFile)
+                command = 'rm %s' %(tmpSource)
+                subprocess.call([command], shell=True)
+                print(command)
+            else:
+                print ('file existing, continue')
+                return (theName,theHash)
 
         try:
             #! read the tree from the input
