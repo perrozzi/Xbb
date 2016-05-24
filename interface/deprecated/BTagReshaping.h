@@ -250,7 +250,7 @@ class BTagShapeInterface {
 
     std::vector<EtaPtBin> binsL;
     std::vector<std::vector<std::pair<float,float>>> cutsAndSFL;
- 
+
     // 20-30 is also covered for mistag
     float ptmin[] = {20, 30, 40, 50, 60, 70, 80, 100, 120, 160, 210, 260, 320, 400, 500};
     float ptmax[] = {30, 40, 50, 60, 70, 80, 100, 120, 160, 210, 260, 320, 400, 500, 670};

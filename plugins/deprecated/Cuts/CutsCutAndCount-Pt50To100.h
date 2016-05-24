@@ -20,7 +20,7 @@ bool sCut( ntupleReader & p , Sample & sample ){
 };
 
 std::string generateName( std::string & baseName, int ch = -1, int btag = 0, int jec = 0 ) {
-  std::string channel; 
+  std::string channel;
   if(ch == -1)
     channel = "HZcomb";
   else if(ch == 0)
@@ -54,7 +54,7 @@ Bool_t channel(ntupleReader & p, int ch = -1){
   //electrons
   trigger[1] = ( ( p.triggerFlags[5] || p.triggerFlags[6] ) );
 
-  if(ch == -1) return (( p.Vtype == 0 && trigger[0] ) || ( p.Vtype == 1 && trigger[1] )); 
+  if(ch == -1) return (( p.Vtype == 0 && trigger[0] ) || ( p.Vtype == 1 && trigger[1] ));
   else return ( p.Vtype == ch && trigger[ch] );
 };
 
@@ -85,13 +85,13 @@ class CnC50To100VlightRegion: public CutSample {
 	     && p.CountAddJets() < 2
 	     //for the regression CSV must be > 0
 	     && p.hJet_CSV(0,btag) > 0.
-	     && p.hJet_CSV(1,btag) > 0. 
-	     && !(p.hJet_CSV(0,btag) > CSVT || p.hJet_CSV(1,btag) > CSVT ) 
+	     && p.hJet_CSV(1,btag) > 0.
+	     && !(p.hJet_CSV(0,btag) > CSVT || p.hJet_CSV(1,btag) > CSVT )
 	     && channel( p, ch ) );
 
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
-    return (sCut ( p, sample ) == true && pass(p) );   
+    return (sCut ( p, sample ) == true && pass(p) );
   }
   double weight(ntupleReader &p, Sample &sample) { return w( p, sample); }
 
@@ -105,7 +105,7 @@ class CnC50To100VlightRegion: public CutSample {
 
 
 class CnC50To100TTbarRegion: public CutSample {
- public: 
+ public:
  CnC50To100TTbarRegion(int ch_=-1, int jec_=0, int btag_=0 ):
   ch(ch_), jec(jec_), btag(btag_){ baseName = "CnC50To100TTbarRegion";};
   Bool_t pass(ntupleReader &p){
@@ -143,7 +143,7 @@ class CnC50To100VbbRegion: public CutSample {
   ch(ch_), jec(jec_), btag(btag_){ baseName = "CnC50To100VbbRegion";};
   Bool_t pass(ntupleReader &p){
     return( p.V_mass > 75.
-	    && p.V_mass < 105. 
+	    && p.V_mass < 105.
 /* 	    && p.V_pt > 50. */
 /*  	    && p.V_pt < 100.  */
 	    && p.Higgs(jec).Pt() > 0.

@@ -26,7 +26,7 @@ bool sCut( ntupleReader & p , Sample & sample ){
 };
 
 std::string generateName( std::string & baseName, int ch = -1, int btag = 0, int jec = 0 ) {
-  std::string channel; 
+  std::string channel;
   if(ch == -1)
     channel = "HZcomb";
   else if(ch == 0)
@@ -60,13 +60,13 @@ Bool_t channel(ntupleReader & p, int ch = -1){
   //electrons
   trigger[1] = ( ( p.triggerFlags[5] || p.triggerFlags[6] ) );
 
-  if(ch == -1) return (( p.Vtype == 0 && trigger[0] ) || ( p.Vtype == 1 && trigger[1] )); 
+  if(ch == -1) return (( p.Vtype == 0 && trigger[0] ) || ( p.Vtype == 1 && trigger[1] ));
   else return ( p.Vtype == ch && trigger[ch] );
 };
 
 double w(ntupleReader &p, Sample &sample){
   std::string DY("DY");
-  if(sample.name == DY) return (p.lheWeight); 
+  if(sample.name == DY) return (p.lheWeight);
   else return 1;
 };
 
@@ -76,11 +76,11 @@ class BasicRegion: public CutSample{
   BasicRegion(int ch_=-1, int jec_= 0 , int btag_ = 0):
     ch(ch_), jec(jec_),btag(btag_){ baseName = "BasicRegion"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.hJet_PT(0,jec) > 20.  
-	     && p.hJet_PT(1,jec) > 20. 
+    return ( p.hJet_PT(0,jec) > 20.
+	     && p.hJet_PT(1,jec) > 20.
 	     && p.V_mass > 50.
-	     && p.hJet_CSV(0,btag) > CSVL 
-	     && p.hJet_CSV(1,btag) > CSVL 
+	     && p.hJet_CSV(0,btag) > CSVL
+	     && p.hJet_CSV(1,btag) > CSVL
 	     && qualityCuts( p )
 	     && channel( p , ch) );
   }

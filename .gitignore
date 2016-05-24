@@ -1,2 +1,8 @@
-# Ignore Python bytecode.
 *.pyc
+*.bkp
+*.pcm
+*.swp
+*.so
+*.d
+/plugins
+/macros

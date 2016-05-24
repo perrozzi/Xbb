@@ -1,14 +1,14 @@
 #!/afs/cern.ch/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/bin/python2.6
-##!/usr/bin/python2.6  
+##!/usr/bin/python2.6
 
 import os
-import math 
+import math
 
 def getfloat_from_line( line ):
     start = line.find('.')
     number = float(line[start-1:])
     return number
-    
+
 def sum_errors( e1, e2 ):
     return math.sqrt( e1 * e1 + e2 * e2 )
 
@@ -17,7 +17,7 @@ def get_errors( line, sf ):
         sf.append(getfloat_from_line(line))
     if line.find('down') > 0:
         sf.append(getfloat_from_line(line))
-    return sf 
+    return sf
 
 def get_correlation_matrix( file ):
     return [line.split() for line in file]

@@ -32,7 +32,7 @@ if opts.config =="":
 from myutils import BetterConfigParser, printc, ParseInfo, mvainfo, StackMaker, HistoMaker
 
 #adds the file vhbbPlotDef.ini to the config list
-print 'opts.config',opts.config
+#print 'opts.config',opts.config
 
 vhbbPlotDef=opts.config[0].split('/')[0]+'/vhbbPlotDef.ini'
 opts.config.append(vhbbPlotDef)#adds it to the config list
@@ -83,40 +83,40 @@ if os.path.exists("../interface/VHbbNameSpace_h.so"):
 #Get the selections and the samples
 def doPlot():
 
-    print "Read Ploting Region information"
-    print "===============================\n"
+    #print "Read Ploting Region information"
+    #print "===============================\n"
 
     vars = (config.get(section, 'vars')).split(',')#get the variables to be ploted in each region 
-    print "The variables are", vars, "\n"
+    #print "The variables are", vars, "\n"
     data = eval(config.get(section,'Datas'))# read the data corresponding to each CR (section)
     mc = eval(config.get('Plot_general','samples'))# read the list of mc samples
     total_lumi = eval(config.get('Plot_general','lumi'))
-    print 'total lumi is', total_lumi
+    #print 'total lumi is', total_lumi
 
-    print "The list of mc samples is", mc
+    #print "The list of mc samples is", mc
 
-    print "Check if is Signal Region"
-    print "=========================\n"
+    #print "Check if is Signal Region"
+    #print "=========================\n"
 
     SignalRegion = False
     if config.has_option(section,'Signal'):
         mc.append(config.get(section,'Signal'))
         SignalRegion = True
 
-    print "After addind the signal, the mc is", mc
+    #print "After addind the signal, the mc is", mc
 
-    print "Getting information on data and mc samples"
-    print "==========================================\n"
+    #print "Getting information on data and mc samples"
+    #print "==========================================\n"
            
-    print "Getting data sample"
+    #print "Getting data sample"
     datasamples = info.get_samples(data)
-    print "datasamples is\n", datasamples
-    print "Getting mc sample"
-    print mc
+    #print "datasamples is\n", datasamples
+    #print "Getting mc sample"
+    #print mc
     mcsamples = info.get_samples(mc)
-    print "mc sample is\n"
-    for sample in mcsamples:
-      print "sample name", sample.name
+    #print "mc sample is\n"
+    #for sample in mcsamples:
+      #print "sample name", sample.name
 
     GroupDict = eval(config.get('Plot_general','Group'))#Contained in plots. Listed in general, under Group [Samples] group. This is a dictionnary that descriebes what samples should share the same color under the stack plot.
 
@@ -124,15 +124,14 @@ def doPlot():
     #GETALL AT ONCE
     options = []
     Stacks = []
-    print "Start Loop over the list of variables(to fill the StackMaker )"
-    print "==============================================================\n"
+    #print "Start Loop over the list of variables(to fill the StackMaker )" print "==============================================================\n"
     for i in range(len(vars)):# loop over the list of variables to be ploted in each reagion
-        print "The variable is ", vars[i], "\n"
+        #print "The variable is ", vars[i], "\n"
         Stacks.append(StackMaker(config,vars[i],region,SignalRegion))# defined in myutils DoubleStackMaker. The StackMaker merge together all the informations necessary to perform the plot (plot region, variables, samples and signal region ). "options" contains the variables information, including the cuts. 
         options.append(Stacks[i].options)
-    print "Finished Loop over the list of variables(to fill the StackMaker )"
-    print "================================================================\n"
-    print 'loop options',options
+    #print "Finished Loop over the list of variables(to fill the StackMaker )"
+    #print "================================================================\n"
+    #print 'loop options',options
     # print 'options',options
 
     #Prepare cached files in the temporary (tmpSamples) folder.
@@ -146,8 +145,8 @@ def doPlot():
     Ldatanames = [[] for _ in range(0,len(vars))]
     Ljobnames = [[] for _ in range(0,len(vars))]
 
-    print "Summing up the Luminosity"
-    print "=========================\n"
+    #print "Summing up the Luminosity"
+    #print "=========================\n"
 
     #! Sums up the luminosity of the data:
     lumicounter=0.
@@ -168,8 +167,8 @@ def doPlot():
     Plotter.lumi=lumi
     mass = Stacks[0].mass
 
-    print "Getting the histograms from mc and data tmp"
-    print "===========================================\n"
+    #print "Getting the histograms from mc and data tmp"
+    #print "===========================================\n"
     #print "MC samples\n"
     #! Get the histogram from Plotter
     #! Get the mc histograms
@@ -195,7 +194,7 @@ def doPlot():
 #            cutOverWrite = config.get('Cuts',region)+' & ' + addBlindingCut
         inputs.append((Plotter,"get_histos_from_tree",(job,True)))
 
-    print 'inputs are', inputs
+    #print 'inputs are', inputs
     
     # if('pisa' in config.get('Configuration','whereToLaunch')):
     multiprocess=int(config.get('Configuration','nprocesses'))
@@ -205,20 +204,20 @@ def doPlot():
         from multiprocessing import Pool
         from myutils import GlobalFunction
         p = Pool(multiprocess)
-        print 'launching get_histos_from_tree with ',multiprocess,' processes'
+        #print 'launching get_histos_from_tree with ',multiprocess,' processes'
         outputs = p.map(GlobalFunction, inputs)
     else:
-        print 'launching get_histos_from_tree with ',multiprocess,' processes'
+        #print 'launching get_histos_from_tree with ',multiprocess,' processes'
         for input_ in  inputs:
             outputs.append(getattr(input_[0],input_[1])(*input_[2])) #ie. Plotter.get_histos_from_tree(job)
-    print 'get_histos_from_tree DONE'
+    #print 'get_histos_from_tree DONE'
     Overlaylist = []
     for i,job in enumerate(mcsamples):
-        print 'job.name',job.name,"mass==",mass
+        #print 'job.name',job.name,"mass==",mass
         #hTempList, typList = Plotter.get_histos_from_tree(job)
         hDictList = outputs[i]
         if job.name in mass:
-            print 'job.name == mass'
+            #print 'job.name == mass'
             histoList = []
             for v in range(0,len(vars)):
                 histoCopy = deepcopy(hDictList[v].values()[0])
@@ -232,35 +231,35 @@ def doPlot():
             Ltyps[v].append(hDictList[v].keys()[0])
             Ljobnames[v].append(job.name)
     
-    print "len(vars)=",len(vars)
-    print "Ltyps is", Ltyps
+    #print "len(vars)=",len(vars)
+    #print "Ltyps is", Ltyps
     ##invert Overlaylist[variable][job] -> Overlaylist[job][variable]
-    print "len(Overlaylist) before: ",len(Overlaylist)
-    print "Overlaylist",Overlaylist
+    #print "len(Overlaylist) before: ",len(Overlaylist)
+    #print "Overlaylist",Overlaylist
 #    newOverlaylist = [[None]*len(Overlaylist)]*len(vars)
 #    for i,OverlaySameSample in enumerate(Overlaylist):
 #            for j,Overlay in enumerate(OverlaySameSample):
 #                newOverlaylist[j][i] = Overlay    
 #    Overlaylist = newOverlaylist
     Overlaylist = [list(a) for a in zip(*Overlaylist)]
-    print "len(Overlaylist) after: ",len(Overlaylist)
-    print "Overlaylist",Overlaylist
+    #print "len(Overlaylist) after: ",len(Overlaylist)
+    #print "Overlaylist",Overlaylist
     
     ##merge overlays in groups 
     for i in range(len(Overlaylist)):
         newhistos = {}
-        print "len(Overlaylist[i]):",Overlaylist[i]
+        #print "len(Overlaylist[i]):",Overlaylist[i]
         for histo in Overlaylist[i]:
-            print "histo.GetName()",histo.GetName(),
-            print "histo.GetTitle()",histo.GetTitle(),
+            #print "histo.GetName()",histo.GetName(),
+            #print "histo.GetTitle()",histo.GetTitle(),
             group = GroupDict[histo.GetTitle()]
             if not group in newhistos.keys():
                 histo.SetTitle(group)
                 newhistos[group]=histo
             else:
-                print "Before newhistos[group].Integral()",newhistos[group].Integral(),
+                #print "Before newhistos[group].Integral()",newhistos[group].Integral(),
                 newhistos[group].Add(histo)
-                print "After newhistos[group].Integral()",newhistos[group].Integral()
+                #print "After newhistos[group].Integral()",newhistos[group].Integral()
         Overlaylist[i] = newhistos.values()
         
 
@@ -284,7 +283,7 @@ def doPlot():
 #            Ljobnames[v].append(job.name)
 
 
-    print "DATA samples\n"
+    #print "DATA samples\n"
     #! Get the data histograms
     for job in datasamples:
         if addBlindingCut:
@@ -299,12 +298,12 @@ def doPlot():
 
     for v in range(0,len(vars)):
 
-        print "Ltyps[v]:",Ltyps[v]
-        print "Lhistos[v]:",Lhistos[v]
-        print "Ldatas[v]:",Ldatas[v]
-        print "Ldatatyps[v]:",Ldatatyps[v]
-        print "Ldatanames[v]:",Ldatanames[v]
-        print "lumi:",lumi
+        #print "Ltyps[v]:",Ltyps[v]
+        #print "Lhistos[v]:",Lhistos[v]
+        #print "Ldatas[v]:",Ldatas[v]
+        #print "Ldatatyps[v]:",Ldatatyps[v]
+        #print "Ldatanames[v]:",Ldatanames[v]
+        #print "lumi:",lumi
 
         histos = Lhistos[v]
         typs = Ltyps[v]

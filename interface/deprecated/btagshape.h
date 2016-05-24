@@ -7,9 +7,9 @@
 #include "Math/Interpolator.h"
 #define MAXPOINTS 200
 
-class BTagShape 
+class BTagShape
 {
- public: 
+ public:
    BTagShape(const char * file) : m_file(file)
    {
      m_hb = (TH1F *) m_file.Get("hb");
@@ -17,7 +17,7 @@ class BTagShape
      m_hl = (TH1F *) m_file.Get("hl");
   }
 
-    
+
   std::vector<std::pair<float,float> > computeEquivalentCuts( TH1F * h ,const std::vector<std::pair<float, float> > & cutsAndSF )
   {
     std::vector<std::pair<float,float> > equivalents;
@@ -37,14 +37,14 @@ class BTagShape
       {
         if(h->Integral(j,lastbin)>= target)
           {
-             //equivalents.push_back(std::pair<float,float>(originalLowEdge,h->GetBinLowEdge(j))); 
-             equivalents.push_back(std::pair<float,float>(h->GetBinLowEdge(j),originalLowEdge)); 
+             //equivalents.push_back(std::pair<float,float>(originalLowEdge,h->GetBinLowEdge(j)));
+             equivalents.push_back(std::pair<float,float>(h->GetBinLowEdge(j),originalLowEdge));
 	     std::cout << "Found at " << j << " was " << h->FindBin(oldCut) <<  std::endl;
 	     std::cout << h->GetBinLowEdge(j) << " was " << originalLowEdge << " cut: " << oldCut <<  std::endl;
              break;
           }
       }
- 
+
     }
    return equivalents;
   }
@@ -104,7 +104,7 @@ class BTagShape
     cutsAndSFB.push_back(std::pair<float, float>(0.679,0.97+uncert*0.04));
     cutsAndSFB.push_back(std::pair<float, float>(0.244,1.01+uncert*0.04));
 
-  
+
     cutsAndSFC.push_back(std::pair<float, float>(0.898,0.94+uncert*0.1));
     cutsAndSFC.push_back(std::pair<float, float>(0.679,0.96+uncert*0.1));
     cutsAndSFC.push_back(std::pair<float, float>(0.24,1.00+uncert*0.1));
@@ -158,7 +158,7 @@ ROOT::Math::Interpolator * ib;
   TSpline3 * sb;
   TSpline3 * sc;
   TSpline3 * sl;
-  
+
 
 };
 

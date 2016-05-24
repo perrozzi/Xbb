@@ -15,7 +15,7 @@
 
 
 class MCHistos : public Histos {
-  
+
 public:
 
   virtual void book(TFile &f, std::string suffix) {
@@ -24,7 +24,7 @@ public:
 
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
 
     subDir->cd();
@@ -32,11 +32,11 @@ public:
     bin_mass = 500;
     min_mass = 0;
     max_mass = 300;
-    
+
     bin_pt = 500;
     min_pt = 0;
     max_pt = 500;
-    
+
     bin_hel = 50;
     min_hel = 0;
     max_hel = 1;
@@ -50,10 +50,10 @@ public:
     McH_simWPt = new TH1F(("simWPt"+suffix).c_str(),("Sim W Pt ("+suffix+")").c_str(), bin_pt, min_pt, max_pt );
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
 
-    //     McH_simWPt->Fill(iAuxInfo->mcW[0].p4.Pt(), w); 
+    //     McH_simWPt->Fill(iAuxInfo->mcW[0].p4.Pt(), w);
 
   }
 
@@ -64,7 +64,7 @@ public:
   TH1F * McH_simWPt;
   TH1F * McH_simZMass;
   TH1F * McH_simZPt;
- 
+
 private:
 
   Int_t bin_mass;
@@ -86,16 +86,16 @@ private:
 class BTagHistos : public Histos {
 
 public:
-  
+
   virtual void book(TFile &f, std::string suffix) {
-    
+
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
-    
+
     bin_btag = 40;
     min_btag = -1;
     max_btag = 1;
@@ -107,9 +107,9 @@ public:
 /*     StH_simpleJet2_bTag_reshaped = new TH1F(("SimpleJet2_bTag_reshaped"+suffix).c_str(),("Simple Jet2 bTag reshaped ("+suffix+")").c_str(), bin_btag, min_btag, max_btag ); */
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
-      
+
     //vertex mas and btag sorted by btag
     if( iEvent.hJet_CSV(0,0) > iEvent.hJet_CSV(1,0) ){
       StH_simpleJet1_bTag->Fill(iEvent.hJet_CSV(0,0), w);
@@ -118,29 +118,29 @@ public:
     else{
       StH_simpleJet1_bTag->Fill(iEvent.hJet_CSV(1,0), w);
       StH_simpleJet2_bTag->Fill(iEvent.hJet_CSV(0,0), w);
-    }      
+    }
 
   }
 
   TH1F * StH_simpleJet1_bTag;
   TH1F * StH_simpleJet2_bTag;
-   
+
 private:
 
   Int_t bin_btag;
   Double_t min_btag;
   Double_t max_btag;
-    
+
 };
-  
+
 
 class CountHisto : public Histos {
-  virtual void book(TFile &f, std::string suffix) { 
-    
+  virtual void book(TFile &f, std::string suffix) {
+
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
     count = new TH1F(("Count"+suffix).c_str(),("Count ("+suffix+")").c_str(), 1,0,2 );
@@ -148,13 +148,13 @@ class CountHisto : public Histos {
   virtual void fill( ntupleReader & event, float w){
     count->Fill(1, w);
   }
-  
+
   TH1F * count;
 };
 
 
 class StandardHistos : public Histos {
-    
+
 public:
 
   virtual void book(TFile &f, std::string suffix) {
@@ -162,14 +162,14 @@ public:
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
 
     bin_mass = 30;
     min_mass = 0;
     max_mass = 300;
-    
+
     bin_SVmass = 50;
     min_SVmass = 0;
     max_SVmass = 10;
@@ -177,7 +177,7 @@ public:
     bin_pt = 50;
     min_pt = 0;
     max_pt = 500;
-    
+
     bin_hel = 20;
     min_hel = -1;
     max_hel = 1;
@@ -287,9 +287,9 @@ public:
     StH_WH_dPhi = new TH1F(("WH_dPhi"+suffix).c_str(),(" WH delta Phi ("+suffix+")").c_str(), bin_deltaPhi, min_deltaPhi, max_deltaPhi );
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
-      
+
     StH_nPVs->Fill(iEvent.nPVs, w);
     StH_addJets->Fill(iEvent.CountAddJets(), w);
 
@@ -328,7 +328,7 @@ public:
       StH_simpleJet1_bTag->Fill(iEvent.hJet_CSV(1,0), w);
       StH_simpleJet2_bTag->Fill(iEvent.hJet_CSV(0,0), w);
       StH_simpleJet2_vtxMass->Fill(iEvent.hJet_vtxMass[1], w);
-    }      
+    }
 
     //here I fill both jets in one histo
     StH_simpleJets_bTagSum->Fill(iEvent.hJet_CSV(0,0)+iEvent.hJet_CSV(1,0), w);
@@ -350,19 +350,19 @@ public:
     StH_simpleJets_bTag_reshapedSum->Fill(iEvent.hJet_csv_nominal[0]+iEvent.hJet_csv_nominal[1], w);
     StH_simpleJets_bTag_reshaped->Fill(iEvent.hJet_csv_nominal[0], w);
     StH_simpleJets_bTag_reshaped->Fill(iEvent.hJet_csv_nominal[1], w);
-    
-    StH_HMass->Fill(iEvent.H_mass, w); 
-    StH_HPt->Fill(iEvent.H_pt, w); 
+
+    StH_HMass->Fill(iEvent.H_mass, w);
+    StH_HPt->Fill(iEvent.H_pt, w);
     StH_HdR->Fill(iEvent.H_dR, w);
     StH_HdPhi->Fill(TMath::Abs(iEvent.H_dPhi), w);
     StH_HdEta->Fill(iEvent.H_dEta, w);
 
-    StH_HHel->Fill(iEvent.hJet_cosTheta[0], w); 
+    StH_HHel->Fill(iEvent.hJet_cosTheta[0], w);
 
-    StH_HPullAngle1->Fill(iEvent.deltaPullAngle, w); 
-    StH_HPullAngle2->Fill(iEvent.deltaPullAngle2, w); 
-    StH_HPullAK7Angle1->Fill(iEvent.deltaPullAngleAK7, w); 
-    StH_HPullAK7Angle2->Fill(iEvent.deltaPullAngle2AK7, w); 
+    StH_HPullAngle1->Fill(iEvent.deltaPullAngle, w);
+    StH_HPullAngle2->Fill(iEvent.deltaPullAngle2, w);
+    StH_HPullAK7Angle1->Fill(iEvent.deltaPullAngleAK7, w);
+    StH_HPullAK7Angle2->Fill(iEvent.deltaPullAngle2AK7, w);
 
     bool debug_ = false;
     TLorentzVector higgs, hJet1, hJet2, addJet;
@@ -371,10 +371,10 @@ public:
     hJet2.SetPtEtaPhiE( iEvent.hJet_pt[1], iEvent.hJet_eta[1], iEvent.hJet_phi[1], iEvent.hJet_e[1] );
     higgs = hJet1 + hJet2;
     if(debug_){
-      std::cout << "Higgs pt = " << higgs.Pt() << " eta = " << higgs.Eta() << " phi = " << higgs.Phi() << " energy = " << higgs.M() << std::endl; 
-      std::cout << "Higgs pt = " << iEvent.H_pt << " eta = " << iEvent.H_eta << " phi = " << iEvent.H_phi << " energy = " << iEvent.H_mass << std::endl; 
-      std::cout << "Higgs jet 1 pt = " << iEvent.hJet_pt[0] << " eta = " << iEvent.hJet_eta[0] << " phi = " << iEvent.hJet_phi[0] << " energy = " << iEvent.hJet_e[0] << std::endl; 
-      std::cout << "Higgs jet 2 pt = " << iEvent.hJet_pt[1] << " eta = " << iEvent.hJet_eta[1] << " phi = " << iEvent.hJet_phi[1] << " energy = " << iEvent.hJet_e[1] << std::endl; 
+      std::cout << "Higgs pt = " << higgs.Pt() << " eta = " << higgs.Eta() << " phi = " << higgs.Phi() << " energy = " << higgs.M() << std::endl;
+      std::cout << "Higgs pt = " << iEvent.H_pt << " eta = " << iEvent.H_eta << " phi = " << iEvent.H_phi << " energy = " << iEvent.H_mass << std::endl;
+      std::cout << "Higgs jet 1 pt = " << iEvent.hJet_pt[0] << " eta = " << iEvent.hJet_eta[0] << " phi = " << iEvent.hJet_phi[0] << " energy = " << iEvent.hJet_e[0] << std::endl;
+      std::cout << "Higgs jet 2 pt = " << iEvent.hJet_pt[1] << " eta = " << iEvent.hJet_eta[1] << " phi = " << iEvent.hJet_phi[1] << " energy = " << iEvent.hJet_e[1] << std::endl;
     }
     double dRmin = 1e10;
     unsigned int dRmin_idx = 100;
@@ -382,8 +382,8 @@ public:
     for(unsigned int j = 0; j < iEvent.naJets; ++j ){
       if( iEvent.aJet_pt[j] <= 20. || TMath::Abs(iEvent.aJet_eta[j]) >= 2.4 ) continue; // condition of CountAddJets()
       if(debug_)
-	std::cout << "[j : " << j  << "] pt = " << iEvent.aJet_pt[j] << " eta = " << iEvent.aJet_eta[j] << " phi = " << iEvent.aJet_phi[j] << " energy = " << iEvent.aJet_e[j] << std::endl; 
-      addJet.SetPtEtaPhiE(iEvent.aJet_pt[j],iEvent.aJet_eta[j],iEvent.aJet_phi[j],iEvent.aJet_e[j]); 
+	std::cout << "[j : " << j  << "] pt = " << iEvent.aJet_pt[j] << " eta = " << iEvent.aJet_eta[j] << " phi = " << iEvent.aJet_phi[j] << " energy = " << iEvent.aJet_e[j] << std::endl;
+      addJet.SetPtEtaPhiE(iEvent.aJet_pt[j],iEvent.aJet_eta[j],iEvent.aJet_phi[j],iEvent.aJet_e[j]);
       if(higgs.DeltaR(addJet) < dRmin) dRmin_idx = addj;
       addJets.push_back( addJet );
       addj++;
@@ -391,7 +391,7 @@ public:
     if(debug_){
       std::cout << "Count add jets = " << iEvent.CountAddJets() << " vector size = " << addJets.size() << std::endl;
       std::cout << "index = " << dRmin_idx << std::endl;
-      for(unsigned int j=0; j<addJets.size();++j)    std::cout << "[j : " << j  << "] pt = " << addJets[j].Pt() << " eta = " << addJets[j].Eta() << " phi = " << addJets[j].Phi() << " energy = " << addJets[j].Energy() << std::endl; 
+      for(unsigned int j=0; j<addJets.size();++j)    std::cout << "[j : " << j  << "] pt = " << addJets[j].Pt() << " eta = " << addJets[j].Eta() << " phi = " << addJets[j].Phi() << " energy = " << addJets[j].Energy() << std::endl;
     }
     if(iEvent.CountAddJets() > 0 ){
       StH_HdR_addJets->Fill(higgs.DeltaR(addJets.at(dRmin_idx)), w);
@@ -399,17 +399,17 @@ public:
       StH_HdR_following_addJets->Fill(hJet2.DeltaR(addJets.at(dRmin_idx)), w);
       StH_HdRnorm_addJets->Fill(higgs.DeltaR(addJets.at(dRmin_idx)) / iEvent.H_dR, w);
       if( iEvent.aJet_csv[dRmin_idx] > 0.8 ||  hJet1.DeltaR(addJets.at(dRmin_idx)) < 2 )
-	StH_HMass_leading_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w); 
-      else StH_HMass_leading_addJets->Fill(higgs.M(), w); 
+	StH_HMass_leading_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w);
+      else StH_HMass_leading_addJets->Fill(higgs.M(), w);
       if( iEvent.aJet_csv[dRmin_idx] > 0.8 ||  hJet2.DeltaR(addJets.at(dRmin_idx)) < 2 )
-	StH_HMass_following_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w); 
-      else StH_HMass_following_addJets->Fill(higgs.M(), w); 
+	StH_HMass_following_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w);
+      else StH_HMass_following_addJets->Fill(higgs.M(), w);
       if( iEvent.aJet_csv[dRmin_idx] > 0.8 ||  hJet2.DeltaR(addJets.at(dRmin_idx)) < 2  ||  hJet1.DeltaR(addJets.at(dRmin_idx)) < 2 )
-	StH_HMass_both_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w); 
-      else StH_HMass_both_addJets->Fill(higgs.M(), w); 
+	StH_HMass_both_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w);
+      else StH_HMass_both_addJets->Fill(higgs.M(), w);
       if( iEvent.aJet_csv[dRmin_idx] > 0.8 ||  higgs.DeltaR(addJets.at(dRmin_idx)) < 2 )
-	StH_HMass_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w); 
-      else StH_HMass_addJets->Fill(higgs.M(), w); 
+	StH_HMass_addJets->Fill((higgs+addJets.at(dRmin_idx)).M(), w);
+      else StH_HMass_addJets->Fill(higgs.M(), w);
       StH_addJet1_pt->Fill(iEvent.aJet_pt[dRmin_idx], w);
       StH_addJet1_phi->Fill(iEvent.aJet_phi[dRmin_idx], w);
       StH_addJet1_eta->Fill(iEvent.aJet_eta[dRmin_idx], w);
@@ -417,25 +417,25 @@ public:
       StH_addJet1_vtxMass->Fill(iEvent.aJet_vtxMass[dRmin_idx], w);
       StH_addJet1_nconstituents->Fill( iEvent.aJet_nconstituents[dRmin_idx], w);
     }
-    else StH_HMass_addJets->Fill(higgs.M(), w); 
+    else StH_HMass_addJets->Fill(higgs.M(), w);
 
     //idea from subjets
     StH_massDrop->Fill(TMath::Max(hJet1.M(),hJet2.M())/higgs.M() , w);
     StH_y12->Fill( TMath::Power(hJet1.DeltaR(hJet2),2) * TMath::Min( TMath::Power(hJet1.Pt(),2),TMath::Power(hJet2.Pt(),2) )/ TMath::Power(higgs.M(),2) , w);
-    
+
     iType = (VType)iEvent.Vtype;
     if( iType == Zmm || iType == Zee || iType == Znn ){
-      StH_ZMass->Fill(iEvent.V_mass, w); 
+      StH_ZMass->Fill(iEvent.V_mass, w);
       StH_ZPt->Fill(iEvent.V_pt, w);
-      StH_ZH_dPhi->Fill(iEvent. HVdPhi, w); 
+      StH_ZH_dPhi->Fill(iEvent. HVdPhi, w);
     }
     else{
       StH_WMass->Fill(iEvent.V_mass, w);
-      StH_WPt->Fill(iEvent.V_pt, w); 
-      StH_WH_dPhi->Fill(iEvent.HVdPhi, w); 
+      StH_WPt->Fill(iEvent.V_pt, w);
+      StH_WH_dPhi->Fill(iEvent.HVdPhi, w);
     }
-    
-  
+
+
   }
 
   TH1F * StH_nPVs;
@@ -456,7 +456,7 @@ public:
   TH1F * StH_vectorLepton2_dxy;
   TH1F * StH_vectorLepton1_dz;
   TH1F * StH_vectorLepton2_dz;
-  
+
   TH1F * StH_simpleJet1_pt;
   TH1F * StH_simpleJet2_pt;
   TH1F * StH_simpleJet1_phi;
@@ -513,7 +513,7 @@ public:
   TH1F * StH_ZMass;
   TH1F * StH_ZPt;
   TH1F * StH_ZH_dPhi;
- 
+
 private:
 
   Int_t bin_btag;
@@ -523,7 +523,7 @@ private:
   Int_t  bin_SVmass;
   Double_t min_SVmass;
   Double_t max_SVmass;
-  
+
   Int_t bin_eta;
   Double_t min_eta;
   Double_t max_eta;
@@ -577,7 +577,7 @@ private:
 
 
 class SystematicsHistos : public Histos {
-    
+
 public:
 
   virtual void book(TFile &f, std::string suffix) {
@@ -585,14 +585,14 @@ public:
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
 
     bin_mass = 30;
     min_mass = 0;
     max_mass = 300;
-    
+
     bin_SVmass = 50;
     min_SVmass = 0;
     max_SVmass = 10;
@@ -600,7 +600,7 @@ public:
     bin_pt = 50;
     min_pt = 0;
     max_pt = 500;
-    
+
     bin_hel = 10;
     min_hel = 0;
     max_hel = 1;
@@ -678,15 +678,15 @@ public:
     SystFDOWNH_simpleJets_bTag = new TH1F(("SimpleJets_bTag"+suffix+"SystFDOWN").c_str(),("Simple Jets bTag ("+suffix+"SystFDOWN"+")").c_str(), bin_btag, min_btag, max_btag );
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
 
     TLorentzVector higgs, addJet;
-      
+
     //UPSCALE
     SystUPH_addJets->Fill(iEvent.CountAddJets_jec(+1), w);
-    SystUPH_simpleJet1_pt->Fill(iEvent.hJet_pt_jecUP(0), w); 
-    SystUPH_simpleJet2_pt->Fill(iEvent.hJet_pt_jecUP(1), w); 
+    SystUPH_simpleJet1_pt->Fill(iEvent.hJet_pt_jecUP(0), w);
+    SystUPH_simpleJet2_pt->Fill(iEvent.hJet_pt_jecUP(1), w);
     SystJERUPH_simpleJet1_pt->Fill(iEvent.hJet_jer(0,+1).Pt(), w);
     SystJERUPH_simpleJet2_pt->Fill(iEvent.hJet_jer(1,+1).Pt(), w);
 
@@ -714,9 +714,9 @@ public:
     SystFUPH_simpleJets_bTag->Fill(iEvent.hJet_CSV(0,2), w);
     SystFUPH_simpleJets_bTag->Fill(iEvent.hJet_CSV(1,2), w);
 
-    SystUPH_HMass->Fill(iEvent.H_jecUP().M(), w); 
-    SystUPH_HPt->Fill(iEvent.H_jecUP().Pt(), w); 
-    SystUPH_ZH_dPhi->Fill( TMath::Abs(iEvent.H_jecUP().DeltaPhi( iEvent.VectorBoson() ) ), w); 
+    SystUPH_HMass->Fill(iEvent.H_jecUP().M(), w);
+    SystUPH_HPt->Fill(iEvent.H_jecUP().Pt(), w);
+    SystUPH_ZH_dPhi->Fill( TMath::Abs(iEvent.H_jecUP().DeltaPhi( iEvent.VectorBoson() ) ), w);
 
     SystJERUPH_HMass->Fill(iEvent.H_jer(+1).M(), w);
     SystJERUPH_HPt->Fill(iEvent.H_jer(+1).Pt(), w);
@@ -728,8 +728,8 @@ public:
 
     //DOWNSCALE
     SystDOWNH_addJets->Fill(iEvent.CountAddJets_jec(-1), w);
-    SystDOWNH_simpleJet1_pt->Fill(iEvent.hJet_pt_jecDOWN(0), w); 
-    SystDOWNH_simpleJet2_pt->Fill(iEvent.hJet_pt_jecDOWN(1), w); 
+    SystDOWNH_simpleJet1_pt->Fill(iEvent.hJet_pt_jecDOWN(0), w);
+    SystDOWNH_simpleJet2_pt->Fill(iEvent.hJet_pt_jecDOWN(1), w);
     SystJERDOWNH_simpleJet1_pt->Fill(iEvent.hJet_jer(0,-1).Pt(), w);
     SystJERDOWNH_simpleJet2_pt->Fill(iEvent.hJet_jer(1,-1).Pt(), w);
 
@@ -756,9 +756,9 @@ public:
     SystDOWNH_simpleJets_bTag->Fill(iEvent.hJet_CSV(1,-1), w);
     SystFDOWNH_simpleJets_bTag->Fill(iEvent.hJet_CSV(0,-2), w);
     SystFDOWNH_simpleJets_bTag->Fill(iEvent.hJet_CSV(1,-2), w);
-    SystDOWNH_HMass->Fill(iEvent.H_jecDOWN().M(), w); 
-    SystDOWNH_HPt->Fill(iEvent.H_jecDOWN().Pt(), w); 
-    SystDOWNH_ZH_dPhi->Fill( TMath::Abs( iEvent.H_jecDOWN().DeltaPhi( iEvent.VectorBoson() ) ), w); 
+    SystDOWNH_HMass->Fill(iEvent.H_jecDOWN().M(), w);
+    SystDOWNH_HPt->Fill(iEvent.H_jecDOWN().Pt(), w);
+    SystDOWNH_ZH_dPhi->Fill( TMath::Abs( iEvent.H_jecDOWN().DeltaPhi( iEvent.VectorBoson() ) ), w);
 
     SystJERDOWNH_HMass->Fill(iEvent.H_jer(-1).M(), w);
     SystJERDOWNH_HPt->Fill(iEvent.H_jer(-1).Pt(), w);
@@ -770,7 +770,7 @@ public:
 
   }
 
-  TH1F * SystUPH_addJets;  
+  TH1F * SystUPH_addJets;
   TH1F * SystUPH_simpleJet1_pt;
   TH1F * SystUPH_simpleJet2_pt;
   TH1F * SystUPH_HMass;
@@ -789,7 +789,7 @@ public:
   TH1F * SystJERUPH_HPt;
   TH1F * SystJERUPH_ZH_dPhi;
 
-  TH1F * SystDOWNH_addJets;  
+  TH1F * SystDOWNH_addJets;
   TH1F * SystDOWNH_simpleJet1_pt;
   TH1F * SystDOWNH_simpleJet2_pt;
   TH1F * SystDOWNH_HMass;
@@ -808,7 +808,7 @@ public:
   TH1F * SystJERDOWNH_HPt;
   TH1F * SystJERDOWNH_ZH_dPhi;
 
- 
+
 private:
 
   Int_t bin_btag;
@@ -818,7 +818,7 @@ private:
   Int_t  bin_SVmass;
   Double_t min_SVmass;
   Double_t max_SVmass;
-  
+
   Int_t bin_eta;
   Double_t min_eta;
   Double_t max_eta;
@@ -873,39 +873,39 @@ private:
 class BDTHistos : public Histos {
 
  public:
-  
+
   virtual void book(TFile &f, std::string suffix) {
-    
+
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
-    
+
     bin_BDT = 100;
     min_BDT = -1;
     max_BDT = 1;
-    
+
     BDTH_BDT = new TH1F(("BDT"+suffix).c_str(),("BDT output ("+suffix+")").c_str(), bin_BDT, min_BDT, max_BDT );
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
-    
-    //    BDTH_BDT->Fill( iEvent.MVA, w );      
-    BDTH_BDT->Fill( 1 , w );      
-    
+
+    //    BDTH_BDT->Fill( iEvent.MVA, w );
+    BDTH_BDT->Fill( 1 , w );
+
   }
-  
+
   TH1F * BDTH_BDT;
-  
+
  private:
-  
+
   Int_t bin_BDT;
   Double_t min_BDT;
   Double_t max_BDT;
-  
+
 };
 
 
@@ -923,24 +923,24 @@ public:
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
 
     bin_BDT = 100;
     min_BDT = -0.8;
     max_BDT = 0.8;
-    
+
     MVAH_BDT = new TH1F(("MVA"+suffix).c_str(),("MVA output ("+suffix+")").c_str(), bin_BDT, min_BDT, max_BDT );
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
 
     TMVA::Reader * reader = new TMVA::Reader();
-    
+
     float bbMass,bbPt,btag1,btag2,NaddJet,DeltaRbb,helicity,DeltaPhiVH,bPt1,bPt2,VMass,VPt,pullAngle,DeltaEtabb,deltaPhipfMETjet,pfMET,pfMETsig;
-    std::string analysis("Zee");    
+    std::string analysis("Zee");
 
     if(analysis == "Zmm"){
       reader->AddVariable( "bbMass",            &bbMass    );
@@ -952,10 +952,10 @@ public:
       reader->AddVariable( "DeltaPhiVH",        &DeltaPhiVH);
       reader->AddVariable( "DeltaEtabb",        &DeltaEtabb);
     }
-    else if(analysis == "Zee"){      
+    else if(analysis == "Zee"){
       reader->AddVariable( "H.mass",            &bbMass    );
       reader->AddVariable( "H.pt",              &bbPt      );
-      reader->AddVariable( "H.dEta",            &DeltaEtabb);      
+      reader->AddVariable( "H.dEta",            &DeltaEtabb);
       reader->AddVariable( "HVdPhi",            &DeltaPhiVH);
       reader->AddVariable( "V.mass",            &VMass     );
       reader->AddVariable( "V.pt",              &VPt       );
@@ -999,9 +999,9 @@ public:
     for (size_t it = 0; it < methods.size(); ++it) {
       TString methodName = methods.at(it)+ " method";
       TString weightfile = dir + prefix + "_" + methods.at(it) + "_" + channel + TString(".weights.xml");
-      reader->BookMVA( methodName, weightfile ); 
+      reader->BookMVA( methodName, weightfile );
     }
-        
+
     bbMass = iEvent.H_mass;
     bbPt = iEvent.H_pt;
     btag1 = iEvent.hJet_csv[0];
@@ -1012,7 +1012,7 @@ public:
     DeltaPhiVH = iEvent.HVdPhi;
     bPt1 = iEvent.hJet_pt[0];
     bPt2 = iEvent.hJet_pt[1];
-    VMass = iEvent.V_mass; 
+    VMass = iEvent.V_mass;
     VPt = iEvent.V_pt;
     pullAngle = iEvent.deltaPullAngle;
     DeltaEtabb = iEvent.H_dEta;
@@ -1020,12 +1020,12 @@ public:
     pfMET = iEvent.MET_et;
     pfMETsig = iEvent.MET_sig;
 
-    MVAH_BDT->Fill( reader->EvaluateMVA( "BDT method" ) );      
-      
+    MVAH_BDT->Fill( reader->EvaluateMVA( "BDT method" ) );
+
   }
-  
+
   TH1F * MVAH_BDT;
- 
+
 private:
 
   const std::string channel;
@@ -1038,7 +1038,7 @@ private:
 
 
 class IVFHistos : public Histos {
-    
+
 public:
 
   virtual void book(TFile &f, std::string suffix) {
@@ -1046,14 +1046,14 @@ public:
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
 
     bin_mass = 30;
     min_mass = 0;
     max_mass = 300;
-    
+
     bin_SVmass = 50;
     min_SVmass = 0;
     max_SVmass = 10;
@@ -1061,7 +1061,7 @@ public:
     bin_pt = 50;
     min_pt = 0;
     max_pt = 500;
-    
+
     bin_SVpt = 50;
     min_SVpt = 0;
     max_SVpt = 100;
@@ -1163,9 +1163,9 @@ public:
     IVFH_WH_dPhi = new TH1F(("WH_dPhi"+suffix).c_str(),(" WH delta Phi ("+suffix+")").c_str(), bin_deltaPhi, min_deltaPhi, max_deltaPhi );
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
-      
+
     IVFH_nPVs->Fill(iEvent.nPVs, w);
     IVFH_nSvs->Fill(iEvent.nSvs, w);
     IVFH_numOfJets->Fill(iEvent.CountJets(), w);
@@ -1205,33 +1205,33 @@ public:
     IVFH_SV1_massBCand->Fill(iEvent.Sv_massBCand[0], w);
     IVFH_SV2_massBCand->Fill(iEvent.Sv_massBCand[1], w);
 
-    IVFH_SVHMass->Fill(iEvent.SVH_mass, w); 
-    IVFH_SVHPt->Fill(iEvent.SVH_pt, w); 
+    IVFH_SVHMass->Fill(iEvent.SVH_mass, w);
+    IVFH_SVHPt->Fill(iEvent.SVH_pt, w);
     IVFH_SVHdR->Fill(iEvent.SVH_dR, w);
     IVFH_SVHdPhi->Fill(TMath::Abs(iEvent.SVH_dPhi), w);
     IVFH_SVHdEta->Fill(iEvent.SVH_dEta, w);
 
-    IVFH_HMass->Fill(iEvent.H_mass, w); 
-    IVFH_HPt->Fill(iEvent.H_pt, w); 
+    IVFH_HMass->Fill(iEvent.H_mass, w);
+    IVFH_HPt->Fill(iEvent.H_pt, w);
     IVFH_HdR->Fill(iEvent.H_dR, w);
     IVFH_HdPhi->Fill(TMath::Abs(iEvent.H_dPhi), w);
     IVFH_HdEta->Fill(iEvent.H_dEta, w);
-    IVFH_HHel->Fill(iEvent.hJet_cosTheta[0], w); 
-    IVFH_HPullAngle->Fill(iEvent.deltaPullAngle, w); 
-    
+    IVFH_HHel->Fill(iEvent.hJet_cosTheta[0], w);
+    IVFH_HPullAngle->Fill(iEvent.deltaPullAngle, w);
+
     iType = (VType)iEvent.Vtype;
     if( iType == Zmm || iType == Zee || iType == Znn ){
-      IVFH_ZMass->Fill(iEvent.V_mass, w); 
+      IVFH_ZMass->Fill(iEvent.V_mass, w);
       IVFH_ZPt->Fill(iEvent.V_pt, w);
-      IVFH_ZH_dPhi->Fill(TMath::Abs(iEvent. HVdPhi), w); 
+      IVFH_ZH_dPhi->Fill(TMath::Abs(iEvent. HVdPhi), w);
     }
     else{
       IVFH_WMass->Fill(iEvent.V_mass, w);
-      IVFH_WPt->Fill(iEvent.V_pt, w); 
-      IVFH_WH_dPhi->Fill(TMath::Abs(iEvent.HVdPhi), w); 
+      IVFH_WPt->Fill(iEvent.V_pt, w);
+      IVFH_WH_dPhi->Fill(TMath::Abs(iEvent.HVdPhi), w);
     }
-    
-  
+
+
   }
 
   TH1F * IVFH_nPVs;
@@ -1292,7 +1292,7 @@ TH1F *    IVFH_SV2_massBCand;
   TH1F * IVFH_ZMass;
   TH1F * IVFH_ZPt;
   TH1F * IVFH_ZH_dPhi;
- 
+
 private:
 
   Int_t bin_btag;
@@ -1361,7 +1361,7 @@ private:
 
 
 class ZZHistos : public Histos {
-    
+
 public:
 
   virtual void book(TFile &f, std::string suffix) {
@@ -1369,18 +1369,18 @@ public:
     TDirectory *subDir;
     if( ! f.GetDirectory(suffix.c_str()) )
       subDir = f.mkdir(suffix.c_str());
-    else 
+    else
       subDir = f.GetDirectory(suffix.c_str());
     subDir->cd();
 
     bin_mass = 30;
     min_mass = 0;
     max_mass = 300;
-    
+
     bin_pt = 50;
     min_pt = 0;
     max_pt = 500;
-    
+
     bin_hel = 10;
     min_hel = 0;
     max_hel = 1;
@@ -1465,9 +1465,9 @@ public:
 
 
   }
-  
+
   virtual void fill(ntupleReader &iEvent,float w) {
-      
+
     ZZH_nPVs->Fill(iEvent.nPVs, w);
     ZZH_addJets->Fill(iEvent.CountAddJets(), w);
 
@@ -1499,7 +1499,7 @@ public:
     ZZH_additionalLepton2_dxy->Fill(iEvent.aLepton_dxy[1], w);
     ZZH_additionalLepton1_dz->Fill(iEvent.aLepton_dz[0], w);
     ZZH_additionalLepton2_dz->Fill(iEvent.aLepton_dz[1], w);
-    
+
     iType = (VType)iEvent.Vtype;
 
     V1.SetPtEtaPhiM( iEvent.V_pt,
@@ -1517,25 +1517,25 @@ public:
     V2 = addLep1 + addLep2;
 
     if( iType == Zmm || iType == Zee || iType == Znn ){
-      ZZH_ZMass->Fill(iEvent.V_mass, w); 
+      ZZH_ZMass->Fill(iEvent.V_mass, w);
       ZZH_ZPt->Fill(iEvent.V_pt, w);
-      ZZH_ZZMass->Fill(V2.M(), w); 
+      ZZH_ZZMass->Fill(V2.M(), w);
       ZZH_ZZPt->Fill(V2.Pt(), w);
-      ZZH_ZZ_dPhi->Fill(TMath::Abs(V1.DeltaPhi(V2)), w); 
-      ZZH_ZZ_dEta->Fill(TMath::Abs(V1.Eta() - V2.Eta() ), w); 
-      ZZH_ZZ_dR->Fill(V1.DeltaR(V2), w); 
+      ZZH_ZZ_dPhi->Fill(TMath::Abs(V1.DeltaPhi(V2)), w);
+      ZZH_ZZ_dEta->Fill(TMath::Abs(V1.Eta() - V2.Eta() ), w);
+      ZZH_ZZ_dR->Fill(V1.DeltaR(V2), w);
     }
     else{
       ZZH_WMass->Fill(iEvent.V_mass, w);
-      ZZH_WPt->Fill(iEvent.V_pt, w); 
+      ZZH_WPt->Fill(iEvent.V_pt, w);
       ZZH_WZMass->Fill(V2.M(), w);
-      ZZH_WZPt->Fill(V2.Pt(), w); 
-      ZZH_WZ_dPhi->Fill(TMath::Abs(V1.DeltaPhi(V2)), w); 
-      ZZH_WZ_dEta->Fill(TMath::Abs(V1.Eta() - V2.Eta() ), w); 
-      ZZH_WZ_dR->Fill(V1.DeltaR(V2), w); 
+      ZZH_WZPt->Fill(V2.Pt(), w);
+      ZZH_WZ_dPhi->Fill(TMath::Abs(V1.DeltaPhi(V2)), w);
+      ZZH_WZ_dEta->Fill(TMath::Abs(V1.Eta() - V2.Eta() ), w);
+      ZZH_WZ_dR->Fill(V1.DeltaR(V2), w);
     }
-    
-  
+
+
   }
 
   TLorentzVector addLep1,addLep2,V1,V2;
@@ -1557,7 +1557,7 @@ public:
   TH1F * ZZH_vectorLepton2_dxy;
   TH1F * ZZH_vectorLepton1_dz;
   TH1F * ZZH_vectorLepton2_dz;
-  
+
   TH1F * ZZH_additionalLepton1_pt;
   TH1F * ZZH_additionalLepton2_pt;
   TH1F * ZZH_additionalLepton1_phi;
@@ -1586,7 +1586,7 @@ public:
   TH1F * ZZH_WZ_dPhi;
   TH1F * ZZH_WZ_dEta;
   TH1F * ZZH_WZ_dR;
- 
+
 private:
 
   Int_t bin_btag;
@@ -1647,7 +1647,7 @@ private:
 // FIX ME
 
 /* class HardJetHistos : public Histos { */
-    
+
 /* public: */
 
 /*   virtual void book(TFile &f, std::string suffix) { */
@@ -1662,11 +1662,11 @@ private:
 /*     bin_mass = 500; */
 /*     min_mass = 0; */
 /*     max_mass = 300; */
-    
+
 /*     bin_pt = 500; */
 /*     min_pt = 0; */
 /*     max_pt = 500; */
-    
+
 /*     bin_hel = 50; */
 /*     min_hel = 0; */
 /*     max_hel = 1; */
@@ -1702,7 +1702,7 @@ private:
 /*     HardJetH_WH_dPhi = new TH1F(("WH_dPhi"+suffix).c_str(),(" WH delta Phi ("+suffix+")").c_str(), bin_deltaPhi, min_deltaPhi, max_deltaPhi ); */
 
 /*   } */
-  
+
 /*   virtual void fill(ntupleReader &iEvent,float w) { */
 
 /*     const VHbbEvent *iEvent = entry.getVHbbEvent(); */
@@ -1743,7 +1743,7 @@ private:
 /*  } */
 /*     } */
 /*   } */
-  
+
 /*   TH1F * HardJetH_subJet1_pt; */
 /*   TH1F * HardJetH_subJet2_pt; */
 /*   TH1F * HardJetH_subJet1_bTag; */

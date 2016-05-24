@@ -189,7 +189,7 @@ errorHeavyCCDYB = 8.6525
 errorHeavyCCTTbar = 0.7942
 errorHeavyCCRest = 14.6821
 
- 
+
   Print[TraditionalForm["SFLight = "],SFLight,TraditionalForm[" +- "], errorSFLight]
   Print[TraditionalForm["SFTTbar = "],SFTTbar,TraditionalForm[" +- "], errorSFTTbar]
   Print[TraditionalForm["SFHeavy = "],SFHeavy,TraditionalForm[" +- "], errorSFHeavy]

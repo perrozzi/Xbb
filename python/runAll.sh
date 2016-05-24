@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #====================================================================
 #
 #        FILE: runAll.sh
@@ -11,241 +12,198 @@
 #      AUTHOR: VHbb team
 #              ETH Zurich
 #
-#=====================================================================
+#====================================================================
 
-
-
-# fix for python escape sequence bug:
+# Fix Python escape sequence bug.
 export TERM=""
 
-#Input argument:
-sample=$1           # sample you want to run on. It has to match the naming in sample.info.
-energy=$2           # sqrt(s) you want to run
-task=$3             # the task 
-nprocesses=$4       # Dummy variable, used to shift the other parameters by +1
-job_id=$5           # needed for split step and train optimisation. @TO FIX: it does not have a unique meaning
-additional_arg=$6   # needed for train optimisation
-optional_filelist=$7 # needed to run the prep and sys step with limited number of files per job
-
-# echo '1:'${1}' 2:'${2}' 3:'${3}' 4:'${4}' 5:'${5}' 6:'${6}
-echo 
-echo 'Reading ./'${energy}'config'
-echo 'task'$task
-echo 
-
-whereToLaunch=`python << EOF 
-import os
-from myutils import BetterConfigParser
-config = BetterConfigParser()
-config.read('./${energy}config/paths.ini')
-print config.get('Configuration','whereToLaunch')
-EOF`
-echo 'whereToLaunch= '$whereToLaunch
-
 #-------------------------------------------------
-# Read debug variable
-#-------------------------------------------------
+# Parse Input Arguments
 
-DEBUG=`python << EOF 
-import os
-from myutils import BetterConfigParser
-config = BetterConfigParser()
-config.read('./${energy}config/general.ini')
-print config.get('General','Debug')
-EOF`
+sample=$1     # The sample to run on. It must match a sampleName in samples_nosplit.ini.
+tag=$2        # The analysis configuration tag, e.g. 13TeV.
+task=$3       # The task to perform.
+nprocesses=$4 # Dummy variable used to shift the other parameters by +1. FIXME: Remove this argument?
+job_id=$5     # Needed for split step and train optimisation. FIXME: It does not have a unique meaning.
+bdt_params=$6 # The set of hyperparameters for BDT optimisation.
+filelist=$7   # Needed to run the prep and sys step with a limited number of files per job.
 
-echo "Debug is " $DEBUG
-
-#-------------------------------------------------
-# Check the number of input arguments
-#-------------------------------------------------
-
-if [[ $DEBUG -eq "True" ]]
-  then
-  echo ""
-  echo "Checking the number of input arguments"
-  echo ""
-fi
-
-if [ $# -lt 3 ]
-    then
-    echo "ERROR: You passed " $# "arguments while the script needs at least 3 arguments."
-    echo "Exiting..."
-    echo " ---------------------------------- "
-    echo " Usage : ./runAll.sh sample energy task"
-    echo " ---------------------------------- "
+# Verify the number of input arguments.
+if [ $# -lt 3 ]; then
+    echo "RuntimeError: At least 3 arguments are required, e.g."
+    echo "./runAll.sh sample tag task"
+    exit
+elif [ $task = "mva_opt" -a $# -lt 5 ]; then
+    echo "RuntimeError: At least 5 arguments are required for BDT hyperparameter optimisation, e.g."
+    echo "./runAll.sh sample tag mva_opt job_id bdt_params"
     exit
 fi
 
-#------------------------------------------------
-# get the log dir from the config and create it
-#------------------------------------------------
-logpath=`python << EOF 
-import os
-from myutils import BetterConfigParser
-config = BetterConfigParser()
-config.read('./${energy}config/paths.ini')
-print config.get('Directories','logpath')
-EOF`
-if [ ! -d $logpath ]
-    then
-    mkdir -p $logpath
+echo "Task: $task"
+echo
+
+#-------------------------------------------------
+# Setup Environment
+
+# Change to the job submission directory when using lxbatch.
+if [ -n "${LS_SUBCWD-}" ]; then
+    cd $LS_SUBCWD
 fi
 
-if [[ $whereToLaunch == "pisa" ]]; then
+echo "Parsing files in ${tag}config..."
+echo
+
+# The job submission environment.
+whereToLaunch=$(
+python - << END
+import myutils
+parser = myutils.BetterConfigParser()
+parser.read('${tag}config/paths.ini')
+print parser.get('Configuration', 'whereToLaunch')
+END
+)
+
+echo "whereToLaunch: $whereToLaunch"
+echo
+
+if [ $whereToLaunch == "pisa" ]; then
     export TMPDIR=$CMSSW_BASE/src/tmp
 fi
 
-MVAList=`python << EOF 
-import os
-from myutils import BetterConfigParser
-config = BetterConfigParser()
-config.read('./${energy}config/training.ini')
-print config.get('MVALists','List_for_submitscript')
-EOF`
+# The configuration file names, formatted as arguments to the task scripts.
+config_filenames=( $(
+python - << END
+import myutils
+parser = myutils.BetterConfigParser()
+parser.read('${tag}config/paths.ini')
+print parser.get('Configuration', 'List')
+END
+) )
 
+echo "Configuration Files: ${config_filenames[@]}"
+echo
 
-#----------------------------------------------
-# load from the paths the configs to be used
-#----------------------------------------------
-input_configs=`python << EOF 
-import os
-from myutils import BetterConfigParser
-config = BetterConfigParser()
-config.read('./${energy}config/paths.ini')
-print config.get('Configuration','List')
-EOF`
-required_number_of_configs=7                                             # set the number of required cconfig
-input_configs_array=( $input_configs )                                   # create an array to count the number of elements
-if [ ${#input_configs_array[*]} -lt $required_number_of_configs ]        # check if the list contains the right number of configs
-    then 
-    #echo "@ERROR : The number of the elements in the config list is not correct"
-    #exit
-    echo "@LOG : The number of config files you are using is"
-    echo ${#input_configs_array[*]}
+for (( i=0; i<${#config_filenames[@]}; i++ )); do
+    config_filenames[$i]="--config ${tag}config/${config_filenames[$i]}"
+done
+
+# The log file path.
+logpath=$(
+python - << END
+import myutils
+parser = myutils.BetterConfigParser()
+parser.read('${tag}config/paths.ini')
+print parser.get('Directories', 'logpath')
+END
+)
+
+if [ ! -d $logpath ]; then
+    mkdir -p $logpath
 fi
-configList=${input_configs// / -C ${energy}config\/}                     # replace the spaces with ' -C '
-echo "@LOG : The config list you are using is"
-echo ${configList}
-echo "task is"
-echo ${task}
 
+# The MVA list.
+MVAList=$(
+python << END
+import myutils
+parser = myutils.BetterConfigParser()
+parser.read('${tag}config/training.ini')
+print parser.get('MVALists', 'List_for_submitscript')
+END
+)
 
-#------------------------------------
-#Run the scripts
-#------------------------------------
-
-echo "============================"
-echo "Will Lauch the script"
-echo "============================"
-echo "The command is"
+#-------------------------------------------------
+# Run Task
 
 if [ $task = "prep" ]; then
-    echo "./prepare_environment_with_config.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini"
-    ./prepare_environment_with_config.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini
+    echo "./prepare_environment_with_config.py --samples $sample ${config_filenames[@]}"
+    ./prepare_environment_with_config.py --samples $sample ${config_filenames[@]}
+
+elif [ $task = "singleprep" ]; then
+    echo "./prepare_environment_with_config.py --samples $sample ${config_filenames[@]} --filelist $filelist"
+    ./prepare_environment_with_config.py --samples $sample ${config_filenames[@]} --filelist $filelist
+
+elif [ $task = "mergesingleprep" ]; then
+    echo "./myutils/mergetreePSI.py --samples $sample ${config_filenames[@]}"
+    ./myutils/mergetreePSI.py --samples $sample ${config_filenames[@]}
+
+elif [ $task = "trainReg" ]; then
+    echo "./trainRegression.py --config ${tag}config/regression.ini ${config_filenames[@]}"
+    ./trainRegression.py --config ${tag}config/regression.ini ${config_filenames[@]}
+
+elif [ $task = "sys" ]; then
+    echo "./write_regression_systematics.py --samples $sample ${config_filenames[@]}"
+    ./write_regression_systematics.py --samples $sample ${config_filenames[@]}
+
+elif [ $task = "singlesys" ]; then
+    echo "./write_regression_systematics.py --samples $sample ${config_filenames[@]} --filelist $filelist"
+    ./write_regression_systematics.py --samples $sample ${config_filenames[@]} --filelist $filelist
+
+elif [ $task = "mergesinglesys" ]; then
+    echo "./myutils/mergetreePSI.py --samples $sample ${config_filenames[@]}  --mergesys True"
+    ./myutils/mergetreePSI.py --samples $sample ${config_filenames[@]} --mergesys True
+
+elif [ $task = "reg" ]; then
+    echo "./only_regression.py --samples $sample ${config_filenames[@]}"
+    ./only_regression.py --samples $sample ${config_filenames[@]}
+
+elif [ $task = "eval" ]; then
+    echo "./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]}"
+    ./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]}
+
+elif [ $task = "singleeval" ]; then
+    echo "./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]} --filelist $filelist"
+    ./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]} --filelist $filelist
+
+elif [ $task = "mergesingleeval" ]; then
+    echo "./myutils/mergetreePSI.py --samples $sample ${config_filenames[@]}  --mergeeval True"
+    ./myutils/mergetreePSI.py --samples $sample ${config_filenames[@]} --mergeeval True
+
+elif [ $task = "syseval" ]; then
+    echo "./write_regression_systematics.py --samples $sample ${config_filenames[@]}"
+    ./write_regression_systematics.py --samples $sample ${config_filenames[@]}
+    echo "./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]}"
+    ./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]}
+
+elif [ $task = "train" ]; then
+    echo "./train.py --training $sample ${config_filenames[@]} --local True"
+    ./train.py --training $sample ${config_filenames[@]} --local True
+
+elif [ $task = "plot" ]; then
+    echo "./tree_stack.py --region $sample ${config_filenames[@]}"
+    ./tree_stack.py --region $sample ${config_filenames[@]}
+
+elif [ $task = "dc" ]; then
+    echo "./workspace_datacard.py --variable $sample ${config_filenames[@]}"
+    ./workspace_datacard.py --variable $sample ${config_filenames[@]}
+
+elif [ $task = "split" ]; then
+    echo "./split_tree.py --samples $sample ${config_filenames[@]} --max-events $job_id"
+    ./split_tree.py --samples $sample ${config_filenames[@]} --max-events $job_id
+
+elif [ $task = "stack" ]; then
+    echo "./manualStack.py --config ${config_filenames[@]}"
+    ./manualStack.py ${config_filenames[@]}
+
+elif [ $task = "plot_sys" ]; then
+    echo "./plot_systematics.py ${config_filenames[@]}"
+    ./plot_systematics.py ${config_filenames[@]}
+
+elif [ $task = "mva_opt" ]; then
+    echo "BDT Hyperparameters: $bdt_params"
+    echo "./train.py --name ${sample} --training ${job_id} ${config_filenames[@]} --setting $bdt_params  --local True"
+    ./train.py --name ${sample} --training ${job_id} ${config_filenames[@]} --setting $bdt_params --local True
+
+elif [ $task = "mva_opt_eval" ]; then
+    echo "./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]} --weight $bdt_params"
+    ./evaluateMVA.py --discr $MVAList --samples $sample ${config_filenames[@]} --weight $bdt_params
+
+# WORK IN PROGRESS
+elif [ $task = "mva_opt_dc" ]; then
+    echo "./workspace_datacard.py --variable $sample ${config_filenames[@]} --optimisation $bdt_params"
+    ./workspace_datacard.py --variable $sample ${config_filenames[@]} --optimisation $bdt_params
+
 fi
 
-if [ $task = "singleprep" ]; then
-    echo './prepare_environment_with_config.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini --filelist "${optional_filelist}"'
-    ./prepare_environment_with_config.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini --filelist "${optional_filelist}"
-fi
-
-if [ $task = "mergesingleprep" ]; then
-    echo './myutils/mergetreePSI.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini --filelist "${optional_filelist}"'
-    ./myutils/mergetreePSI.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini --filelist "${optional_filelist}"
-fi
-
-if [ $task = "trainReg" ]; then
-    echo "./trainRegression.py --config ${energy}config/${configList} --config ${energy}config/regression.ini"
-    ./trainRegression.py --config ${energy}config/${configList} --config ${energy}config/regression.ini
-fi
-
-if [ $task = "singlesys" ]; then
-    echo "singlesys: ./write_regression_systematics.py --samples $sample --config ${energy}config/${configList} --filelist ${optional_filelist}"
-    ./write_regression_systematics.py --samples $sample --config ${energy}config/${configList} --filelist ${optional_filelist}
-fi
-
-if [ $task = "sys" ]; then
-    echo "./write_regression_systematics.py --samples $sample --config ${energy}config/${configList}"
-    ./write_regression_systematics.py --samples $sample --config ${energy}config/${configList}
-fi
-
-if [ $task = "mergesinglesys" ]; then
-    echo './myutils/mergetreePSI.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini --filelist "${optional_filelist}"'
-    ./myutils/mergetreePSI.py --samples $sample --config ${energy}config/${configList} --config ${energy}config/samples_nosplit.ini --filelist "${optional_filelist}" --mergesys "True"
-fi
-
-if [ $task = "reg" ]; then
-    ./only_regression.py --samples $sample --config ${energy}config/${configList}
-fi
-
-if [ $task = "eval" ]; then
-    echo "./evaluateMVA.py --discr $MVAList --samples $sample --config ${energy}config/${configList}"
-    ./evaluateMVA.py --discr $MVAList --samples $sample --config ${energy}config/${configList}
-fi
-
-if [ $task = "syseval" ]; then
-    echo "./write_regression_systematics.py --samples $sample --config ${energy}config/${configList}"
-    ./write_regression_systematics.py --samples $sample --config ${energy}config/${configList}
-    echo "./evaluateMVA.py --discr $MVAList --samples $sample --config ${energy}config/${configList}"
-    ./evaluateMVA.py --discr $MVAList --samples $sample --config ${energy}config/${configList}
-fi
-
-if [ $task = "train" ]; then
-    echo "./train.py --training $sample --config ${energy}config/${configList} --local True"
-    python train.py --training $sample --config ${energy}config/${configList} --local True
-fi
-
-if [ $task = "plot" ]; then
-    echo "./tree_stack.py --region $sample --config ${energy}config/${configList}"
-    ./tree_stack.py --region $sample --config ${energy}config/${configList}
-fi
-
-if [ $task = "singleplot" ]; then
-    echo "./prepare_plot_trees.py --samples $sample --config ${energy}config/${configList} --filelist ${optional_filelist}"
-    ./prepare_plot_trees.py --samples $sample --config ${energy}config/${configList} --filelist "${optional_filelist}"
-fi
-
-if [ $task = "dc" ]; then
-    echo "./workspace_datacard.py --variable $sample --config ${energy}config/${configList}  --config ${energy}config/datacards.ini"
-    ./workspace_datacard.py --variable $sample --config ${energy}config/${configList}  --config ${energy}config/datacards.ini
-fi
-
-if [ $task = "split" ]; then
-    echo "./split_tree.py --samples $sample --config ${energy}config/${configList} --max-events $job_id"
-    ./split_tree.py --samples $sample --config ${energy}config/${configList} --max-events $job_id
-fi
-
-if [ $task = "stack" ]; then
-    echo "./manualStack.py --config ${energy}config/${configList}"
-    ./manualStack.py --config ${energy}config/${configList}
-fi
-
-if [ $task = "plot_sys" ]; then
-    ./plot_systematics.py --config ${energy}config/${configList}
-fi
-if [ $task = "mva_opt" ]; then
-    if [ $# -lt 5 ]
-  then
-  echo "@ERROR: You passed " $# "arguments while BDT optimisation needs at least 5 arguments."
-  echo "Exiting..."
-  echo " ---------------------------------- "
-  echo " Usage : ./runAll.sh sample energy task jo_id bdt_factory_settings"
-  echo " ---------------------------------- "
-  exit
-    fi
-    echo "BDT factory settings"
-    echo $additional_arg
-    echo "Runnning"
-    python -u train.py --name ${sample} --training ${job_id} --config ${energy}config/${configList} --setting ${additional_arg} --local True
-fi
-if [ $task = "mva_opt_eval" ]; then
-    ./evaluateMVA.py --discr $MVAList --samples $sample --config ${energy}config/${configList} --weight ${additional_arg}
-fi
-#Work in progress
-if [ $task = "mva_opt_dc" ]; then
-    echo "python -u workspace_datacard.py --variable $sample --config ${energy}config/${configList}  --config ${energy}config/datacards.ini --optimisation ${additional_arg}"
-    python -u workspace_datacard.py --variable $sample --config ${energy}config/${configList}  --config ${energy}config/datacards.ini --optimisation ${additional_arg}
-fi
-
-echo "end runAll.sh"
+echo
+echo "Exiting runAll.sh"
+echo

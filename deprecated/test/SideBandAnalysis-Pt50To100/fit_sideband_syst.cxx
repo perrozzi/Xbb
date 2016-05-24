@@ -1,7 +1,7 @@
 #include "../../interface/fitInfo.hpp"
 #include "../../interface/controlRegions.h"
 #include "sampleSideBand.h"
-#include <iostream> 
+#include <iostream>
 #include <fstream>
 #include <TCanvas.h>
 #include <TLine.h>
@@ -39,7 +39,7 @@ int main(int argc, char **argv){
   std::string DYC = "ZjC";
   std::string DYB = "ZjH";
   std::string TTbar = "TT";
-  
+
   if(argc < 2)
     {
       std::cout << "Usage:\n  fit_sideband_syst [syst]" << std::endl;
@@ -85,7 +85,7 @@ int main(int argc, char **argv){
 
   if(debug_)
     std::cout << "Init the sample" << std::endl;
- 
+
   std::vector<Sample> s = histos();
 
   Sample data(1,"fake data","S1.root",0,true,1000);
@@ -96,7 +96,7 @@ int main(int argc, char **argv){
 
   if(debug_)
     std::cout << "Ls data sample" << std::endl;
-  data.file()->ls(); 
+  data.file()->ls();
 
   if(debug_)
     std::cout << "Init the mc sample" << std::endl;
@@ -119,24 +119,24 @@ int main(int argc, char **argv){
 	{
 	  if(debug_)
 	    std::cout << "Name = " << subs->At(i)->GetName()+std::string("/")  + objs->At(j)->GetName() << std::endl;
-	  names.push_back(subs->At(i)->GetName()+std::string("/")  + objs->At(j)->GetName());	 
+	  names.push_back(subs->At(i)->GetName()+std::string("/")  + objs->At(j)->GetName());
 	}
     }
 
   std::vector<fitInfo *> fitInfos;
-  std::vector<controlRegion*> crToFit;  
+  std::vector<controlRegion*> crToFit;
 
 
   std::string s_channel = "HZcomb";
   //  std::string s_channel = "HZee";
   std::string s_prefix = "BDT";
   // systematics prefix is needed for the yields effect
-  //  std::string s_sysprefix = "SystBtagUPBDT"; //BDTSystJecDOWN, BDTSystBtagFDOWN 
+  //  std::string s_sysprefix = "SystBtagUPBDT"; //BDTSystJecDOWN, BDTSystBtagFDOWN
   std::string s_sysprefix = "BDT";
   std::string s_region_Zbb_SB = "SideBand"; // SideBand
   std::string s_var_Zbb_SB = "ZH_dPhi";  //HiggsPt
   std::string s_region_ttbar_SB = "TTbarControl";
-  std::string s_var_ttbar_SB = "MET_et"; // one addjet required  
+  std::string s_var_ttbar_SB = "MET_et"; // one addjet required
   std::string s_region_Zlight_SB = "SideBand";
   std::string s_var_Zlight_SB = "SimpleJet1_bTag";
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv){
 
   if(debug_)
     std::cout << " filled the fit info " << std::endl;
- 
+
   Options o;
   double SF[] = {1.0,1.0,1.0}; // SF for scaling
 
@@ -183,11 +183,11 @@ int main(int argc, char **argv){
   TH1F * h = new TH1F;
   h->Sumw2();
 
-  for(size_t i = 0 ; i < names.size() ; i++) 
+  for(size_t i = 0 ; i < names.size() ; i++)
     {
       TString n=names[i];
       for(size_t j=0;j< s.size() ;j++)
-	{ 
+	{
 	  TString sampleName=s[j].name;
 	  h = ((TH1F*)s[j].file()->Get(names[i].c_str()));
 	  if(!s[j].data)
@@ -203,11 +203,11 @@ int main(int argc, char **argv){
 	    }
 	    if( n.Contains(TRegexp((fitInfos.at(r)->s_signalRegion).c_str())) ) // signal region. FIXME:  Really needed here for syst?
 	      fitInfos.at(r)->cr_signal->fillFromHisto(s[j], *h ,1 , h->GetNbinsX() ); // no under/overflow considered
-	    
+
 	  } // fitinfo loop
 	} // sample loop
     } //name loop
-  
+
   delete h;
 
   for(int i=0; i<fitInfos.size(); ++i){
@@ -219,7 +219,7 @@ int main(int argc, char **argv){
       std::cout << " ==== Fitting Data ====" << std::endl;
       fitInfos.at(i)->fillHistoToFit( *crToFit.at(i)->hData() );
     }
-  }    
+  }
 
   std::string zlightTemplate = "DYL+DYC";
   //  std::string zcharmTemplate = "DYC";
@@ -248,13 +248,13 @@ int main(int argc, char **argv){
 
   for(int i=0; i<f_vars.size(); ++i)
     std::cout << "Var at " << i << " name = " << f_vars.at(i)->GetName() << " Value = " << f_vars.at(i)->getVal() << std::endl;
- 
+
   bool sf_bool = true;
   for(int i=0; i<fitInfos.size(); ++i)
     fitInfos.at(i)->create_variable(templateNames,fixedTemplateNames,f_vars, sf_bool); //
 
   RooCategory varToFit("varToFit","varToFit");
-  
+
   for( int r=0; r<fitInfos.size(); ++r ){
     std::cout << " ------  "<< fitInfos.at(r)->regionName() <<"  ------ " << std::endl;
     fitInfos.at(r)->cr->dump();
@@ -262,13 +262,13 @@ int main(int argc, char **argv){
   }
   std::cout << " ------  "<< "Signal region (region where values are evaluated)" <<"  ------ " << std::endl;
   fitInfos.at(0)->cr_signal->dump();
-  
+
    std::cout << "Generatign var To Fit ............ " << std::endl;
-   
+
    if(debug_){
      for(int t = 0; t < templateNames.size() ; ++t){
-       std::cout << "Couting region : " << fitInfos.at(0)->cr->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl; 
-       std::cout << "Couting signal region : " << fitInfos.at(0)->cr_signal->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl; 
+       std::cout << "Couting region : " << fitInfos.at(0)->cr->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl;
+       std::cout << "Couting signal region : " << fitInfos.at(0)->cr_signal->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl;
      }
      std::cout << "-------------------------------------------" << std::endl;
      for( int r=0; r<fitInfos.size(); ++r ){
@@ -297,7 +297,7 @@ int main(int argc, char **argv){
 			Import(fitInfos.at(1)->var->GetName(),*fitInfos.at(1)->h_data),
 			Import(fitInfos.at(2)->var->GetName(),*fitInfos.at(2)->h_data));
 
-  
+
    std::cout << "Generatign RooSimultaneous ............ " << std::endl;
    RooSimultaneous simPdf("simPdf","simPdf",varToFit);
 
@@ -325,12 +325,12 @@ int main(int argc, char **argv){
        f_vars.at(i)->GetName() == DYB ||
        f_vars.at(i)->GetName() == TTbar )
      errorfile << f_vars.at(i)->GetName() << " " << syst_string + " syst error = " << TMath::Abs(1-f_vars.at(i)->getVal()) << std::endl;
-   errorfile.close();  
+   errorfile.close();
 
    //cleaning
    std::cout << "Cleaning" << std::endl;
    for(int i=0; i<(fixedTemplateNames.size()+templateNames.size()); ++i)
-     delete f_vars.at(i); 
+     delete f_vars.at(i);
    for(int i=0; i<crToFit.size();++i)
      delete crToFit.at(i);
    for(int i=0; i<fitInfos.size(); ++i)

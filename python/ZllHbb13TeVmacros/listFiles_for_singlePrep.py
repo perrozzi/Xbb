@@ -12,11 +12,11 @@ vetoed_datasets = [
                    "QCD_Pt_",
                    ]
 
-VHBBHeppy_version = 'VHBBHeppyV21'
+VHBBHeppy_version = 'VHBBHeppyV21bis'
 
 # intput_file = str(VHBBHeppy_version)+'.txt'
 #intput_file = 'DYB.txt'
-intput_file = 'DY5to50.txt'
+intput_file = 'V21bis.txt'
 
 das = "../das_client.py"
 
@@ -49,15 +49,20 @@ if __name__ == "__main__":
         # continue
 
         filename = (dataset[1:]).split("/")[0].replace("/","_")
+        # print 'step1',filename
 
         ext = ''
         if '_ext' in dataset:
             filename = filename+'_ext'+(dataset[1:]).split("_ext")[1][:1]
+        # print 'step2',filename
 
-        filename = filename+'__'+(dataset[1:]).split("/")[1].split(filename[:10])[0].replace("/","_")[:-1]
+        # add customization string (not needed so far)
+        # filename = filename+'__'+(dataset[1:]).split("/")[1].split(filename[:10])[0].replace("/","_")[:-1]
+        # print 'step3',filename
 
         if 'Run' in dataset:
             filename = (dataset[1:]).split("/")[0].replace("/","_")+(dataset[1:])[:-38].split((dataset[1:]).split("/")[0].replace("/","_"))[2]
+        # print 'step4',filename
 
         if os.path.isfile(VHBBHeppy_version+"_files/"+filename+".txt"):
             print "TERREMOTO E TRAGEDIA, "+VHBBHeppy_version+"_files/"+filename+".txt from dataset ",dataset,"already exists!!!"

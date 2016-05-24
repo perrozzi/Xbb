@@ -48,7 +48,7 @@ public :
   virtual double aJet_pt_jecDOWN( int idx );
   virtual TLorentzVector H_jecUP();
   virtual TLorentzVector H_jecDOWN();
-  
+
 };
 
 int ntupleReader::GetSign(int v){
@@ -75,7 +75,7 @@ std::vector<TLorentzVector> ntupleReader::SVs(){
   return iSVs;
 }
 
-double ntupleReader::typeIcorrMET( double sign = 0 ){ 
+double ntupleReader::typeIcorrMET( double sign = 0 ){
   double met_et;
   TLorentzVector sumPt;
   TLorentzVector sumPtRaw;
@@ -89,7 +89,7 @@ double ntupleReader::typeIcorrMET( double sign = 0 ){
   rawMet.SetPtEtaPhiE(MET_et, 0., MET_phi, MET_et);
   met_et = (rawMet - (sumPt - sumPtRaw)).Pt();
   return met_et;
-} 
+}
 TLorentzVector ntupleReader::VectorBoson(){
   TLorentzVector l1, l2;
   l1.SetPtEtaPhiM(vLepton_pt[0],vLepton_eta[0],vLepton_phi[0],vLepton_mass[0] );
@@ -121,35 +121,35 @@ TLorentzVector ntupleReader::H_jer( double sign ){
   return h;
 }
 
-double ntupleReader::hJet_PT( int idx, int sign ){ 
+double ntupleReader::hJet_PT( int idx, int sign ){
   if( TMath::Abs(sign) < 2 )
-    return  hJet_pt[idx]*(1 + (sign)*hJet_JECUnc[idx]); 
-  else // +- 2 are for jet energy corrections 
+    return  hJet_pt[idx]*(1 + (sign)*hJet_JECUnc[idx]);
+  else // +- 2 are for jet energy corrections
     return (hJet_jer( idx, sign - GetSign(sign)*1 )).Pt() ;
 }
 double ntupleReader::aJet_PT( int idx, int sign ){ return  aJet_pt[idx]*(1 + (sign)*aJet_JECUnc[idx]); }
 double ntupleReader::hJet_E( int idx, int sign ){  return  hJet_e[idx] * hJet_PT(idx, sign)/hJet_pt[idx]; }
 double ntupleReader::aJet_E( int idx, int sign ){ return aJet_e[idx] * aJet_PT(idx, sign)/aJet_pt[idx]; }
-TLorentzVector ntupleReader::Higgs( int sign ){ 
+TLorentzVector ntupleReader::Higgs( int sign ){
   TLorentzVector j1,j2,H;
   j1.SetPtEtaPhiE( hJet_PT(0,sign), hJet_eta[0], hJet_phi[0], hJet_E(0,sign) );
   j2.SetPtEtaPhiE( hJet_PT(1,sign), hJet_eta[1], hJet_phi[1], hJet_E(1,sign) );
   return  H=j1+j2;
 }
-double ntupleReader::hJet_CSV( int idx, int sign ){ 
+double ntupleReader::hJet_CSV( int idx, int sign ){
   //this is not reshaped
-  //else return (hJet_csv[idx]); 
+  //else return (hJet_csv[idx]);
   //this is reshaped using my framework
-  //  else return (sh.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csv[idx], hJet_flavour[idx] )); 
+  //  else return (sh.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csv[idx], hJet_flavour[idx] ));
   //using Niklas framework the csv not reshaped is called csvOld
   if( hJet_flavour[0] < 1 ) // stupid check if it is data. In niklas framework there is no csvOld for data. reshaping knows about data for flavour 0
-    return (reshape.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csv[idx], hJet_flavour[idx] )); 
+    return (reshape.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csv[idx], hJet_flavour[idx] ));
   else{ //MC
-    if(sign == 1) return (reshape_bTagUp.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] )); 
-    else if(sign == -1) return (reshape_bTagDown.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] )); 
-    else if( sign == 2 ) return (reshape_misTagUp.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));  
-    else if( sign == -2 ) return (reshape_misTagDown.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));  
-    else return (reshape.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] )); 
+    if(sign == 1) return (reshape_bTagUp.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));
+    else if(sign == -1) return (reshape_bTagDown.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));
+    else if( sign == 2 ) return (reshape_misTagUp.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));
+    else if( sign == -2 ) return (reshape_misTagDown.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));
+    else return (reshape.reshape( hJet_eta[idx], hJet_pt[idx], hJet_csvOld[idx], hJet_flavour[idx] ));
   }
 }
 
@@ -161,7 +161,7 @@ double ntupleReader::aJet_pt_jec( int idx, double sign ){ return  aJet_pt[idx]*(
 double ntupleReader::hJet_e_jec( int idx, double sign ){ return  hJet_e[idx]*(1 + (sign)*hJet_JECUnc[idx]); }
 double ntupleReader::aJet_e_jec( int idx, double sign ){ return  aJet_e[idx]*(1 + (sign)*aJet_JECUnc[idx]); }
 
-TLorentzVector ntupleReader::H_jec( double sign ){ 
+TLorentzVector ntupleReader::H_jec( double sign ){
   TLorentzVector j1,j2,H;
   j1.SetPtEtaPhiE( hJet_pt_jec(0,sign), hJet_eta[0], hJet_phi[0], hJet_e_jec(0,sign) );
   j2.SetPtEtaPhiE( hJet_pt_jec(1,sign), hJet_eta[1], hJet_phi[1], hJet_e_jec(1,sign) );
@@ -203,7 +203,7 @@ int ntupleReader::CountAddForwardJets(){
   int sum=0;
   for(int i=0; i<naJets; ++i)
     if( aJet_pt[i] > 30.
-	&& TMath::Abs(aJet_eta[i]) > 2.4 
+	&& TMath::Abs(aJet_eta[i]) > 2.4
 	&& TMath::Abs(aJet_eta[i]) < 4.5 )
       sum++;
   return sum;
@@ -228,7 +228,7 @@ int ntupleReader::CountAddLeptons(){
 }
 bool ntupleReader::TriggerBit()
 {
-  if(  triggerFlags[5] 
+  if(  triggerFlags[5]
        || triggerFlags[6] )
    return false;
   else

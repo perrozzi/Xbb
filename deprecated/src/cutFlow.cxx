@@ -26,7 +26,7 @@
 
 int main(int argc, char **argv)
 {
-  
+
   typedef std::vector<Sample> sampleCollection;
   setTDRStyle();
   bool verbose_ = true;
@@ -53,16 +53,16 @@ int main(int argc, char **argv)
   }
 
   for(size_t iS = 0; iS < samples.size(); ++iS ){
-    
+
     samples.at(iS).dump(1);
-    
+
     TFile* f = samples.at(iS).file();
     if(f==0){
       std::cerr << "File not found " << std::endl;
       std::cerr << "Please check the path of this file " << samples.at(iS).filename << std::endl;
       return -1;
     }
-    
+
     ntupleReader event(samples.at(iS).filename.c_str());
     bool trigger = true;
     Long64_t  entries  = event.fChain->GetEntriesFast();
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 
       //to speed up the loop
       if( event.Vtype != 1 )
-	continue;      
+	continue;
 
       //cut flow loop
       for(int i=0; i<signalRegionCutFlow.size(); ++i){
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
       }
 
     }
-        
+
   }
 
   for(int i=0; i<signalRegionCutFlow.size(); ++i){
@@ -97,9 +97,9 @@ int main(int argc, char **argv)
     std::cout << "Signal = " << cutFlowCR.at(i).cSignal() << " +- " << cutFlowCR.at(i).eSignal() << std::endl;
     std::cout << "Total = " << cutFlowCR.at(i).cTotal() << " +- " << cutFlowCR.at(i).eTotal() << std::endl;
     std::cout << "Data = " << cutFlowCR.at(i).cData() << " +- " << cutFlowCR.at(i).eData() << std::endl;
-    
+
   }
-  
+
 
   return 0;
 }

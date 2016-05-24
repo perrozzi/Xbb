@@ -36,7 +36,7 @@ void prepareAllZHistos(std::vector<CutsAndHistos *> & allHistosZ,TFile *fout  )
     //  allHistosZ.push_back(new CutsAndHistos(new BDTZlightControlRegion( channel, 0 , 0 ),new SystematicsHistos));
     allHistosZ.push_back(new CutsAndHistos(new BDTSideBandRegion( channel, 0, 0 ),new SystematicsHistos));
     allHistosZ.push_back(new CutsAndHistos(new BDTTrainingRegion( channel, 0, 0 ),new SystematicsHistos));
-    //  allHistosZ.push_back(new CutsAndHistos(new BDTZbbControlRegion( channel, 0, 0 ),new SystematicsHistos));        
+    //  allHistosZ.push_back(new CutsAndHistos(new BDTZbbControlRegion( channel, 0, 0 ),new SystematicsHistos));
 
     for(int j=0; j<4; ++j){ // jec systematics
       //Standard histos
@@ -45,13 +45,13 @@ void prepareAllZHistos(std::vector<CutsAndHistos *> & allHistosZ,TFile *fout  )
       allHistosZ.push_back(new CutsAndHistos(new BDTSignalRegion( channel, jec[j], 0 ),new SystematicsHistos));
       allHistosZ.push_back(new CutsAndHistos(new BDTSideBandRegion( channel, jec[j], 0 ),new SystematicsHistos));
     }
-    for( int b=0; b<5; ++b){ //btag systematics + no systematics ( [0,0] bin )  
+    for( int b=0; b<5; ++b){ //btag systematics + no systematics ( [0,0] bin )
       //Standard histos
       allHistosZ.push_back(new CutsAndHistos(new BDTSignalRegion( channel, 0, btag[b] ),new StandardHistos));
       //Systematics histos
       allHistosZ.push_back(new CutsAndHistos(new BDTSignalRegion( channel, 0, btag[b] ),new SystematicsHistos));
     }
-    
+
   }
 
   for(size_t a=0;a < allHistosZ.size(); a++)
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     std::string name = samples.at(iS).filename;
     samples.at(iS).dump(1);
 
-    std::cout << "is data = " << samples.at(iS).data << std::endl; 
+    std::cout << "is data = " << samples.at(iS).data << std::endl;
     //if appendix is needed
     name+=file_appendix;
 
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 
     if(samples.at(iS).data) { data=true; splitBCLIGHT=false;}
     else{ data=false; splitBCLIGHT=true;}
-  
+
     //    mkdir("./Histograms",755);
 
     if(verbose_)
@@ -116,11 +116,11 @@ int main(int argc, char **argv)
     //    std::regex ex("ZllH");
       //      fout_name = regex_replace(name, ex, std::string("./histos/ZllH$2"), std::regex_constants::match_default);
     //    fout_name = regex_replace(name, ex, std::string("./histos/ZllH"));
-      //  }      
+      //  }
 
-//     if(fout_name.find(std::string("pnfs")))    
+//     if(fout_name.find(std::string("pnfs")))
 //       fout_name.replace(0, std::string("dcap://t3se01.psi.ch:22125//pnfs/psi.ch/cms/trivcat/store/HBB_EDMNtuple/V42/Oct5/env/sys/MVAout/").length(),"./SideBandAnalysis-Pt50To100/histos/");
-    
+
     std::cout << "Output file name : " << fout_name << std::endl;
     //create putput file
     TFile *fout = new TFile((fout_name+".histos.root").c_str(),"RECREATE");
@@ -237,7 +237,7 @@ int main(int argc, char **argv)
       if(splitBCLIGHT){
 	if( TMath::Abs(event.eventFlav) != 5 ){
 	  event_all_b++;
-	  for(size_t a=0;a < allHistosNoBZ.size(); a++) 
+	  for(size_t a=0;a < allHistosNoBZ.size(); a++)
 	    if(stitching)
 	      allHistosNoBZ[a]->process(event,eventWeight,samples.at(iS));
 	    else
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
 	}
 	if( TMath::Abs(event.eventFlav) == 5 ){
 	  event_all_nob++;
-	  for(size_t a=0;a < allHistosBZ.size(); a++) 
+	  for(size_t a=0;a < allHistosBZ.size(); a++)
 	    if(stitching)
 	      allHistosBZ[a]->process(event,eventWeight,samples.at(iS));
 	    else
@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	}
 	else if( TMath::Abs(event.eventFlav) == 4 ){
 	  event_all_c++;
-	  for(size_t a=0;a < allHistosCZ.size(); a++)   
+	  for(size_t a=0;a < allHistosCZ.size(); a++)
 	    if(stitching)
 	      allHistosCZ[a]->process(event,eventWeight,samples.at(iS));
 	    else
@@ -262,12 +262,12 @@ int main(int argc, char **argv)
 	  event_all_l++;
 	  for(size_t a=0;a < allHistosLZ.size(); a++)
 	    if(stitching)
-	      allHistosLZ[a]->process(event,eventWeight,samples.at(iS));	  
+	      allHistosLZ[a]->process(event,eventWeight,samples.at(iS));
 	    else
 	      allHistosLZ[a]->process(event,eventWeight);
 	}
       }
-    
+
       for(size_t a=0;a < allHistosZ.size(); a++)
 	{
 	  if(stitching)
@@ -275,30 +275,30 @@ int main(int argc, char **argv)
 	  else
 	    allHistosZ[a]->process(event,eventWeight);
 	}
-    
+
     }
-    
+
     fout->Write();
     fout->Close();
-  
+
     if(splitBCLIGHT){
       foutNoB->Write();
       foutNoB->Close();
 
       foutB->Write();
       foutB->Close();
-    
+
       foutC->Write();
       foutC->Close();
-    
+
       foutL->Write();
-      foutL->Close();   
+      foutL->Close();
     }
 
     f->Close();
 
     std::cout << "TOT: " << event_all << " b: " << event_all_b << " c: "<<  event_all_c <<" l: " << event_all_l <<" noB : " << event_all_nob  <<  std::endl;
 
-  }  
+  }
   return 0;
 }

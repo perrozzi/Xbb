@@ -17,8 +17,8 @@ class HistoMaker:
         #optionsList: Dictionnary containing information on vars, including the cuts
         #! Read arguments and initialise variables
 
-        print "Start Creating HistoMaker"
-        print "=========================\n"
+        #print "Start Creating HistoMaker"
+        #print "=========================\n"
         self.path = path
         self.config = config
         self.optionsList = optionsList
@@ -36,25 +36,25 @@ class HistoMaker:
         VHbbNameSpace=config.get('VHbbNameSpace','library')
         ROOT.gSystem.Load(VHbbNameSpace)
 
-        print ""
-        print "Done Creating HistoMaker"
-        print "========================\n"
+        #print ""
+        #print "Done Creating HistoMaker"
+        #print "========================\n"
 
     def get_histos_from_tree(self,job,quick=True):
         start_time = time.time()
 
-        print "=============================================================\n"
-        print "THE SAMPLE IS ",job.name
-        print "=============================================================\n"
+        #print "=============================================================\n"
+        #print "THE SAMPLE IS ",job.name
+        #print "=============================================================\n"
 
         '''Function that produce the trees from a HistoMaker'''
          
-        print "Begin to extract the histos from trees (get_histos_from_tree)"
-        print "=============================================================\n"
+        #print "Begin to extract the histos from trees (get_histos_from_tree)"
+        #print "=============================================================\n"
 
         if self.lumi == 0: 
             lumi = self.config.get('Plot_general','lumi')
-            print("You're trying to plot with no lumi, I will use ",lumi)
+            #print("You're trying to plot with no lumi, I will use ",lumi)
             self.lumi = lumi
          
         hTreeList=[]
@@ -85,14 +85,14 @@ class HistoMaker:
         #! start the loop over variables (descriebed in options) 
         First_iter = True
         for options in self.optionsList:
-            if First_iter: print 'The name of the job is', job.name
+            #if First_iter: print 'The name of the job is', job.name
             name=job.name
             if self.GroupDict is None:
                 group=job.group
             else:
                 group=self.GroupDict[job.name]
             treeVar=options['var']
-            if First_iter: print("START %s"%treeVar)
+            #if First_iter: print("START %s"%treeVar)
             name=options['name']
             # print 'options[\'name\']',options['name']
             if self._rebin or self.calc_rebin_flag:
@@ -156,18 +156,18 @@ class HistoMaker:
                         lowLimitBlindingMass =hTree.GetBinLowEdge(hTree.FindBin(lowLimitBlindingMass))
                         highLimitBlindingMass =hTree.GetBinLowEdge(hTree.FindBin(highLimitBlindingMass))+ hTree.GetBinWidth(hTree.GetBin(highLimitBlindingMass))
                         veto = ("(%s <%s || %s > %s)" %(treeVar,lowLimitBlindingMass,treeVar,highLimitBlindingMass))
-                        if First_iter: print "Using veto:",veto
+                        #if First_iter: print "Using veto:",veto
                         CuttedTree.Draw('%s>>%s' %(treeVar,name),veto +'&'+' %(cut)s' %options, "goff,e")
                     elif 'BDT' in treeVar or 'bdt' in treeVar or 'nominal' in treeVar in treeVar:
                         lowLimitBlindingBDT = hTree.GetBinLowEdge(hTree.FindBin(lowLimitBlindingBDT))
                         veto = "(%s <%s)" %(treeVar,lowLimitBlindingBDT)
-                        if First_iter: print "Using veto:",veto
+                        #if First_iter: print "Using veto:",veto
                         CuttedTree.Draw('%s>>%s' %(treeVar,name),veto +'&'+' %(cut)s'%options, "goff,e")
                     elif 'dR' in treeVar and 'H' in treeVar:
                         lowLimit   = hTree.GetBinLowEdge(hTree.FindBin(lowLimitBlindingDR))
                         highLimit  = hTree.GetBinLowEdge(hTree.FindBin(highLimitBlindingDR))
                         veto = ("(%s <%s || %s > %s)" %(treeVar,lowLimitBlindingMass,treeVar,highLimitBlindingMass))
-                        if First_iter: print "Using veto:",veto
+                        #if First_iter: print "Using veto:",veto
                         CuttedTree.Draw('%s>>%s' %(treeVar,name),veto +'&'+' %(cut)s'%options, "goff,e")
                     else:
                         CuttedTree.Draw('%s>>%s' %(treeVar,name),'%s' %treeCut, "goff,e")
@@ -190,7 +190,7 @@ class HistoMaker:
                 if 'BDT' in treeVar or 'bdt' in treeVar or 'OPT' in treeVar:
                     if TrainFlag:
                         MC_rescale_factor=2. ##FIXME## only dataset used for training must be rescaled!!
-                        print 'I RESCALE BY 2.0'
+                        #print 'I RESCALE BY 2.0'
                     else: 
                         MC_rescale_factor = 1.
                     ScaleFactor = self.tc.get_scale(job,self.config,self.lumi, count)*MC_rescale_factor
@@ -199,19 +199,19 @@ class HistoMaker:
                 if ScaleFactor != 0:
                     hTree.Scale(ScaleFactor)
                 integral = hTree.Integral()
-                print '\t-->import %s\t Integral: %s'%(job.name,integral)
-                print("job:",job.name," ScaleFactor=",ScaleFactor)
-                print("END RESCALE")
-                print("START addOverFlow")
+                #print '\t-->import %s\t Integral: %s'%(job.name,integral)
+                #print("job:",job.name," ScaleFactor=",ScaleFactor)
+                #print("END RESCALE")
+                #print("START addOverFlow")
                 # !! Brute force correction for histograms with negative integral (problems with datacard) !!
                 if integral<0:
                     hTree.Scale(-0.001)
-                    print "#"*30
-                    print "#"*30
-                    print "original integral was:",integral
-                    print "now is:", hTree.Integral()
-                    print "#"*30
-                    print "#"*30
+                    #print "#"*30
+                    #print "#"*30
+                    #print "original integral was:",integral
+                    #print "now is:", hTree.Integral()
+                    #print "#"*30
+                    #print "#"*30
             if addOverFlow:
                 uFlow = hTree.GetBinContent(0)+hTree.GetBinContent(1)
                 oFlow = hTree.GetBinContent(hTree.GetNbinsX()+1)+hTree.GetBinContent(hTree.GetNbinsX())
@@ -236,9 +236,9 @@ class HistoMaker:
             First_iter = False
         if CuttedTree: CuttedTree.IsA().Destructor(CuttedTree)
         del CuttedTree
-        print "Finished to extract the histos from trees (get_histos_from_tree)"
-        print "================================================================\n"
-        print "get_histos_from_tree DONE for ",job.name," in ", str(time.time() - start_time)," s."
+        #print "Finished to extract the histos from trees (get_histos_from_tree)"
+        #print "================================================================\n"
+        #print "get_histos_from_tree DONE for ",job.name," in ", str(time.time() - start_time)," s."
         return hTreeList
        
     @property

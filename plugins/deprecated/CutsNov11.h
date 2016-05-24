@@ -23,7 +23,7 @@ class VlightRegionHZee: public CutSample {
  public:
   Bool_t pass(ntupleReader &p){
     iType = (VType)p.Vtype;
-    return (  p.Vtype == 1 
+    return (  p.Vtype == 1
 	     && p.V_mass > 75.
 	     && p.V_mass < 105.
 	     && p.V_pt > 100.
@@ -35,7 +35,7 @@ class VlightRegionHZee: public CutSample {
 	     && p.hbhe == true
 	     && TMath::Abs( p.HVdPhi ) > 2.9
 	     && p.CountAddJets() < 2
-	     && !(p.hJet_csv[0] > CSVT || p.hJet_csv[1] > CSVT ) 
+	     && !(p.hJet_csv[0] > CSVT || p.hJet_csv[1] > CSVT )
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -57,7 +57,7 @@ class VlightRegionHZee: public CutSample {
     else sampleCut=false;
     iType = (VType)p.Vtype;
     return ( sampleCut == true
-	     && p.Vtype == 1 
+	     && p.Vtype == 1
 	     && p.V_mass > 75.
 	     && p.V_mass < 105.
 	     && p.V_pt > 100.
@@ -69,7 +69,7 @@ class VlightRegionHZee: public CutSample {
 	     && p.hbhe == true
 	     && TMath::Abs( p.HVdPhi ) > 2.9
 	     && p.CountAddJets() < 2
-	     && !(p.hJet_csv[0] > CSVT || p.hJet_csv[1] > CSVT ) 
+	     && !(p.hJet_csv[0] > CSVT || p.hJet_csv[1] > CSVT )
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   double weight(ntupleReader &p, Sample &sample){ if( sample.data ) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
@@ -80,7 +80,7 @@ class TTbarRegionHZee: public CutSample {
   std::string name() {return "TTbarRegionHZee";};
  public:
   Bool_t pass(ntupleReader &p){
-    return( p.Vtype == 1 
+    return( p.Vtype == 1
 	    && ( p.V_mass > 105.
 		 || p.V_mass < 75. )
 	    && p.H_pt > 100.
@@ -110,8 +110,8 @@ class TTbarRegionHZee: public CutSample {
     else if( sample.name != DY && sample.name != DYBOOSTED )
       sampleCut = true;
     else sampleCut = false;
-    return( sampleCut == true 
-	    && p.Vtype == 1 
+    return( sampleCut == true
+	    && p.Vtype == 1
 	    && ( p.V_mass > 105.
 		 || p.V_mass < 75. )
 	    && p.H_pt > 100.
@@ -133,7 +133,7 @@ class oldTTbarRegionHZee: public CutSample {
   std::string name() {return "oldTTbarRegionHZee";};
  public:
   Bool_t pass(ntupleReader &p){
-    return( p.Vtype == 1 
+    return( p.Vtype == 1
 	    && p.V_mass > 120
 	    && p.MET_et > 50.
 	    && p.H_mass < 250
@@ -160,8 +160,8 @@ class oldTTbarRegionHZee: public CutSample {
     else if( sample.name != DY && sample.name != DYBOOSTED )
       sampleCut = true;
     else sampleCut = false;
-    return( sampleCut == true 
-	    && p.Vtype == 1 
+    return( sampleCut == true
+	    && p.Vtype == 1
 	    && p.V_mass > 120.
 	    && p.MET_et > 50.
 	    && p.hJet_pt[0] > 20.
@@ -180,7 +180,7 @@ class VbbRegionHZee: public CutSample {
   Bool_t pass(ntupleReader &p){
     return( p.Vtype == 1
 	    && p.V_mass > 75.
-	    && p.V_mass < 105. 
+	    && p.V_mass < 105.
 	    && p.V_pt > 0.
 	    && p.H_pt > 0.
 	    && p.hJet_pt[0] > 20.
@@ -196,8 +196,8 @@ class VbbRegionHZee: public CutSample {
 	    && ( p.H_mass < 90
 		 || p.H_mass > 145 )
 	    && p.H_mass < 250
-	    && TMath::Abs(p.HVdPhi) > 2.9  
-	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );    
+	    && TMath::Abs(p.HVdPhi) > 2.9
+	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
     bool sampleCut = false;
@@ -217,10 +217,10 @@ class VbbRegionHZee: public CutSample {
       sampleCut = true;
     else
       sampleCut=false;
-    return( sampleCut == true 
+    return( sampleCut == true
 	    && p.Vtype == 1
 	    && p.V_mass > 75.
-	    && p.V_mass < 105. 
+	    && p.V_mass < 105.
 	    && p.V_pt > 0.
 	    && p.H_pt > 0.
 	    && p.hJet_pt[0] > 20.
@@ -236,8 +236,8 @@ class VbbRegionHZee: public CutSample {
 	    && ( p.H_mass < 90
 		 || p.H_mass > 145 )
 	    && p.H_mass < 250
-	    && TMath::Abs(p.HVdPhi) > 2.9  
-	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );    
+	    && TMath::Abs(p.HVdPhi) > 2.9
+	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
@@ -264,7 +264,7 @@ class SignalRegionHZee: public CutSample{
 	     && TMath::Abs(p.HVdPhi) > 2.9
 	     && p.EVENT_json == true
 	     && p.hbhe == true
-	     && p.CountAddJets() < 2 
+	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample & sample){
@@ -303,10 +303,10 @@ class SignalRegionHZee: public CutSample{
 	     && TMath::Abs(p.HVdPhi) > 2.9
 	     && p.EVENT_json == true
 	     && p.hbhe == true
-	     && p.CountAddJets() < 2 
+	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
-  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }      
+  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
 
 class BDTRegionHZee: public CutSample{
@@ -314,16 +314,16 @@ class BDTRegionHZee: public CutSample{
  public:
   Bool_t pass(ntupleReader &p){
     return ( p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
-	     && p.hJet_csv[0] > 0.244 
-	     && p.hJet_csv[1] > 0.244 
-	     && p.H_pt > 100. 
-	     && p.V_pt > 100. 
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
+	     && p.hJet_csv[0] > 0.244
+	     && p.hJet_csv[1] > 0.244
+	     && p.H_pt > 100.
+	     && p.V_pt > 100.
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.H_mass < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -345,19 +345,19 @@ class BDTRegionHZee: public CutSample{
     else sampleCut=false;
     return ( sampleCut == true
 	     && p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
-	     && p.hJet_csv[0] > 0.244 
-	     && p.hJet_csv[1] > 0.244 
-	     && p.H_pt > 100. 
-	     && p.V_pt > 100. 
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
+	     && p.hJet_csv[0] > 0.244
+	     && p.hJet_csv[1] > 0.244
+	     && p.H_pt > 100.
+	     && p.V_pt > 100.
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.H_mass < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
-  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); } 
+  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
 
 
@@ -366,15 +366,15 @@ class BDTZbbControlRegionHZee: public CutSample{
  public:
   Bool_t pass(ntupleReader &p){
     return ( p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
-	     && p.hJet_csv[0] > CSVL 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
+	     && p.hJet_csv[0] > CSVL
 	     && p.hJet_csv[1] > CSVL
 	     && p.V_pt < 100.
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.H_mass < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -401,13 +401,13 @@ class BDTZbbControlRegionHZee: public CutSample{
 	     && p.hJet_csv[0] > CSVL
 	     && p.hJet_csv[1] > CSVL
 	     && p.V_pt < 100.
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.H_mass < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
-  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); } 
+  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
 
 class BDTZlightControlRegionHZee: public CutSample{
@@ -415,15 +415,15 @@ class BDTZlightControlRegionHZee: public CutSample{
  public:
   Bool_t pass(ntupleReader &p){
     return ( p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
 	     && p.hJet_csv[0] < CSVL
 	     && p.hJet_csv[1] < CSVL
 	     && p.V_pt > 100.
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.H_mass < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -445,18 +445,18 @@ class BDTZlightControlRegionHZee: public CutSample{
     else sampleCut=false;
     return ( sampleCut == true
 	     && p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
 	     && p.hJet_csv[0] < CSVL
 	     && p.hJet_csv[1] < CSVL
 	     && p.V_pt > 100.
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.H_mass < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
-  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); } 
+  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
 
 class BDTTTbarControlRegionHZee: public CutSample{
@@ -464,13 +464,13 @@ class BDTTTbarControlRegionHZee: public CutSample{
  public:
   Bool_t pass(ntupleReader &p){
     return ( p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
-	     && p.hJet_csv[0] > CSVL 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
+	     && p.hJet_csv[0] > CSVL
 	     && p.hJet_csv[1] > CSVL
-	     && p.H_pt > 100. 
-	     //	     && p.V_pt > 100. 
-	     && p.V_mass > 50. 
+	     && p.H_pt > 100.
+	     //	     && p.V_pt > 100.
+	     && p.V_mass > 50.
 	     //&& p.H_mass < 250.
 	     && ( p.V_mass > 105.
 		  || p.V_mass < 75. )
@@ -495,19 +495,19 @@ class BDTTTbarControlRegionHZee: public CutSample{
     else sampleCut=false;
     return ( sampleCut == true
 	     && p.Vtype == 1
-	     && p.hJet_pt[0] > 20. 
-	     && p.hJet_pt[1] > 20. 
-	     && p.hJet_csv[0] > CSVL 
-	     && p.hJet_csv[1] > CSVL 
-	     && p.H_pt > 100. 
-	     //	     && p.V_pt > 100. 
+	     && p.hJet_pt[0] > 20.
+	     && p.hJet_pt[1] > 20.
+	     && p.hJet_csv[0] > CSVL
+	     && p.hJet_csv[1] > CSVL
+	     && p.H_pt > 100.
+	     //	     && p.V_pt > 100.
 	     && p.V_mass > 50.
 	     //&& p.H_mass < 250.
  	     && ( p.V_mass > 105.
  		  || p.V_mass < 75. )
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
-  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); } 
+  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
 
 
@@ -630,12 +630,12 @@ class ZZRegionZee: public CutSample {
   Bool_t pass(ntupleReader &p){
     return( p.Vtype == 1
 	    && p.V_mass > 75.
-	    && p.V_mass < 105. 
+	    && p.V_mass < 105.
 	    && p.EVENT_json == true
 	    && p.hbhe == true
 	    //&& p.CountAddJets() < 2
 	    && p. MET_et < 30
-	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );    
+	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
     bool sampleCut = false;
@@ -655,15 +655,15 @@ class ZZRegionZee: public CutSample {
       sampleCut = true;
     else
       sampleCut=false;
-    return( sampleCut == true 
+    return( sampleCut == true
 	    && p.Vtype == 1
 	    && p.V_mass > 75.
-	    && p.V_mass < 105. 
+	    && p.V_mass < 105.
 	    && p.EVENT_json == true
 	    && p.hbhe == true
 	    // && p.CountAddJets() < 2
 	    && p. MET_et < 30
-	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );    
+	    && ( p.triggerFlags[5] || p.triggerFlags[6] ) );
   }
   double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };

@@ -53,26 +53,26 @@ class PCut : public Cut
       std::stringstream s;
       s << m_cut;
       return s.str();
-    } 
+    }
   float m_cut;
-  float M_cut; 
+  float M_cut;
 };
 
 class CutSet : public Cut {
  public:
  void add(Cut *c) {cuts.push_back(c);}
- void drop(Cut *c) { pastes.push_back(c);}  
+ void drop(Cut *c) { pastes.push_back(c);}
  int size(){ return cuts.size(); }
  bool pass(ntupleReader &event) {
   bool result=true;
   for(size_t i=0; i< cuts.size() ; i++)
-    if( ! (cuts.at(i)->pass(event)) ) 
+    if( ! (cuts.at(i)->pass(event)) )
       result=false;
   for(size_t i=0; i< pastes.size() ; i++)
-    if( (pastes.at(i)->pass(event)) ) 
+    if( (pastes.at(i)->pass(event)) )
       result=true;
   return result;
- } 
+ }
  std::string name() {
    std::stringstream s;
    for(size_t i=0; i< cuts.size() ; i++) {
@@ -84,7 +84,7 @@ class CutSet : public Cut {
 private:
  std::vector<Cut *> cuts;
  std::vector<Cut *> pastes;
- 
+
 };
 
 
@@ -93,7 +93,7 @@ private:
 class PCutSet : public Cut {
  public:
  void add(PCut *c) {cuts.push_back(c);}
- void drop(PCut *c) { pastes.push_back(c);}  
+ void drop(PCut *c) { pastes.push_back(c);}
  int size(){ return cuts.size(); }
  bool pass(ntupleReader &event) {
   bool result=true;
@@ -101,7 +101,7 @@ class PCutSet : public Cut {
     if( ! (cuts.at(i)->pass(event)) )
       result=false;
   for(size_t i=0; i< pastes.size() ; i++)
-    if( (pastes.at(i)->pass(event)) ) 
+    if( (pastes.at(i)->pass(event)) )
       result=true;
   return result;
  }
@@ -111,7 +111,7 @@ class PCutSet : public Cut {
     if( ! (cuts.at(i)->pass(event)) )
       result=false;
     for(size_t i=0; i< pastes.size() ; i++)
-      if( (pastes.at(i)->pass(event)) ) 
+      if( (pastes.at(i)->pass(event)) )
 	result=true;
   }
   return result;
@@ -155,23 +155,23 @@ public:
    }
 
   //TODO: implement destructor for all pointers received
-  
+
   void book(TFile &f) {
-    for(size_t i=0; i< histos.size(); i++) 
+    for(size_t i=0; i< histos.size(); i++)
       histos.at(i)->book(f,suffix);
   }
-  
+
   void process(ntupleReader &event, float w)
   {
     if(cutS->pass(event))
-      for(size_t i=0; i< histos.size(); i++) 
+      for(size_t i=0; i< histos.size(); i++)
 	histos.at(i)->fill(event,w);
   }
-  
+
   void process(ntupleReader &event, float w, Sample &s)
   {
     if(cutS->pass(event,s))
-      for(size_t i=0; i< histos.size(); i++) 
+      for(size_t i=0; i< histos.size(); i++)
 	histos.at(i)->fill(event, (w * cutS->weight(event,s)) );
   }
 
@@ -180,7 +180,7 @@ public:
   std::vector<Histos *> histos;
 
  private:
-  std::string suffix;    
+  std::string suffix;
 };
 
 #endif

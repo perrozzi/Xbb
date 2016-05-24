@@ -39,18 +39,18 @@ bool sampleCut(ntupleReader &p, Sample &sample){
 
 //I collect the weight and the sample information ONLY here in the SignalPreselection
 class PreSelectionZee : public CutSample {
-  std::string name() {return "PreSelZee";};  
+  std::string name() {return "PreSelZee";};
   Bool_t pass(ntupleReader &p ){ return ( p.Vtype == 1 );  }
   Bool_t pass(ntupleReader &p, Sample &sample ){
     return ( sampleCut(p, sample) == true
 	     && p.Vtype == 1
 	     && p.EVENT_json == true
-	     && p.hbhe == true 
+	     && p.hbhe == true
 	     && ( p.triggerFlags[5] || p.triggerFlags[6] ) );  }
-  double weight(ntupleReader &p, Sample &sample){ 
-    if( sample.data ) 
-      return 1; 
-    else 
+  double weight(ntupleReader &p, Sample &sample){
+    if( sample.data )
+      return 1;
+    else
       return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 };
 

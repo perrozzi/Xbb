@@ -1,6 +1,6 @@
 #include <sampleSideBand.h>
-#include <iostream> 
-#include <fstream> 
+#include <iostream>
+#include <fstream>
 #include <TCanvas.h>
 #include <TLine.h>
 #include <TRegexp.h>
@@ -30,7 +30,7 @@ void plottingmacro()
   gStyle->SetErrorX(0.5);
   gROOT->ForceStyle();
   initOptions();
-  
+
   if(debug_)
     std::cout << "Init the sample" << std::endl;
   std::vector<Sample> s = histos();
@@ -43,7 +43,7 @@ void plottingmacro()
 
   if(debug_)
     std::cout << "Ls data sample" << std::endl;
-  data.file()->ls(); 
+  data.file()->ls();
 
   if(debug_)
     std::cout << "Init the mc sample" << std::endl;
@@ -78,9 +78,9 @@ void plottingmacro()
 
   std::string process;
 
-  for(size_t i = 0 ; i < names.size() ; i++) 
+  for(size_t i = 0 ; i < names.size() ; i++)
     {
-      
+
       std::map<std::string,TH1F *> grouped;
       TString n=names[i];
 
@@ -115,7 +115,7 @@ void plottingmacro()
 
       if(debug_)
 	std::cout << "Creating histograms" << std::endl;
-  
+
       TH1F *hd = ((TH1F*)data.file()->Get(names[i].c_str()));
       hd->Sumw2();
       Options o=options[names[i]];
@@ -141,10 +141,10 @@ void plottingmacro()
       l->SetTextFont(62);
       l->SetTextSize(0.03);
       if(debug_)
-	std::cout << "Adding data to the legend" << std::endl;  
+	std::cout << "Adding data to the legend" << std::endl;
       l->AddEntry(hd, "Data","P");
       if(debug_)
-	std::cout << "Adding MC to the THStack" << std::endl;  
+	std::cout << "Adding MC to the THStack" << std::endl;
 
       //scale factors {DYL, TTBar, , DYC, DYB}
       //      double SF[] = {1.00,1.00,1.00,1.00}; //
@@ -179,31 +179,31 @@ void plottingmacro()
 //       hd->DrawNormalized();
 
       double mcIntegral=0;
-      for(size_t j=0;j< s.size() ;j++) 
-	{ 
-	  if(!s[j].data) 
+      for(size_t j=0;j< s.size() ;j++)
+	{
+	  if(!s[j].data)
 	    {
 	      if(debug_)
-		std::cout << "Creating TH1F from file " << s[j].name << std::endl;  
+		std::cout << "Creating TH1F from file " << s[j].name << std::endl;
 	      TH1F * h = ((TH1F*)s[j].file()->Get(names[i].c_str()));
 	      h->Sumw2();
 	      if(debug_){
-		std::cout << "TH1F created from file " << s[j].name << std::endl;  
-		std::cout << "Scaling : " << s[j].scale(data.lumi()) << std::endl;  
-		std::cout << "Scaling with SF : " << s[j].scale(data.lumi()) << std::endl;  
+		std::cout << "TH1F created from file " << s[j].name << std::endl;
+		std::cout << "Scaling : " << s[j].scale(data.lumi()) << std::endl;
+		std::cout << "Scaling with SF : " << s[j].scale(data.lumi()) << std::endl;
 		std::cout << "Histo integral before scaling = " << h->Integral() << std::endl;
 	      }
 	      h->Scale(s[j].scale(data.lumi(),SF ));
 	      if(debug_){
 		std::cout << "Histo integral after scaling = " << h->Integral() << std::endl;
-		std::cout << "Managing style... " << std::endl;  
+		std::cout << "Managing style... " << std::endl;
 	      }
 	      h->SetLineWidth(1.);
 	      h->SetFillColor(s[j].color);
 	      h->SetLineColor(s[j].color);
 	      //	      h->Rebin(options[names[i]].rebin);
 	      if(debug_)
-		std::cout << "Cloning and update legend " << std::endl;  
+		std::cout << "Cloning and update legend " << std::endl;
 	      if(grouped.find(s[j].name) == grouped.end()){
 		l->AddEntry(h,s[j].name.c_str(),"F");
 		//		h->SetLineColor(kBlack);
@@ -221,7 +221,7 @@ void plottingmacro()
 	      grouped[s[j].name]->SetLineColor(s[j].color);
 	    }
 	}
-      
+
       if(debug_){
 	std::cout << "Data total = " << hd->Integral() << std::endl;
 	std::cout << "MC = " << mcIntegral << std::endl;
@@ -262,7 +262,7 @@ void plottingmacro()
       TH1D * divisionErrorBand = (TH1D*)(hmc)->Clone("divisionErrorBand");
       divisionErrorBand->Sumw2();
       divisionErrorBand->Divide(hmc);
-      divisionErrorBand->Draw("E2");      
+      divisionErrorBand->Draw("E2");
       divisionErrorBand->SetMaximum(2.49);
       divisionErrorBand->SetMinimum(0);
       divisionErrorBand->SetMarkerStyle(20);
@@ -294,7 +294,7 @@ void plottingmacro()
 	  divisionSystErrorBand->SetBinError( i+1, syst_err.at(i) );
 	}
       }
-      divisionSystErrorBand->Draw("E2 same");      
+      divisionSystErrorBand->Draw("E2 same");
       divisionSystErrorBand->SetMaximum(2.49);
       divisionSystErrorBand->SetMinimum(0);
       divisionSystErrorBand->SetMarkerStyle(20);
@@ -304,8 +304,8 @@ void plottingmacro()
       divisionSystErrorBand->SetMarkerSize(0.);
 
       //redraw to make it visible
-      divisionErrorBand->Draw("E2 same"); 
-      BtmPad->RedrawAxis(); 
+      divisionErrorBand->Draw("E2 same");
+      BtmPad->RedrawAxis();
 
 
       TH1D * division = (TH1D*)(hd)->Clone("division");
@@ -333,7 +333,7 @@ void plottingmacro()
       //      line->SetLineColor(kRed);
       line->SetLineStyle(2); //dashed
       line->Draw("same");
-      
+
       TLegend * leg3 =new TLegend(0.50,0.86,0.69,0.96);
       leg3->AddEntry(divisionErrorBand,"MC uncert. (stat.)","f");
       leg3->SetFillColor(0);
@@ -398,7 +398,7 @@ void plottingmacro()
       nl->SetTextSize(0.03);
 
       bool drawed = false;
-      bool keepSample=false;  
+      bool keepSample=false;
       double maxYnorm = 0;
       std::vector<TString> sampleToKeep;
       sampleToKeep.push_back("DY*");
@@ -439,14 +439,14 @@ void plottingmacro()
 	  (*it).second->GetYaxis()->SetLabelSize(0.04);
 	  (*it).second->GetYaxis()->SetTitleSize(0.04); //0.5
 
-	  (*it).second->DrawNormalized("HIST") ;  
-	  drawed = true; 
+	  (*it).second->DrawNormalized("HIST") ;
+	  drawed = true;
 	}
-      	else (*it).second->DrawNormalized("HIST same"); 
+      	else (*it).second->DrawNormalized("HIST same");
       }
 
 
-      nl->Draw("same");	
+      nl->Draw("same");
       latex.SetNDC();
       latex.SetTextAlign(12);
       latex.SetTextSize(0.052);

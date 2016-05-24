@@ -9,6 +9,6 @@ cd histos
 ls ${DIR}*${VERSION}*root | grep -v histos >> fileList.txt
 #find ${DIR} -type f -print | grep -v histos >> fileList.txt
 while read line
-do ln -s $line ${line/*ZllH/ZllH} 
-done < fileList.txt 
+do ln -s $line ${line/*ZllH/ZllH}
+done < fileList.txt
 cd -

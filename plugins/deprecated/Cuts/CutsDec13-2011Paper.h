@@ -45,7 +45,7 @@ class CnCVlightControlRegionHZcomb: public CutSample {
  CnCVlightControlRegionHZcomb(int jec_=0, int btag_=0 ):
   jec(jec_),btag(btag_){baseName="CnCVlightControlRegionHZcomb"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.Vtype == 1 
+    return ( p.Vtype == 1
 	     && p.V_mass > 75.
 	     && p.V_mass < 105.
 	     && p.V_pt > 100.
@@ -57,12 +57,12 @@ class CnCVlightControlRegionHZcomb: public CutSample {
 	     && p.hbhe == true
 	     && TMath::Abs( p.HVdPhi ) > 2.9
 	     && p.CountAddJets() < 2
-	     && !(p.hJet_CSV(0,btag) > CSVT || p.hJet_CSV(1,btag) > CSVT ) 
+	     && !(p.hJet_CSV(0,btag) > CSVT || p.hJet_CSV(1,btag) > CSVT )
 	     && ( (  p.Vtype == 1 && ( p.triggerFlags[5] || p.triggerFlags[6] ) )
 		  || ( p.Vtype == 0 && (((p.EVENT_run<173198 && (p.triggerFlags[0]>0 || p.triggerFlags[13]>0 || p.triggerFlags[14]>0 || p.triggerFlags[20]>0 || p.triggerFlags[21]>0)) || (p.EVENT_run>=173198 && p.EVENT_run<175832  && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0))|| (p.EVENT_run>=175832 && p.EVENT_run<178390 && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0)) || (p.EVENT_run>=178390 && (p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0 || p.triggerFlags[24]>0 || p.triggerFlags[25]>0 || p.triggerFlags[26]>0 || p.triggerFlags[27]>0)))) ) )  );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
-    return (sCut ( p, sample ) == true && pass(p) );   
+    return (sCut ( p, sample ) == true && pass(p) );
   }
   double weight(ntupleReader &p, Sample &sample){ if( sample.data ) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 
@@ -76,7 +76,7 @@ class CnCVlightControlRegionHZcomb: public CutSample {
 
 
 class CnCTTbarControlRegionHZcomb: public CutSample {
- public: 
+ public:
  CnCTTbarControlRegionHZcomb(int jec_=0, int btag_=0):
   jec(jec_),btag(btag_){ baseName = "CnCTTbarControlRegionHZcomb";};
   Bool_t pass(ntupleReader &p){
@@ -113,7 +113,7 @@ class CnCVbbControlRegionHZcomb: public CutSample {
   jec(jec_),btag(btag_){ baseName = "CnCVbbControlRegionHZcomb";};
   Bool_t pass(ntupleReader &p){
     return( p.V_mass > 75.
-	    && p.V_mass < 105. 
+	    && p.V_mass < 105.
 	    && p.V_pt > 0.
 	    && p.Higgs(jec).Pt() > 0.
 	    && p.hJet_PT(0,jec) > 20.
@@ -131,7 +131,7 @@ class CnCVbbControlRegionHZcomb: public CutSample {
 	    && p.Higgs(jec).M() < 250
 	    && TMath::Abs(p.HVdPhi) > 2.9
 	     && ( (  p.Vtype == 1 && ( p.triggerFlags[5] || p.triggerFlags[6] ) )
-		  || ( p.Vtype == 0 && (((p.EVENT_run<173198 && (p.triggerFlags[0]>0 || p.triggerFlags[13]>0 || p.triggerFlags[14]>0 || p.triggerFlags[20]>0 || p.triggerFlags[21]>0)) || (p.EVENT_run>=173198 && p.EVENT_run<175832  && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0))|| (p.EVENT_run>=175832 && p.EVENT_run<178390 && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0)) || (p.EVENT_run>=178390 && (p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0 || p.triggerFlags[24]>0 || p.triggerFlags[25]>0 || p.triggerFlags[26]>0 || p.triggerFlags[27]>0)))) ) ) );    
+		  || ( p.Vtype == 0 && (((p.EVENT_run<173198 && (p.triggerFlags[0]>0 || p.triggerFlags[13]>0 || p.triggerFlags[14]>0 || p.triggerFlags[20]>0 || p.triggerFlags[21]>0)) || (p.EVENT_run>=173198 && p.EVENT_run<175832  && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0))|| (p.EVENT_run>=175832 && p.EVENT_run<178390 && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0)) || (p.EVENT_run>=178390 && (p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0 || p.triggerFlags[24]>0 || p.triggerFlags[25]>0 || p.triggerFlags[26]>0 || p.triggerFlags[27]>0)))) ) ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
     return ( sCut( p, sample ) ==  true && pass( p ) );
@@ -170,11 +170,11 @@ class CnCSignalRegionHZcomb: public CutSample{
 	     && p.hbhe == true
 	     && p.CountAddJets() < 2
 	     && ( (  p.Vtype == 1 && ( p.triggerFlags[5] || p.triggerFlags[6] ) )
-		  || ( p.Vtype == 0 && (((p.EVENT_run<173198 && (p.triggerFlags[0]>0 || p.triggerFlags[13]>0 || p.triggerFlags[14]>0 || p.triggerFlags[20]>0 || p.triggerFlags[21]>0)) || (p.EVENT_run>=173198 && p.EVENT_run<175832  && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0))|| (p.EVENT_run>=175832 && p.EVENT_run<178390 && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0)) || (p.EVENT_run>=178390 && (p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0 || p.triggerFlags[24]>0 || p.triggerFlags[25]>0 || p.triggerFlags[26]>0 || p.triggerFlags[27]>0)))) ) ) );    
+		  || ( p.Vtype == 0 && (((p.EVENT_run<173198 && (p.triggerFlags[0]>0 || p.triggerFlags[13]>0 || p.triggerFlags[14]>0 || p.triggerFlags[20]>0 || p.triggerFlags[21]>0)) || (p.EVENT_run>=173198 && p.EVENT_run<175832  && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0))|| (p.EVENT_run>=175832 && p.EVENT_run<178390 && (p.triggerFlags[13]>0 ||p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0)) || (p.EVENT_run>=178390 && (p.triggerFlags[14]>0 ||p.triggerFlags[15]>0 || p.triggerFlags[21]>0 || p.triggerFlags[22]>0 || p.triggerFlags[23]>0 || p.triggerFlags[24]>0 || p.triggerFlags[25]>0 || p.triggerFlags[26]>0 || p.triggerFlags[27]>0)))) ) ) );
   }
   Bool_t pass(ntupleReader &p, Sample & sample){
     return ( sCut(p, sample)==true && pass(p) ); }
-  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }      
+  double weight(ntupleReader &p, Sample &sample) {if(sample.data) return 1; else return ((fA*p.PUweight+fB*p.PUweight2011B)*p.weightTrig); }
 
  private:
   std::string name(){ return( generateName(baseName, btag, jec) ) ;};

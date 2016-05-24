@@ -24,25 +24,25 @@ std::vector<Sample> trees(){
 
   std::string ZH("ZH");
   std::string DY("DY");
-  std::string DYBOOSTED("DYBOOSTED");  
-  std::string TTbar("TTbar");  
-  std::string VV("VV");  
+  std::string DYBOOSTED("DYBOOSTED");
+  std::string TTbar("TTbar");
+  std::string VV("VV");
   std::string ST("ST");
   std::string WJ("WJ");
-  std::string Run2011A("Run2011A");  
-  std::string Run2011B("Run2011B");  
-  std::string FullRun("FullRun");  
-  std::string FullRunEle("FullRunEle");  
-  std::string FullRunMu("FullRunMu");  
- 
+  std::string Run2011A("Run2011A");
+  std::string Run2011B("Run2011B");
+  std::string FullRun("FullRun");
+  std::string FullRunEle("FullRunEle");
+  std::string FullRunMu("FullRunMu");
+
 
 
   //Background
   //  s.push_back(Sample(225.197,TTbar,path+"ZllH.DiJetPt."+version+".TTJets_TuneZ2star_8TeV-madgraph-tauola.root", kBlue , false ));
-  s.push_back(Sample(234,TTbar,path+"ZllH.DiJetPt."+version+".TTJets_Merged.root", kBlue , false )); 
-  
+  s.push_back(Sample(234,TTbar,path+"ZllH.DiJetPt."+version+".TTJets_Merged.root", kBlue , false ));
+
   //   s.push_back(Sample(2950.0 * 1.188,DY,path+"withHistosZllH.DiJetPt."+version+".DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball.root",kYellow ,false ));
-  
+
   s.push_back(Sample(2950.0 * 1.188,DY,path+"ZllH.DiJetPt."+version+".DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball.root",kYellow ,false ));
   s.push_back(Sample(1.,DY,path+"ZllH.DiJetPt."+version+".DYJetsToLL_PtZ-50To70_TuneZ2star_8TeV-madgraph-tarball.root",kYellow ,false ));
   s.push_back(Sample(1.,DY,path+"ZllH.DiJetPt."+version+".DYJetsToLL_PtZ-70To100_TuneZ2star_8TeV-madgraph-tarball.root",kYellow ,false ));
@@ -108,15 +108,15 @@ std::vector<Sample> histos(){
 /*   std::string pathData("./noRegHistos/"); */
 
   std::string ZH("ZH");
-  std::string DYL("DYL");  
-  std::string DYC("DYC");  
+  std::string DYL("DYL");
+  std::string DYC("DYC");
   std::string DYB("DYB");
-  std::string TTbar("TTbar");  
-  std::string VV("VV");  
+  std::string TTbar("TTbar");
+  std::string VV("VV");
   std::string ST("ST");
   std::string WJ("WJ");
-  std::string Run2011A("Run2011A");  
-  std::string Run2011B("Run2011B");  
+  std::string Run2011A("Run2011A");
+  std::string Run2011B("Run2011B");
   std::string FullRun("FullRun");
   std::string FullRunEle("FullRunEle");
   std::string FullRunMu("FullRunMu");
@@ -134,7 +134,7 @@ std::vector<Sample> histos(){
   s.push_back(Sample(32.3161,VV,path+"ZllH.DiJetPt."+version+".WZ_TuneZ2star_8TeV_pythia6_tauola.root"+appendix+".histos.root", 17 , false ));
   s.push_back(Sample(57.1097,VV,path+"ZllH.DiJetPt."+version+".WW_TuneZ2star_8TeV_pythia6_tauola.root"+appendix+".histos.root", 17 , false ));
   s.push_back(Sample(1.76,ST,path+"ZllH.DiJetPt."+version+".T_s-channel_TuneZ2star_8TeV-powheg-tauola.root"+appendix+".histos.root", kTeal , false ));
-  s.push_back(Sample(30.7,ST,path+"ZllH.DiJetPt."+version+".T_t-channel_TuneZ2star_8TeV-powheg-tauola.root"+appendix+".histos.root", kTeal , false )); 
+  s.push_back(Sample(30.7,ST,path+"ZllH.DiJetPt."+version+".T_t-channel_TuneZ2star_8TeV-powheg-tauola.root"+appendix+".histos.root", kTeal , false ));
   s.push_back(Sample(11.1,ST,path+"ZllH.DiJetPt."+version+".T_tW-channel-DR_TuneZ2star_8TeV-powheg-tauola.root"+appendix+".histos.root", kTeal , false ));
   s.push_back(Sample(3.79,ST,path+"ZllH.DiJetPt."+version+".Tbar_s-channel_TuneZ2star_8TeV-powheg-tauola.root"+appendix+".histos.root", kTeal , false ));
   s.push_back(Sample(56.4,ST,path+"ZllH.DiJetPt."+version+".Tbar_t-channel_TuneZ2star_8TeV-powheg-tauola.root"+appendix+".histos.root", kTeal , false ));

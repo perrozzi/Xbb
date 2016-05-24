@@ -11,7 +11,6 @@ ROOT.gROOT.SetBatch(True)
 from optparse import OptionParser
 from btag_reweight import *
 from time import gmtime, strftime
-from muonSF import *
 
 argv = sys.argv
 parser = OptionParser()
@@ -35,7 +34,7 @@ if len(filelist)>0:
 else:
     print ''
 
-from myutils import BetterConfigParser, ParseInfo, TreeCache
+from myutils import BetterConfigParser, ParseInfo, TreeCache, LeptonSF
 
 print opts.config
 config = BetterConfigParser()
@@ -176,6 +175,7 @@ for job in info:
             filename = filename.split('_')[0]+'_'+subfolder+'_'+filename.split('_')[1]
             hash = hashlib.sha224(filename).hexdigest()
             inputFile = "%s/%s/%s" %(pathIN,job.identifier,filename.replace('.root','')+'_'+str(hash)+'.root')
+            if not os.path.isfile(inputFile): continue
             outputFile = "%s/%s/%s" %(pathOUT,job.identifier,filename.replace('.root','')+'_'+str(hash)+'.root')
             tmpfile = "%s/%s" %(tmpDir,filename.replace('.root','')+'_'+str(hash)+'.root')
             if inputFile in inputfiles: continue
@@ -444,14 +444,17 @@ for job in info:
             # vLeptons_SFweight_IdLoose = array('f',[0])
             # vLeptons_SFweight_IsoLoose = array('f',[0])
             vLeptons_SFweight_HLT = array('f',[0])
+            lepton_EvtWeight = array('f',[0])
 
             # vLeptons_SFweight_IdLoose[0] = 1
             # vLeptons_SFweight_IsoLoose[0] = 1
             vLeptons_SFweight_HLT[0] = 1
+            lepton_EvtWeight[0] = 1
 
             # newtree.Branch('vLeptons_SFweight_IdLoose',vLeptons_SFweight_IdLoose,'vLeptons_SFweight_IdLoose/F')
             # newtree.Branch('vLeptons_SFweight_IsoLoose',vLeptons_SFweight_IsoLoose,'vLeptons_SFweight_IsoLoose/F')
             newtree.Branch('vLeptons_SFweight_HLT',vLeptons_SFweight_HLT,'vLeptons_SFweight_HLT/F')
+            newtree.Branch('lepton_EvtWeight',lepton_EvtWeight,'lepton_EvtWeight/F')
 
         # Angular Likelihood
         if channel == "Znn":
@@ -872,32 +875,70 @@ for job in info:
                         bTagWeightcErr2Up_new[0] = weights["cErr2Up"]
                         bTagWeightcErr2Down_new[0] = weights["cErr2Down"]
 
+		        # ================ Lepton Scale Factors =================
+                # For custom made form own JSON files
+                eTrigSFWeight = 1
+                eIDLooseSFWeight = 1
+                eTrigSFWeight= 1
+                wdir = config.get('Directories','vhbbpath')
+                jsons = {
+                    wdir+'/python/json/ScaleFactor_GsfElectronToRECO_passingTrigWP80.json' : ['ScaleFactor_GsfElectronToRECO_passingTrigWP80', 'eta_pt_ratio'],
+                    #Not available for the moment
+                    #wdir+'/python/json/ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json' : ['ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+                    }
+                for j, name in jsons.iteritems():
+
+                    weight = []
+                    lepCorr = LeptonSF(j , name[0], name[1])
+
+                    weight.append(lepCorr.get_2D( tree.vLeptons_pt[0], tree.vLeptons_eta[0]))
+                    weight.append(lepCorr.get_2D( tree.vLeptons_pt[1], tree.vLeptons_eta[1]))
+
+                    if j.find('WP80') != -1:
+                        eIDLooseSFWeight = weight[0][0]*weight[1][0]
+
+                    elif j.find('ScaleFactor_HLT_Ele23_WPLoose_Gsf_v') != -1:
+                        eTrigSFWeight = weight[0][0]*weight[1][0]
+
+                    else:
+                        sys.exit('@ERROR: SF list doesn\'t match json files. Abort')
+
+                # End JSON loop ====================================
+
                 ##########################
                 # Adding mu SFs
                 ##########################
-                if channel == "Zmm":
-                    if job.type != 'DATA':
-                        # Add trigger SF
-                        pTcut = 22;
+                if job.type != 'DATA':
+                    if tree.Vtype == 1:
+                        lepton_EvtWeight[0] = eIDLooseSFWeight*eTrigSFWeight
+#                elif channel == "Zmm":
+                    # Add trigger SF
+                    pTcut = 22;
 
-                        DR = [999, 999]
-                        debug = False
+                    DR = [999, 999]
+                    debug = False
 
-                        # dR matching
-                        for k in range(0,2):
-                            for l in range(0,len(tree.trgObjects_hltIsoMu18_eta)):
-                                dr_ = deltaR(tree.vLeptons_eta[k], tree.vLeptons_phi[k], tree.trgObjects_hltIsoMu18_eta[l], tree.trgObjects_hltIsoMu18_phi[l])
-                                if dr_ < DR[k] and tree.vLeptons_pt[k] > 22:
-                                    DR[k] = dr_
+                    # dR matching
+                    for k in range(0,2):
+                        for l in range(0,len(tree.trgObjects_hltIsoMu18_eta)):
+                            dr_ = deltaR(tree.vLeptons_eta[k], tree.vLeptons_phi[k], tree.trgObjects_hltIsoMu18_eta[l], tree.trgObjects_hltIsoMu18_phi[l])
+                            if dr_ < DR[k] and tree.vLeptons_pt[k] > 22:
+                                DR[k] = dr_
 
-                        Mu1pass = DR[0] < 0.5
-                        Mu2pass = DR[1] < 0.5
+                    Mu1pass = DR[0] < 0.5
+                    Mu2pass = DR[1] < 0.5
 
-                        SF1 = tree.vLeptons_SF_HLT_RunD4p2[0]*0.1801911165 + tree.vLeptons_SF_HLT_RunD4p3[0]*0.8198088835
-                        SF2 = tree.vLeptons_SF_HLT_RunD4p2[1]*0.1801911165 + tree.vLeptons_SF_HLT_RunD4p3[1]*0.8198088835
-                        eff1 = tree.vLeptons_Eff_HLT_RunD4p2[0]*0.1801911165 + tree.vLeptons_Eff_HLT_RunD4p3[0]*0.8198088835
-                        eff2 = tree.vLeptons_Eff_HLT_RunD4p2[1]*0.1801911165 + tree.vLeptons_Eff_HLT_RunD4p3[1]*0.8198088835
+                    SF1 = tree.vLeptons_SF_HLT_RunD4p2[0]*0.1801911165 + tree.vLeptons_SF_HLT_RunD4p3[0]*0.8198088835
+                    SF2 = tree.vLeptons_SF_HLT_RunD4p2[1]*0.1801911165 + tree.vLeptons_SF_HLT_RunD4p3[1]*0.8198088835
+                    eff1 = tree.vLeptons_Eff_HLT_RunD4p2[0]*0.1801911165 + tree.vLeptons_Eff_HLT_RunD4p3[0]*0.8198088835
+                    eff2 = tree.vLeptons_Eff_HLT_RunD4p2[1]*0.1801911165 + tree.vLeptons_Eff_HLT_RunD4p3[1]*0.8198088835
 
+                    print 'vLeptSFw is', vLeptons_SFweight_HLT[0]
+                    print 'Vtype is', tree.Vtype
+
+                    if tree.Vtype == 1:
+                        vLeptons_SFweight_HLT[0] = 1
+                    elif tree.Vtype == 0:
                         if not Mu1pass and not Mu2pass:
                             vLeptons_SFweight_HLT[0] = 0
                         elif Mu1pass and not Mu2pass:
@@ -908,6 +949,7 @@ for job in info:
                             effdata = 1 - (1-SF1*eff1)*(1-SF2*eff2);
                             effmc = 1 - (1-eff1)*(1-eff2);
                             vLeptons_SFweight_HLT[0] = effdata/effmc
+                    print 'vLeptSFw afer fill is', vLeptons_SFweight_HLT[0]
 
                 if applyRegression:
                     HNoReg.HiggsFlag = 1

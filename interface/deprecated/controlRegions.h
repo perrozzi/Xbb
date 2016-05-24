@@ -21,11 +21,11 @@ class controlRegion{
   double sqrtSum( double ex, double ey ){
     if(ex != 0 || ey != 0)
       return sqrt(ex*ex + ey*ey) ;
-    else 
+    else
       return 0;
   }
 
-  double cData(){return data;}  
+  double cData(){return data;}
   double cSignal(){return signal;}
   double cDYL(){return dyl;}
   double cDYC(){return dyc;}
@@ -38,7 +38,7 @@ class controlRegion{
   double cRest(){ return ( data-(vv+st+wjets+others) );}
   double cTotal(){return dyl+dyc+dyb+ttbar+vv+st+wjets+others;}
 
-  TH1F * hData(){ hdata = new TH1F(*(TH1F*)(list_data->At(0))); hdata->Reset(); hdata->Merge(list_data); return hdata;}  
+  TH1F * hData(){ hdata = new TH1F(*(TH1F*)(list_data->At(0))); hdata->Reset(); hdata->Merge(list_data); return hdata;}
   TH1F * hSignal(){ hsignal = new TH1F(*(TH1F*)(list_signal->At(0))); hsignal->Reset(); hsignal->Merge(list_signal); return hsignal;}
   TH1F * hDYL(){ hdyl = new TH1F(*(TH1F*)(list_dyl->At(0))); hdyl->Reset(); hdyl->Merge(list_dyl); return hdyl;}
   TH1F * hDYC(){ hdyc = new TH1F(*(TH1F*)(list_dyc->At(0))); hdyc->Reset(); hdyc->Merge(list_dyc); return hdyc;}
@@ -50,7 +50,7 @@ class controlRegion{
   TH1F * hOthers(){ hothers = new TH1F(*(TH1F*)(list_others->At(0))); hothers->Reset(); hothers->Merge(list_others); return hothers;}
   TH1F * hTotal(){ htotal = new TH1F(*(TH1F*)(list_total->At(0))); htotal->Reset(); htotal->Merge(list_total); return htotal;}
 
-  double eData(){if(data > 0) err_data = sqrt(data); return err_data;}  
+  double eData(){if(data > 0) err_data = sqrt(data); return err_data;}
   double eSignal(){return err_signal;}
   double eDYL(){return err_dyl;}
   double eDYC(){return err_dyc;}
@@ -83,11 +83,11 @@ class controlRegion{
     std::vector<std::string> types;
     size_t pos = type.size();
     while ( (int)pos > 0){
-      std::cout << type << " has size = " << (int)pos << std::endl; 
+      std::cout << type << " has size = " << (int)pos << std::endl;
       pos = type.rfind("+");
-      std::cout << type << " has size = " << (int)pos << std::endl; 
+      std::cout << type << " has size = " << (int)pos << std::endl;
       if( (int)pos > 0){
-	types.push_back( type.substr(pos+1) ); 
+	types.push_back( type.substr(pos+1) );
 	type.resize(pos);
       }
       else
@@ -101,7 +101,7 @@ class controlRegion{
   }
 
   TH1F * histo( std::string type ){
-    if( ((int)type.find("+")) > 0 ) return combinedHistos( type );    
+    if( ((int)type.find("+")) > 0 ) return combinedHistos( type );
     if( type == Run2011A_s || type == Run2011B_s ){ return hData(); }
     else{
       if(type == Signal_s){ return hSignal(); }
@@ -121,11 +121,11 @@ class controlRegion{
     std::vector<std::string> types;
     size_t pos = type.size();
     while ((int)pos > 0){
-      std::cout << type << " has size = " << (int)pos << std::endl; 
+      std::cout << type << " has size = " << (int)pos << std::endl;
       pos = type.rfind("+");
-      std::cout << type << " has size = " << (int)pos << std::endl; 
+      std::cout << type << " has size = " << (int)pos << std::endl;
       if( (int)pos > 0 ){
-	types.push_back( type.substr(pos+1) ); 
+	types.push_back( type.substr(pos+1) );
 	type.resize(pos);
       }
       else
@@ -399,7 +399,7 @@ class controlRegion{
     }
   }
 
-  
+
   void init(){
 
     list_data = new TList;
@@ -415,7 +415,7 @@ class controlRegion{
     list_total = new TList;
     list_comb = new TList;
 
-   data=0;  
+   data=0;
    signal=0;
    dyl=0;
    dyc=0;
@@ -426,7 +426,7 @@ class controlRegion{
    wjets=0;
    others=0;
 
-   bcdata=0;  
+   bcdata=0;
    bcsignal=0;
    bcdyl=0;
    bcdyc=0;
@@ -437,7 +437,7 @@ class controlRegion{
    bcwjets=0;
    bcothers=0;
 
-   err_data=0;  
+   err_data=0;
    err_signal=0;
    err_dyl=0;
    err_dyc=0;
@@ -447,7 +447,7 @@ class controlRegion{
    err_st=0;
    err_wjets=0;
    err_others=0;
-   
+
    Run2011A_s = "Run2011A";
    Run2011B_s = "Run2011B";
    Signal_s = "ZH";
@@ -462,7 +462,7 @@ class controlRegion{
    WJETS_s = "WJ";
 
   }
-  
+
  private:
 
   double lumi;
@@ -483,7 +483,7 @@ class controlRegion{
   std::string ST_s;
   std::string WJETS_s;
 
-  double data;  
+  double data;
   double signal;
   double dyl;
   double dyc;
@@ -495,7 +495,7 @@ class controlRegion{
   double others;
   double count_comb;
 
-  double bcdata;  
+  double bcdata;
   double bcsignal;
   double bcdyl;
   double bcdyc;
@@ -506,7 +506,7 @@ class controlRegion{
   double bcwjets;
   double bcothers;
 
-  TH1F * hdata;  
+  TH1F * hdata;
   TH1F * hsignal;
   TH1F * hdyl;
   TH1F * hdyc;
@@ -519,7 +519,7 @@ class controlRegion{
   TH1F * htotal;
   TH1F * h_comb;
 
-  TList * list_data;  
+  TList * list_data;
   TList * list_signal;
   TList * list_dyl;
   TList * list_dyc;
@@ -532,7 +532,7 @@ class controlRegion{
   TList * list_total;
   TList * list_comb;
 
-  double err_data;  
+  double err_data;
   double err_signal;
   double err_dyl;
   double err_dyc;

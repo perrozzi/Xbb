@@ -5,7 +5,7 @@
 #include "controlRegions.h"
 #include "../plugins/customize.h"
 #include "../plugins/setTDRStyle.C"
-#include <iostream> 
+#include <iostream>
 #include <TCanvas.h>
 #include <TLine.h>
 #include <TRegexp.h>
@@ -50,7 +50,7 @@ class fitInfo{
   double maxVar;
   double initial;
 
-  TH1F * hd;  
+  TH1F * hd;
 
  public:
 

@@ -19,7 +19,7 @@
 
 //cuts that has to be applied globally
 bool qualityCuts( ntupleReader & p ){
-  return ( p. hJet_puJetIdL[0] > 0. 
+  return ( p. hJet_puJetIdL[0] > 0.
 	   && p. hJet_puJetIdL[1] > 0.
 	   && TMath::Abs(p.hJet_eta[0]) < 2.4
 	   && TMath::Abs(p.hJet_eta[1]) < 2.4
@@ -37,7 +37,7 @@ bool sCut( ntupleReader & p , Sample & sample ){
 //channel dependent cuts
 Bool_t channel(ntupleReader & p, int ch , Sample & sample){
   bool trigger[2];
-  
+
   if(sample.data){
     //muons
     trigger[0] = ( ( p.triggerFlags[14] || p.triggerFlags[21] || p.triggerFlags[22] || p.triggerFlags[23] ) );
@@ -49,7 +49,7 @@ Bool_t channel(ntupleReader & p, int ch , Sample & sample){
     trigger[1] = 1;
   }
 
-  if(ch == -1) return (( p.Vtype == 0 && trigger[0] ) || ( p.Vtype == 1 && trigger[1] )); 
+  if(ch == -1) return (( p.Vtype == 0 && trigger[0] ) || ( p.Vtype == 1 && trigger[1] ));
   else return ( p.Vtype == ch && trigger[ch] );
 };
 
@@ -63,7 +63,7 @@ double w(ntupleReader &p, Sample &sample){
 
 //naming conventions
 std::string generateName( std::string & baseName, int ch = -1, int btag = 0, int jec = 0 ) {
-  std::string channel; 
+  std::string channel;
   if(ch == -1)
     channel = "HZcomb";
   else if(ch == 0)

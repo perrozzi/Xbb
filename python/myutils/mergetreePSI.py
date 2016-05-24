@@ -17,10 +17,10 @@ parser.add_option("-C", "--config", dest="config", default=[], action="append",
                       help="directory config")
 parser.add_option("-S", "--samples", dest="names", default="",
                               help="samples you want to run on")
-parser.add_option("-f", "--filelist", dest="filelist", default="",
-                              help="list of files you want to run on")
 parser.add_option("-s", "--mergesys", dest="mergesys", default="False",
-                              help="merge sys step, otherwise")
+                              help="merge singlesys step")
+parser.add_option("-e", "--mergeeval", dest="mergeeval", default="False",
+                              help="merge singleeval step")
 
 (opts, args) = parser.parse_args(argv)
 
@@ -28,17 +28,18 @@ config = BetterConfigParser()
 config.read(opts.config)
 
 namelist=opts.names.split(',')
-filelist=opts.filelist.split(';')
 print "namelist:",namelist
-# print "opts.filelist:",opts.filelist
-print "len(filelist)",len(filelist),"filelist[0]:",filelist[0]
 
 if opts.mergesys == 'True':
     pathIN = config.get('Directories','SYSin')
     pathOUT = config.get('Directories','SYSout')
+elif opts.mergeeval == 'True':
+    pathIN = config.get('Directories','MVAin')
+    pathOUT = config.get('Directories','MVAout')
 else:
     pathIN = config.get('Directories','PREPin')
     pathOUT = config.get('Directories','PREPout')
+
 samplesinfo=config.get('Directories','samplesinfo')
 sampleconf = BetterConfigParser()
 sampleconf.read(samplesinfo)

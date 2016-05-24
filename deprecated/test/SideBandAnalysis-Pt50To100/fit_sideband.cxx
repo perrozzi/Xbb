@@ -1,7 +1,7 @@
 #include "../../interface/fitInfo.hpp"
 #include "../../interface/controlRegions.h"
 #include "sampleSideBand.h"
-#include <iostream> 
+#include <iostream>
 #include <fstream>
 #include <TCanvas.h>
 #include <TLine.h>
@@ -47,17 +47,17 @@ void write_datacard( RooFitResult & fitRes, std::vector<RooRealVar*> & f_vars ){
    std::vector<RooRealVar*> fit_vars;
 
    for(int i=0; i<f_vars.size(); ++i)
-     if(f_vars.at(i)->GetName() == DYL || 
+     if(f_vars.at(i)->GetName() == DYL ||
 	f_vars.at(i)->GetName() == DYC ||
 	f_vars.at(i)->GetName() == DYB ||
 	f_vars.at(i)->GetName() == TTbar )
        fit_vars.push_back(f_vars.at(i));
-   
+
    std::cout << "FIT VARS SIZE = " << fit_vars.size() << std::endl;
    std::cout << "FIT VARS AT 0 NAME = " << fit_vars.at(0)->GetName() << std::endl;
-   double Corr[fit_vars.size()][fit_vars.size()]; 
+   double Corr[fit_vars.size()][fit_vars.size()];
    for(int i=0; i<fit_vars.size(); ++i){
-     if(fit_vars.at(i)->GetName() == DYL) dyl_idx = i; 
+     if(fit_vars.at(i)->GetName() == DYL) dyl_idx = i;
      else if(fit_vars.at(i)->GetName() == DYC) dyc_idx = i;
      else if(fit_vars.at(i)->GetName() == DYB) dyb_idx = i;
      else if(fit_vars.at(i)->GetName() == TTbar) ttbar_idx = i;
@@ -69,47 +69,47 @@ void write_datacard( RooFitResult & fitRes, std::vector<RooRealVar*> & f_vars ){
 
 
    myfile << "CMS_vhbb_ZjLF_SF " << fit_vars.at(dyl_idx)->getVal() << std::endl;
-   datacard << "CMS_vhbb_ZjLF_SF    lnN    -    -     -    " << 
-     1 + fit_vars.at(dyl_idx)->getError() << "  " << 
-     1 + ((Corr[dyl_idx][dyb_idx])) * (fit_vars.at(dyb_idx)->getError()) << "  " << 
-     1 + ((Corr[dyl_idx][ttbar_idx])) * (fit_vars.at(ttbar_idx)->getError()) << "  " << 
+   datacard << "CMS_vhbb_ZjLF_SF    lnN    -    -     -    " <<
+     1 + fit_vars.at(dyl_idx)->getError() << "  " <<
+     1 + ((Corr[dyl_idx][dyb_idx])) * (fit_vars.at(dyb_idx)->getError()) << "  " <<
+     1 + ((Corr[dyl_idx][ttbar_idx])) * (fit_vars.at(ttbar_idx)->getError()) << "  " <<
      "   -   -   -   -" << std::endl;
    correlation_matrix <<
-     ((Corr[dyl_idx][dyl_idx])) << "  " << 
-     ((Corr[dyl_idx][dyb_idx])) << "  " << 
+     ((Corr[dyl_idx][dyl_idx])) << "  " <<
+     ((Corr[dyl_idx][dyb_idx])) << "  " <<
      ((Corr[dyl_idx][ttbar_idx])) << "  " << std::endl;
-    
+
    myfile << "CMS_vhbb_ZjHF_SF  " << fit_vars.at(dyb_idx)->getVal() << std::endl;
-   datacard << "CMS_vhbb_ZjHF_SF    lnN    -    -     -   " <<  
-     1 + ((Corr[dyb_idx][dyl_idx])) * (fit_vars.at(dyl_idx)->getError()) << "  " << 
-     1 + fit_vars.at(dyb_idx)->getError() << "  " << 
-     1 + ((Corr[dyb_idx][ttbar_idx])) * (fit_vars.at(ttbar_idx)->getError()) << "  " << 
+   datacard << "CMS_vhbb_ZjHF_SF    lnN    -    -     -   " <<
+     1 + ((Corr[dyb_idx][dyl_idx])) * (fit_vars.at(dyl_idx)->getError()) << "  " <<
+     1 + fit_vars.at(dyb_idx)->getError() << "  " <<
+     1 + ((Corr[dyb_idx][ttbar_idx])) * (fit_vars.at(ttbar_idx)->getError()) << "  " <<
      "   -   -   -   -" << std::endl;
    correlation_matrix <<
-     ((Corr[dyb_idx][dyl_idx])) << "  " << 
-     ((Corr[dyb_idx][dyb_idx])) << "  " << 
+     ((Corr[dyb_idx][dyl_idx])) << "  " <<
+     ((Corr[dyb_idx][dyb_idx])) << "  " <<
      ((Corr[dyb_idx][ttbar_idx])) << "  " << std::endl;
-   
+
    myfile << "CMS_vhbb_TT_SF  " <<  fit_vars.at(ttbar_idx)->getVal() << std::endl;
-   datacard << "CMS_vhbb_TT_SF    lnN    -    -     -   " <<  
-     1 + ((Corr[ttbar_idx][dyl_idx])) * (fit_vars.at(dyl_idx)->getError()) << "  " << 
-     1 + ((Corr[ttbar_idx][dyb_idx])) * (fit_vars.at(ttbar_idx)->getError()) << "  " << 
-     1 + fit_vars.at(dyb_idx)->getError() << "  " << 
+   datacard << "CMS_vhbb_TT_SF    lnN    -    -     -   " <<
+     1 + ((Corr[ttbar_idx][dyl_idx])) * (fit_vars.at(dyl_idx)->getError()) << "  " <<
+     1 + ((Corr[ttbar_idx][dyb_idx])) * (fit_vars.at(ttbar_idx)->getError()) << "  " <<
+     1 + fit_vars.at(dyb_idx)->getError() << "  " <<
      "   -   -   -   -" << std::endl;
    correlation_matrix <<
-     ((Corr[ttbar_idx][dyl_idx])) << "  " << 
+     ((Corr[ttbar_idx][dyl_idx])) << "  " <<
      ((Corr[ttbar_idx][dyb_idx])) << "  " <<
      ((Corr[ttbar_idx][ttbar_idx])) << "  " <<  std::endl;
 
-     
-   myfile.close();  
-   datacard.close();  
-   
+
+   myfile.close();
+   datacard.close();
+
    std::ofstream errorfile;
    errorfile.open ("SFErrors_Pt50To100.txt");
    for(int i=0; i<f_vars.size(); ++i)
      errorfile << f_vars.at(i)->GetName() << " stat error = " << f_vars.at(i)->getError() << std::endl;
-   myfile.close();  
+   myfile.close();
 
 
 }
@@ -125,7 +125,7 @@ int main(int argc, char **argv){
 
   if(debug_)
     std::cout << "Init the sample" << std::endl;
- 
+
   std::vector<Sample> s = histos();
 
   Sample data(1,"fake data","S1.root",0,true,1000);
@@ -136,7 +136,7 @@ int main(int argc, char **argv){
 
   if(debug_)
     std::cout << "Ls data sample" << std::endl;
-  data.file()->ls(); 
+  data.file()->ls();
 
   if(debug_)
     std::cout << "Init the mc sample" << std::endl;
@@ -159,18 +159,18 @@ int main(int argc, char **argv){
 	{
 	  if(debug_)
 	    std::cout << "Name = " << subs->At(i)->GetName()+std::string("/")  + objs->At(j)->GetName() << std::endl;
-	  names.push_back(subs->At(i)->GetName()+std::string("/")  + objs->At(j)->GetName());	 
+	  names.push_back(subs->At(i)->GetName()+std::string("/")  + objs->At(j)->GetName());
 	}
     }
 
   std::vector<fitInfo *> fitInfos;
-  std::vector<controlRegion*> crToFit;  
+  std::vector<controlRegion*> crToFit;
 
   std::string s_channel = "HZcomb";
   //  std::string s_channel = "HZee";
   std::string s_prefix = "BDT";
   // systematics prefix is needed for the yields effect
-  //std::string s_sysprefix = "SystBtagFUPBDT"; //BDTSystJecDOWN, BDTSystBtagFDOWN 
+  //std::string s_sysprefix = "SystBtagFUPBDT"; //BDTSystJecDOWN, BDTSystBtagFDOWN
   std::string s_sysprefix = "BDT";
   // systematics suffix is needed for the shape effect
   //std::string s_suffix_Zbb_SB = "$";
@@ -182,7 +182,7 @@ int main(int argc, char **argv){
   std::string s_region_Zbb_SB = "SideBand"; // Zbb sideband
   std::string s_var_Zbb_SB = "ZH_dPhi"; //HiggsMass
   std::string s_region_ttbar_SB = "TTbarControl";
-  std::string s_var_ttbar_SB = "MET_et"; // one addjet required  
+  std::string s_var_ttbar_SB = "MET_et"; // one addjet required
   std::string s_region_Zlight_SB = "SideBand";
   std::string s_var_Zlight_SB = "SimpleJet1_bTag";
 
@@ -201,17 +201,17 @@ int main(int argc, char **argv){
 
   if(debug_)
     std::cout << " filled the fit info " << std::endl;
- 
+
   Options o;
   double SF[] = {1.0,1.0,1.0,1.0}; // SF for scaling
   TH1F * h = new TH1F;
   h->Sumw2();
 
-  for(size_t i = 0 ; i < names.size() ; i++) 
+  for(size_t i = 0 ; i < names.size() ; i++)
     {
       TString n=names[i];
-      for(size_t j=0;j< s.size() ;j++) 
-	{ 
+      for(size_t j=0;j< s.size() ;j++)
+	{
 	  TString sampleName=s[j].name;
 	  h = ((TH1F*)s[j].file()->Get(names[i].c_str()));
 	  if(!s[j].data)
@@ -225,19 +225,19 @@ int main(int argc, char **argv){
 	      if(debug_) std::cout << "Filling template region " << (fitInfos.at(r)->s_regionForSyst).c_str() << std::endl;
 	      fitInfos.at(r)->cr->fillFromHisto(s[j], *h, 1 , h->GetNbinsX() ); // no under/overflow considered
 	    }
-	    if( n.Contains(TRegexp((fitInfos.at(r)->s_signalRegion).c_str())) ) // signal region. 
+	    if( n.Contains(TRegexp((fitInfos.at(r)->s_signalRegion).c_str())) ) // signal region.
 	      fitInfos.at(r)->cr_signal->fillFromHisto(s[j], *h ,1 , h->GetNbinsX() ); // no under/overflow considered
-	    
+
 	  } // fitinfo loop
 	} // sample loop
     } //name loop
-  
+
   delete h;
 
   for(int i=0; i<fitInfos.size(); ++i){
     if(fitSys && fitMCsyst) fitInfos.at(i)->fillHistoToFit( *crToFit.at(i)->hTotal() );
     else  fitInfos.at(i)->fillHistoToFit( *crToFit.at(i)->hData() );
-  }    
+  }
 
   std::string zlightTemplate = "DYL+DYC";
   //  std::string zcharmTemplate = "DYC";
@@ -266,13 +266,13 @@ int main(int argc, char **argv){
 
   for(int i=0; i<f_vars.size(); ++i)
     std::cout << "Var at " << i << " name = " << f_vars.at(i)->GetName() << " Value = " << f_vars.at(i)->getVal() << std::endl;
- 
+
   bool sf_bool = true;
   for(int i=0; i<fitInfos.size(); ++i)
     fitInfos.at(i)->create_variable(templateNames,fixedTemplateNames,f_vars, sf_bool); //
 
   RooCategory varToFit("varToFit","varToFit");
-  
+
   for( int r=0; r<fitInfos.size(); ++r ){
     std::cout << " ------  "<< fitInfos.at(r)->regionName() <<"  ------ " << std::endl;
     fitInfos.at(r)->cr->dump();
@@ -280,13 +280,13 @@ int main(int argc, char **argv){
   }
   std::cout << " ------  "<< "Signal region (region where values are evaluated)" <<"  ------ " << std::endl;
   fitInfos.at(0)->cr_signal->dump();
-  
+
    std::cout << "Generatign var To Fit ............ " << std::endl;
-   
+
    if(debug_){
      for(int t = 0; t < templateNames.size() ; ++t){
-       std::cout << "Couting region : " << fitInfos.at(0)->cr->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl; 
-       std::cout << "Couting signal region : " << fitInfos.at(0)->cr_signal->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl; 
+       std::cout << "Couting region : " << fitInfos.at(0)->cr->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl;
+       std::cout << "Couting signal region : " << fitInfos.at(0)->cr_signal->count(templateNames.at(t)) << "  " << templateNames.at(t) << std::endl;
      }
      std::cout << "-------------------------------------------" << std::endl;
      for( int r=0; r<fitInfos.size(); ++r ){
@@ -314,8 +314,8 @@ int main(int argc, char **argv){
 			Import(fitInfos.at(0)->var->GetName(),*fitInfos.at(0)->h_data),
 			Import(fitInfos.at(1)->var->GetName(),*fitInfos.at(1)->h_data),
 			Import(fitInfos.at(2)->var->GetName(),*fitInfos.at(2)->h_data));
-   
-  
+
+
    std::cout << "Generatign RooSimultaneous ............ " << std::endl;
    RooSimultaneous simPdf("simPdf","simPdf",varToFit);
 
@@ -325,7 +325,7 @@ int main(int argc, char **argv){
    std::cout << "FITTING  ............ " << std::endl;
 
    RooFitResult * fitRes = simPdf.fitTo(combData,SumW2Error(1),Save());
- 
+
    std::cout << " ==== Scale Factor ==== " << std::endl;
    for(int i=0; i<f_vars.size(); ++i)
      std::cout << "Name = " << f_vars.at(i)->GetName() << "; Value = " << f_vars.at(i)->getVal() << "; Error = " << f_vars.at(i)->getError()  << std::endl;
@@ -370,7 +370,7 @@ int main(int argc, char **argv){
    //cleaning
    std::cout << "Cleaning" << std::endl;
    for(int i=0; i<(fixedTemplateNames.size()+templateNames.size()); ++i)
-     delete f_vars.at(i); 
+     delete f_vars.at(i);
    for(int i=0; i<crToFit.size();++i)
      delete crToFit.at(i);
    for(int i=0; i<fitInfos.size(); ++i)

@@ -24,22 +24,22 @@ class BDTSideBandRegion_noBTag: public CutSample{
   BDTSideBandRegion_noBTag(int ch_= -1, int jec_= 0 , int btag_ = 0):
     ch(ch_),jec(jec_),btag(btag_){ baseName = "BDTSideBandRegion_noBTag"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.hJet_PT(0,jec) > 20.  
-	     && p.hJet_PT(1,jec) > 20. 
-	     //Loose-Custom : ONLY FOR THE FIT for Scale Factors 
+    return ( p.hJet_PT(0,jec) > 20.
+	     && p.hJet_PT(1,jec) > 20.
+	     //Loose-Custom : ONLY FOR THE FIT for Scale Factors
 /* 	     && ( p.hJet_CSV(0,btag) > CSVC  */
 /* 		  || p.hJet_CSV(1,btag) > CSVC ) */
-	     //	     && p.Higgs(jec).Pt() > 100. 
-	     && p.V_pt < 100. 
-	     && p.V_pt > 50. 
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     //	     && p.Higgs(jec).Pt() > 100.
+	     && p.V_pt < 100.
+	     && p.V_pt > 50.
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && ( p.Higgs(jec).M() < 80.
 		  || p.Higgs(jec).M() > 150. )
 	     //sanity check
 	     //	     && p.Higgs(jec).M() > 50.
 	     && p.Higgs(jec).M() < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && qualityCuts( p ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){

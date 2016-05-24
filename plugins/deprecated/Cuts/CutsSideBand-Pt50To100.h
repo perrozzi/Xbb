@@ -15,17 +15,17 @@ class BDTTrainingRegion: public CutSample{
   BDTTrainingRegion(int ch_= -1, int jec_= 0 , int btag_ = 0):
    ch(ch_),jec(jec_),btag(btag_){ baseName = "BDTTrainingRegion"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.hJet_PT(0,jec) > 20.  
-	     && p.hJet_PT(1,jec) > 20. 
-	     && p.hJet_CSV(0,btag) > CSVL 
-	     && p.hJet_CSV(1,btag) > CSVL 
-	     //	     && p.Higgs(jec).Pt() > 100. 
-	     && p.V_pt < 100. 
-	     && p.V_pt > 50. 
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+    return ( p.hJet_PT(0,jec) > 20.
+	     && p.hJet_PT(1,jec) > 20.
+	     && p.hJet_CSV(0,btag) > CSVL
+	     && p.hJet_CSV(1,btag) > CSVL
+	     //	     && p.Higgs(jec).Pt() > 100.
+	     && p.V_pt < 100.
+	     && p.V_pt > 50.
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.Higgs(jec).M() < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && qualityCuts( p )  );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -46,24 +46,24 @@ class BDTSideBandRegion: public CutSample{
   BDTSideBandRegion(int ch_= -1, int jec_= 0 , int btag_ = 0):
     ch(ch_),jec(jec_),btag(btag_){ baseName = "BDTSideBandRegion"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.hJet_PT(0,jec) > 20.  
-	     && p.hJet_PT(1,jec) > 20. 
+    return ( p.hJet_PT(0,jec) > 20.
+	     && p.hJet_PT(1,jec) > 20.
 	     && p.hJet_CSV(0,btag) > CSVL
 	     && p.hJet_CSV(1,btag) > CSVL
-	     //Loose-Custom : ONLY FOR THE FIT for Scale Factors 
+	     //Loose-Custom : ONLY FOR THE FIT for Scale Factors
 /* 	     && ( p.hJet_CSV(0,btag) > CSVC */
 /* 		  || p.hJet_CSV(1,btag) > CSVC ) */
-	     //	     && p.Higgs(jec).Pt() > 100. 
-	     && p.V_pt < 100. 
-	     && p.V_pt > 50. 
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+	     //	     && p.Higgs(jec).Pt() > 100.
+	     && p.V_pt < 100.
+	     && p.V_pt > 50.
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && ( p.Higgs(jec).M() < 80.
 		  || p.Higgs(jec).M() > 150. )
 	     //sanity check
 	     //	     && p.Higgs(jec).M() > 50.
 	     && p.Higgs(jec).M() < 250.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && qualityCuts( p ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -85,18 +85,18 @@ class BDTSignalRegion: public CutSample{
   BDTSignalRegion( int ch_= -1,int jec_= 0 , int btag_ = 0):
     ch(ch_),jec(jec_),btag(btag_){ baseName = "BDTSignalRegion"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.hJet_PT(0,jec) > 20.  
-	     && p.hJet_PT(1,jec) > 20. 
-	     && p.hJet_CSV(0,btag) > CSVL 
-	     && p.hJet_CSV(1,btag) > CSVL 
-	     //	     && p.Higgs(jec).Pt() > 100. 
-	     && p.V_pt < 100. 
-	     && p.V_pt > 50. 
-	     && p.V_mass > 75. 
-	     && p.V_mass < 105 
+    return ( p.hJet_PT(0,jec) > 20.
+	     && p.hJet_PT(1,jec) > 20.
+	     && p.hJet_CSV(0,btag) > CSVL
+	     && p.hJet_CSV(1,btag) > CSVL
+	     //	     && p.Higgs(jec).Pt() > 100.
+	     && p.V_pt < 100.
+	     && p.V_pt > 50.
+	     && p.V_mass > 75.
+	     && p.V_mass < 105
 	     && p.Higgs(jec).M() > 80.
 	     && p.Higgs(jec).M() < 150.
-	     //	     && p.CountAddJets() < 2 
+	     //	     && p.CountAddJets() < 2
 	     && qualityCuts( p ) );
   }
   Bool_t pass(ntupleReader &p, Sample &sample){
@@ -117,15 +117,15 @@ class BDTTTbarControlRegion: public CutSample{
   BDTTTbarControlRegion(int ch_= -1, int jec_ = 0, int btag_ = 0):
     ch(ch_),jec(jec_), btag(btag_) { baseName = "BDTTTbarControlRegion"; };
   Bool_t pass(ntupleReader &p){
-    return ( p.hJet_PT(0,jec) > 20. 
-	     && p.hJet_PT(1,jec) > 20. 
-	     && p.hJet_CSV(0,btag) > CSVL 
+    return ( p.hJet_PT(0,jec) > 20.
+	     && p.hJet_PT(1,jec) > 20.
+	     && p.hJet_CSV(0,btag) > CSVL
 	     && p.hJet_CSV(1,btag) > CSVL
 	     //	     && p.CountAddJets() > 0
-	     // 	     && p.Higgs(jec).Pt() > 100. 
-	     && p.V_pt < 100. 
-	     && p.V_pt > 50. 
-	     && p.V_mass > 50. 
+	     // 	     && p.Higgs(jec).Pt() > 100.
+	     && p.V_pt < 100.
+	     && p.V_pt > 50.
+	     && p.V_mass > 50.
 	     && ( p.V_mass > 105.
 		  || p.V_mass < 75. )
 /* 	     && ( p.Higgs(jec).M() < 80. */

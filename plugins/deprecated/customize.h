@@ -22,5 +22,5 @@ void initOptions()
   Options o1;
   o1.rebin=5;
   std::string sampleString("VlightRegionZee");
-  options[sampleString]=o1; 
+  options[sampleString]=o1;
 }
