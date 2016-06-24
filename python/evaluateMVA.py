@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import sys,hashlib
-import os,subprocess
-import ROOT 
-from array import array
-from math import sqrt
-from copy import copy
-#suppres the EvalInstace conversion warning bug
-import warnings
-warnings.filterwarnings( action='ignore', category=RuntimeWarning, message='creating converter.*' )
-from optparse import OptionParser
+
+import array
+import hashlib
+import optparse
+import os
 import pickle
+import subprocess
+import sys
 
-
-#CONFIGURE
+import ROOT 
 ROOT.gROOT.SetBatch(True)
+
+import myutils
+ 
 #load config
 argv = sys.argv
-parser = OptionParser()
+parser = optparse.OptionParser()
 parser.add_option("-D", "--discr", dest="discr", default="",
                       help="discriminators to be added")
 parser.add_option("-S", "--samples", dest="names", default="",
@@ -47,9 +46,7 @@ else:
     print ('')
 
 #Import after configure to get help message
-from myutils import BetterConfigParser, progbar, printc, ParseInfo, MvaEvaluator
-
-config = BetterConfigParser()
+config = myutils.BetterConfigParser()
 config.read(opts.config)
 anaTag = config.get("Analysis","tag")
 
@@ -64,7 +61,7 @@ systematics=config.get('systematics','systematics')
 INpath = config.get('Directories','MVAin')
 OUTpath = config.get('Directories','MVAout')
 
-info = ParseInfo(samplesinfo,INpath)
+info = myutils.ParseInfo(samplesinfo,INpath)
 
 arglist = ''
 
@@ -89,7 +86,7 @@ MVAlist=arglist.split(',')
 factoryname=config.get('factory','factoryname')
 
 #load the namespace
-VHbbNameSpace=config.get('VHbbNameSpace','library')
+VHbbNameSpace = config.get('VHbbNameSpace', 'library')
 ROOT.gSystem.Load(VHbbNameSpace)
 
 #MVA
@@ -108,7 +105,7 @@ workdir=ROOT.gDirectory.GetPath()
 
 theMVAs = []
 for mva in MVAinfos:
-    theMVAs.append(MvaEvaluator(config,mva))
+    theMVAs.append(myutils.MvaEvaluator(config,mva))
 
 
 #eval
@@ -139,7 +136,7 @@ for job in info:
             os.mkdir(OUTpath)
         except:
             pass
-        outputfiles.append("%s/%s/%s" %(OUTpath,job.prefix,job.identifier+'.root'))
+        outputfiles.append("%s/%s%s" %(OUTpath,job.prefix,job.identifier+'.root'))
     else:
         for inputFile in filelist:
             subfolder = inputFile.split('/')[-4]
@@ -172,7 +169,8 @@ for job in info:
                     command = 'srmrm %s' %(del_protocol)
                     subprocess.call([command], shell=True)
                     print(command)
-                else: continue
+                else:
+                    continue
             inputfiles.append(inputFile)
             outputfiles.append(outputFile)
             tmpfiles.append(tmpfile)
@@ -210,10 +208,10 @@ for job in info:
         mvaVals=[]
         for i in range(0,len(theMVAs)):
             if job.type == 'Data':
-                mvaVals.append(array('f',[0]))
+                mvaVals.append(array.array('f',[0]))
                 newtree.Branch(MVAinfos[i].MVAname,mvaVals[i],'nominal/F')
             else:
-                mvaVals.append(array('f',[0]*len(systematics.split())))
+                mvaVals.append(array.array('f',[0]*len(systematics.split())))
                 newtree.Branch(theMVAs[i].MVAname,mvaVals[i],':'.join(systematics.split())+'/F')
                 #newtree.Branch(theMVAs[i].MVAname,mvaVals[i],'nominal:JER_up:JER_down:JES_up:JES_down:beff_up:beff_down:bmis_up:bmis_down:beff1_up:beff1_down/F')
             MVA_formulas_Nominal = []
@@ -231,7 +229,7 @@ for job in info:
 
         # targetStorage = OUTpath.replace('gsidcap://t3se01.psi.ch:22128/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=')+'/'+job.prefix+job.identifier+'.root'
         targetStorage = outputFile.replace('gsidcap://t3se01.psi.ch:22128/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=')
-        if('pisa' in config.get('Configuration','whereToLaunch')):
+        if('pisa' or 'lxplus' in config.get('Configuration','whereToLaunch')):
           command = 'rm %s' %(targetStorage)
           print(command)
           subprocess.call([command], shell=True)

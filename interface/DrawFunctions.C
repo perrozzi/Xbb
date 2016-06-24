@@ -11,7 +11,7 @@ TH2F* NewOverQCD = 0;
 
 bool Under(float phi, float eta) {
   if (ECALmap == 0) {
-    ECALmap = TFile::Open("/scratch/sdonato/VHbbRun2/V21/CMSSW_7_1_5/src/Xbb/python/plot.root", "r");
+    ECALmap = TFile::Open("../python/plot.root", "r");
   }
 
   if (NewUnder == 0) {
@@ -26,7 +26,7 @@ bool Under(float phi, float eta) {
 
 bool Over(float phi, float eta) {
   if (ECALmap == 0) {
-    ECALmap = TFile::Open("/scratch/sdonato/VHbbRun2/V21/CMSSW_7_1_5/src/Xbb/python/plot.root", "r");
+    ECALmap = TFile::Open("../python/plot.root", "r");
   }
 
   if (NewOver == 0) {
@@ -41,7 +41,7 @@ bool Over(float phi, float eta) {
 
 bool UnderQCD(float phi, float eta) {
   if (ECALmap == 0) {
-    ECALmap = TFile::Open("/scratch/sdonato/VHbbRun2/V21/CMSSW_7_1_5/src/Xbb/python/plot.root", "r");
+    ECALmap = TFile::Open("../python/plot.root", "r");
   }
 
   if (NewUnderQCD == 0) {
@@ -56,7 +56,7 @@ bool UnderQCD(float phi, float eta) {
 
 bool OverQCD(float phi, float eta) {
   if (ECALmap == 0) {
-    ECALmap = TFile::Open("/scratch/sdonato/VHbbRun2/V21/CMSSW_7_1_5/src/Xbb/python/plot.root", "r");
+    ECALmap = TFile::Open("../python/plot.root", "r");
   }
 
   if (NewOverQCD == 0) {

@@ -1,8 +1,8 @@
-import ROOT
-from array import array
-from mvainfos import mvainfo
+import array
 
-class MvaEvaluator:
+import ROOT
+
+class MvaEvaluator(object):
     def __init__(self, config, MVAinfo):
         self.varset = MVAinfo.varset
         #Define reader
@@ -17,7 +17,7 @@ class MvaEvaluator:
         #define variables and specatators
         self.MVA_var_buffer = []
         for i in range(len( self.MVA_Vars['Nominal'])):
-            self.MVA_var_buffer.append(array( 'f', [ 0 ] ))
+            self.MVA_var_buffer.append(array.array( 'f', [ 0 ] ))
             self.reader.AddVariable( self.MVA_Vars['Nominal'][i],self.MVA_var_buffer[i])
         self.reader.BookMVA(MVAinfo.MVAname,MVAdir+'/python/weights/'+MVAinfo.getweightfile())
         #--> Now the MVA is booked
