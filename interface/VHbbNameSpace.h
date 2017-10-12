@@ -2,9 +2,108 @@
 #include "TMath.h"
 #include "TVector2.h"
 #include "TVector3.h"
+#include <iostream>
 
 
 namespace VHbb {
+
+double SoverSBWeight(double BDT, int channel) {
+
+    //Check to which bin the BDT belongs to
+    int BDTbin = -1;
+    if (BDT <= -0.8)                    BDTbin = 0;
+    if (BDT > -0.8 && BDT <= -0.68)     BDTbin = 0;
+    if (BDT > -0.68 && BDT <= -0.56)    BDTbin = 1;
+    if (BDT > -0.56 && BDT <= -0.44)    BDTbin = 2;
+    if (BDT > -0.44 && BDT <= -0.32)    BDTbin = 3;
+    if (BDT > -0.32 && BDT <= -0.02)    BDTbin = 4;
+    if (BDT > -0.2 && BDT <= -0.08)     BDTbin = 5;
+    if (BDT > -0.08 && BDT <= 0.04)     BDTbin = 6;
+    if (BDT > 0.04 && BDT <= 0.16)      BDTbin = 7;
+    if (BDT > 0.16 && BDT <= 0.28)      BDTbin = 8;
+    if (BDT > 0.28 && BDT <= 0.4)       BDTbin = 9;
+    if (BDT > 0.4 && BDT <= 0.52)       BDTbin = 10;
+    if (BDT > 0.52 && BDT <= 0.64)      BDTbin = 11;
+    if (BDT > 0.64 && BDT <= 0.76)      BDTbin = 12;
+    if (BDT > 0.76 && BDT <= 0.88)      BDTbin = 13;
+    if (BDT > 0.88)                     BDTbin = 14;
+
+    double SB_Zuu_low[15]={2.76737387847e-05,
+                           6.64750589345e-05,
+                           0.000149447397438,
+                           0.000364720697321,
+                           0.000704082928445,
+                           0.00114156054762,
+                           0.00178676530053,
+                           0.00289993913949,
+                           0.00473330069259,
+                           0.00714558106403,
+                           0.0109339081032,
+                           0.0184934984159,
+                           0.0326417501844,
+                           0.0664331803746,
+                           0.155709437265
+    };
+
+    double SB_Zee_low[15]={4.38820281278e-05,
+                           6.59406637058e-05,
+                           0.000151812163876,
+                           0.00037181791516,
+                           0.000651510194471,
+                           0.00109292029164,
+                           0.00180371097475,
+                           0.00289255480983,
+                           0.00440456389377 ,
+                           0.00717194663279,
+                           0.011191506056,
+                           0.0192027774896,
+                           0.0313549416529,
+                           0.0627899701193,
+                           0.188193463981
+    };
+
+    double SB_Zuu_high[15]={0.000150118338319,
+                            0.000177184418437,
+                            0.000381785086736,
+                            0.00081621546275,
+                            0.00132284030661,
+                            0.00315465582298,
+                            0.00513913238438,
+                            0.00871858305194,
+                            0.014172742012,
+                            0.0265281704166,
+                            0.0408929588652,
+                            0.0762144976363,
+                            0.138083647382,
+                            0.204843885382,
+                            0.321478566847
+    };
+
+    double SB_Zee_high[15]={7.252018604e-08,
+                            0.000204092490389,
+                            0.00045852950862,
+                            0.000812207870653,
+                            0.00187548258053,
+                            0.00255126940987,
+                            0.00515682235312,
+                            0.00931094133369,
+                            0.0140552030406,
+                            0.0230148836113,
+                            0.0413999559234,
+                            0.0668556717614,
+                            0.131102613516,
+                            0.242663806491,
+                            0.331429498934
+    };
+
+    if (channel == 1) return SB_Zee_low[BDTbin];
+    if (channel == 2) return SB_Zuu_low[BDTbin];
+    if (channel == 3) return SB_Zee_high[BDTbin];
+    if (channel == 4) return SB_Zuu_high[BDTbin];
+
+    }
+
+
 
   double deltaPhi(double phi1, double phi2) {
     double result = phi1 - phi2;
@@ -783,6 +882,15 @@ namespace VHbb {
     return (SF > 0) ? SF : 0;
   }
 
+// weights correction for EWK NLO correction (for ZllHbb only !!!)
+double ptWeightEWK_Zllv2(int isDY ,double GenVbosons_pt){
+    double SF = 1.;
+    //for Z options
+    if (isDY > 0){
+        if (GenVbosons_pt > 100. && GenVbosons_pt < 3000) SF = -0.1808051+6.04146*(TMath::Power((GenVbosons_pt+759.098),-0.242556));
+    }
+    return SF>0?SF:0;
+}
 
 // weights correction for EWK NLO correction (for ZllHbb only !!!)
 double ptWeightEWK_Zll(int nGenVbosons,double GenVbosons_pt,int VtypeSim, int nGenTop, int nGenHiggsBoson){
@@ -820,10 +928,142 @@ double ptWeightEWK_Zll(int nGenVbosons,double GenVbosons_pt,int VtypeSim, int nG
     return (SF > 0) ? SF : 0;
   }
 
-float puWeight_ichep(int i){
+double LOtoNLOWeightEtabb(double etabb){
 
-if (i < 0) return 1.;
-if (i > 37) return 1.;
+    double SF = 1.;
+    if(etabb < 5){
+
+        //SF = 0.895074 + 0.0621916*etabb -0.00512346*etabb*etabb + 0.0087489*etabb*etabb*etabb -0.000640691*etabb*etabb*etabb*etabb;
+//GeneralCuts wQCD
+       //SF = 0.914679 + 0.0215918*etabb +0.010957*etabb*etabb + 0.00926905*etabb*etabb*etabb -0.00154982*etabb*etabb*etabb*etabb;
+//GeneralCuts noQCD
+       //SF = 0.914641 + 0.0216597*etabb + 0.0110062*etabb*etabb + 0.00923401*etabb*etabb*etabb - 0.00154752*etabb*etabb*etabb*etabb;
+       //Z+light
+       //wQCD
+       //SF = 0.888143  + 0.0498867*etabb + 0.0139812*etabb*etabb + 0.00217246*etabb*etabb*etabb + 0.000482098*etabb*etabb*etabb*etabb;
+       //For closure test
+       //SF =   0.929881 + 0.0643316*etabb -0.0541741*etabb*etabb + 0.0306295*etabb*etabb*etabb -0.00340578*etabb*etabb*etabb*etabb;
+       //For closure test on Z+light
+       //SF =   0.936322 + 0.0482062*etabb -0.034030*etabb*etabb + 0.0215382*etabb*etabb*etabb -0.00244087*etabb*etabb*etabb*etabb;
+       //Z+light no w (to check)
+       //SF =   0.895074 + 0.0621916*etabb -0.00512345*etabb*etabb + 0.0087489*etabb*etabb*etabb -0.000640691*etabb*etabb*etabb*etabb;
+       //From 8/11/16
+       //no QCD weights
+       SF =   0.940679 + 0.0306119*etabb -0.0134403*etabb*etabb + 0.0132179*etabb*etabb*etabb -0.00143832*etabb*etabb*etabb*etabb;
+       //with QCD weights
+       //SF =   0.935996 + 0.0444133*etabb -0.0272901*etabb*etabb +  0.018343*etabb*etabb*etabb -0.00198018*etabb*etabb*etabb*etabb;
+
+    }
+
+    return SF;
+
+}
+
+double LOtoNLOWeightBjetSplitEtabb(double etabb, int njets){
+
+    double SF = 1.;
+    if(etabb < 5){
+        if(njets < 1){
+
+        ////0b jets
+        //SF =   0.937159 + 0.0380638*etabb -0.0114265*etabb*etabb +0.00937904*etabb*etabb*etabb -0.000845364*etabb*etabb*etabb*etabb;
+        //}else if(njets == 1){
+        ////1b jets
+        //SF =   1.00048 -0.120242*etabb + 0.112471*etabb*etabb -0.0288309*etabb*etabb*etabb +0.00278647*etabb*etabb*etabb*etabb;
+        //}else if(njets >=2){
+        ////2b jets
+        ////SF =   0.792924 -0.079221*etabb + 0.335798*etabb*etabb -0.138331*etabb*etabb*etabb +0.0189486*etabb*etabb*etabb*etabb;
+        //SF =   0.797513 -0.104328*etabb + 0.384611*etabb*etabb -0.16464*etabb*etabb*etabb +0.0230427*etabb*etabb*etabb*etabb;
+        //}
+        ////with ewk in benriched and bgen
+        ////0b jets
+        //SF =   0.937159 + 0.0380626*etabb -0.0114244*etabb*etabb +0.00937822*etabb*etabb*etabb -0.000845273*etabb*etabb*etabb*etabb;
+        //}else if(njets == 1){
+        ////1b jets
+        //SF =   1.00046 -0.12019*etabb + 0.112428*etabb*etabb -0.0288139*etabb*etabb*etabb +0.00278412*etabb*etabb*etabb*etabb;
+        //}else if(njets >=2){
+        ////2b jets
+        ////SF =   0.797513 -0.0794639*etabb + 0.336195*etabb*etabb -0.138538*etabb*etabb*etabb +0.0189817*etabb*etabb*etabb*etabb;
+        ////exp
+        ////SF =   (0.744195 -0.208734*etabb + 0.0187821*etabb*etabb +0.000198769*etabb*etabb*etabb)*TMath::Exp(0.524992*etabb);
+        ////exp 8 bins
+        //SF =   (0.719104 -0.0266203*etabb -0.0449267*etabb*etabb +0.00834689*etabb*etabb*etabb)*TMath::Exp(0.369618*etabb);
+        //after pu and ewk 400 to 650
+        SF =   0.935422 + 0.0403162*etabb -0.0089026*etabb*etabb +0.0064324*etabb*etabb*etabb -0.000212443*etabb*etabb*etabb*etabb;
+        }else if(njets == 1){
+        //1b jets
+        SF =   0.962415 +0.0329463*etabb -0.0414479*etabb*etabb +0.0240993*etabb*etabb*etabb -0.00278271*etabb*etabb*etabb*etabb;
+        }else if(njets >=2){
+        //2b jets
+        //exp
+        //exp 8 bins
+        SF =   (0.721265 -0.105643*etabb -0.0206835*etabb*etabb +0.00558626*etabb*etabb*etabb)*TMath::Exp(0.450244*etabb);
+        }
+    }
+
+    return SF;
+
+}
+
+int checkgen(int Jet_mcIdx0, int Jet_mcIdx1, int length){
+
+   if (Jet_mcIdx0 == -1 || Jet_mcIdx1 == -1 || Jet_mcIdx0 >= length || Jet_mcIdx1 >= length){
+       return 0;
+   }else{
+       return Jet_mcIdx0;
+   }
+
+}
+
+double LOtoNLOWeightgenEtabb(double etabb){
+
+    double SF = 1.;
+        if(etabb < 5 && etabb > 0.000001){
+            //GeneralCuts wQCD
+            //SF = 0.889908 + 0.0185636*etabb +0.0353842*etabb*etabb + 0.00142895*etabb*etabb*etabb -0.000413957*etabb*etabb*etabb*etabb;
+            //GeneralCuts noQCD
+            //SF = 0.889875 + 0.0185131*etabb +0.0355196*etabb*etabb + 0.00138352*etabb*etabb*etabb -0.00041181*etabb*etabb*etabb*etabb;
+            //Z+light
+            //w QCD
+            SF =  0.870811+ 0.0386754*etabb + 0.0479672*etabb*etabb - 0.011603*etabb*etabb*etabb + 0.00252448*etabb*etabb*etabb*etabb;
+        }
+    return SF;
+
+}
+
+double LOtoNLOWeightgenEtabbPtJ(double etabb){
+
+    double SF = 1.;
+        if(etabb < 5 && etabb > 0.000001){
+            //SF = 0.860459 + 0.0191792*etabb + 0.0546046*etabb*etabb - 0.00623299*etabb*etabb*etabb + 0.000123637*etabb*etabb*etabb*etabb;
+            //Z+light
+            //w QCD
+            SF = 0.841774 + 0.0725955*etabb + 0.0202381*etabb*etabb + 0.0016097*etabb*etabb*etabb + 0.0000391441*etabb*etabb*etabb*etabb;
+        }
+
+    return SF;
+
+}
+
+//int FirstGenJet(Float_t GenJet_eta[], Float_t GenJet_phi[], Float_t Jet_eta, Float_t Jet_phi, int gensize = 15){
+//
+//    double dR = 999;
+//    int ind = -1;
+//
+//    for (int k = 0; k < gensize; ++k){
+//        if (deltaR(GenJet_eta[k], GenJet_phi[k], Jet_eta, Jet_phi) < dR){
+//           dR = deltaR(GenJet_eta[k], GenJet_phi[k], Jet_eta[l], Jet_phi[l]);
+//           ind = k;
+//        }
+//    }
+//    if dR <
+//
+//}
+
+float puWeight_ichep(float I){
+
+//int i = std::nearbyint(I);
+int i = (int) I;
 
 double puw[38]={0.00026954692859,
                 0.00834201570744,
@@ -865,14 +1105,17 @@ double puw[38]={0.00026954692859,
                 0.0941178579122,
                };
 
+if (i < 0) return 1.;
+if (i > 37) return puw[37];
+
 return puw[i];
 
 }
 
-float puWeight_ichep_up(int i){
+float puWeight_ichep_up(float I){
 
-if (i < 0) return 1.;
-if (i > 37) return 1.;
+int i = (int) I;
+//int i = std::nearbyint(I);
 
 double puw[38]={0.000168728884,
                 0.006518139648,
@@ -914,14 +1157,17 @@ double puw[38]={0.000168728884,
                 0.491832630157,
                };
 
+if (i < 0) return 1.;
+if (i > 37) return puw[37];
+
 return puw[i];
 
 }
 
-float puWeight_ichep_down(int i){
+float puWeight_ichep_down(float I){
 
-if (i < 0) return 1.;
-if (i > 37) return 1.;
+int i = (int) I;
+//int i = std::nearbyint(I);
 
 double puw[38]={0.000394948025924,
                 0.010589291412,
@@ -962,6 +1208,9 @@ double puw[38]={0.000394948025924,
                 0.0158597867448,
                 0.0210296659761,
                };
+
+if (i < 0) return 1.;
+if (i > 37) return puw[37];
 
 return puw[i];
 

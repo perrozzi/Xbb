@@ -154,8 +154,12 @@ if __name__ == "__main__":
 
         print '\n\nFINAL RECAP: \n\nmissing files for the following MC datasets:'
         print mc_dataset_missing_files
+        for file in mc_dataset_missing_files:
+            print file
         print '\nmissing files for the following DATA datasets (VERY IMPORTANT!!!):'
         print data_dataset_missing_files
+        for file in data_dataset_missing_files:
+            print file
     else:
         pathOUT = pathOUT_orig+'/'+opts.names
         filenames = open(samplefiles+'/'+opts.names+'.txt').readlines()

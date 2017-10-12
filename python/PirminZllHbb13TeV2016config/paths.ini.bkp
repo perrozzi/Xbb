@@ -1,0 +1,84 @@
+[Configuration]
+
+;#!! List of the config you want to use
+;#!! The number of config has to be exaclty 7. Will include only essential configuration files for now
+;#!! The list only support spaces between configs
+List = paths.ini general.ini cuts.ini training.ini datacards.ini plots.ini lhe_weights.ini samples_nosplit.ini
+
+
+;# "PSI" or "pisa"
+whereToLaunch = PSI
+channel = Zmm
+;channel = Znn
+TreeCopierPSI = True
+files_per_job = 50
+;nprocesses = 4
+nprocesses = 0
+
+user = berger_p2 
+config_name = PirminZllHbb13TeV2016config
+
+;run_locally = True
+run_locally = False
+;use_ntuples_from_CERN = True
+use_ntuples_from_CERN = False
+
+
+[Directories]
+;!! just a variable
+Dname: logs_v24
+;!! Working Directory
+scratch = /scratch/<!Configuration|user!>/VHbb/
+Wdir = /mnt/t3nfs01/data01/shome/<!Configuration|user!>/VHbb/CMSSW_7_4_3/src/
+
+samplepath = <!Directories|plottingSamples!>
+samplefiles = <!Directories|Wdir!>/Xbb/python/<!Configuration|config_name!>/VHBBHeppyV24_7_files
+
+;!! The directory with the code
+vhbbpath= <!Directories|Wdir!>/Xbb
+;!! specifies the .cfg files with the Samples information
+samplesinfo: <!Directories|vhbbpath!>/python/<!Configuration|config_name!>/samples_nosplit.ini
+;!! where you want to store the logfiles from job submissions
+logpath: /mnt/t3nfs01/data01/shome/berger_p2/VHbb/CMSSW_7_4_3/src//Xbb/python/logs_v24//SP_V24_singlesys_v4/Logs/
+
+;!! from which samples to plot and where to save the plots
+;plottingSamples: <!Directories|PREPout!>
+;plottingSamples: <!Directories|SYSout!>
+plottingSamples: root://t3dcachedb03.psi.ch:1094//pnfs/psi.ch/cms/trivcat/store/user/gaperrin/VHbb/ZllHbb13TeV_V24/singlesys_23_final/
+;plottingSamples: <!Directories|MVAout!>
+
+plotpath: /mnt/t3nfs01/data01/shome/berger_p2/VHbb/CMSSW_7_4_3/src//Xbb/python/logs_v24//SP_V24_singlesys_v4/Plots/
+
+;!! basedir for tagged folder structure
+tagDir: <!Directories|vhbbpath!>/python/<!Directories|Dname!>/
+
+
+t3userfolder = root://t3dcachedb03.psi.ch:1094//pnfs/psi.ch/cms/trivcat/store/user/<!Configuration|user!>
+
+;#!! cached files
+tmpSamples = root://t3dcachedb03.psi.ch:1094//pnfs/psi.ch/cms/trivcat/store/user/berger_p2/VHbb/ZllHbb13TeV_V24/tmpv9
+sampleName = WW_pythia8
+
+;#!! from which samples to make the DCs and where to save the DCs
+dcSamples: <!Directories|MVAout!>/
+limits: /mnt/t3nfs01/data01/shome/berger_p2/VHbb/CMSSW_7_4_3/src//Xbb/python/logs_v24//SP_V24_singlesys_v4/Limits/
+
+
+;#!! From where to take the raw samples and where to put the prepared trees:
+PREPin: root://t3dcachedb03.psi.ch:1094//pnfs/psi.ch/cms/trivcat/store/user/perrozzi/VHBBHeppyV24/
+PREPout: <!Directories|t3userfolder!>/VHbb/ZllHbb13TeV_V24/
+
+;#!! On which samples to apply the regression and write the sys and where to write the resulting trees:
+SYSin: <!Directories|PREPout!>
+SYSout: <!Directories|t3userfolder!>/VHbb/ZllHbb13TeV_V24/singlesys_22/
+
+;#!! On which samples to evaluate the MVA on and where to write the resulting trees:
+MVAin: <!Directories|SYSout!>
+MVAout: <!Directories|t3userfolder!>/VHbb/ZllHbb13TeV_V24/mva_v22/
+
+;#!! to fix corruption problem use scratch
+#MVAout: <!Directories|scratch!>/
+
+;#!! On which samples to evaluate the MVAon and where to write the resulting trees:
+#SPLITin: <!Directories|samplepath!>/env/sys/
+#SPLITout: <!Directories|SYSout!>/split/

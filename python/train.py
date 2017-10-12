@@ -3,10 +3,47 @@ from optparse import OptionParser
 import sys
 import pickle
 import ROOT 
+import zlib
+import base64
 ROOT.gROOT.SetBatch(True)
 from array import array
 #warnings.filterwarnings( action='ignore', category=RuntimeWarning, message='creating converter.*' )
 #usage: ./train run gui
+
+# in case of a list of files, read them as a TChain
+def getTree(rootFileNames):
+    if type(rootFileNames) is list:
+        CuttedTree = ROOT.TChain(job.tree)
+        for rootFileName in rootFileNames:
+            status = CuttedTree.Add(rootFileName + '/' + job.tree, 0)
+            if status != 1:
+                print ('ERROR: in HistoMaker.py, cannot add file to chain:'+rootFileName)
+        input = None
+    # otherwise as a TFile for backwards compatibility
+    else:
+        CuttedTree = ROOT.TChain(job.tree)
+        CuttedTree.Add(rootFileNames, 0)
+        CuttedTree.SetCacheSize(0)
+        #input = ROOT.TFile.Open(rootFileNames,'read')
+        ##Not: no subcut is needed since  done in caching
+        ##if job.subsample:
+        ##    addCut += '& (%s)' %(job.subcut)
+        #CuttedTree = input.Get(job.tree)
+        #CuttedTree.SetCacheSize(0)
+    #print 'CuttedTree.GetEntries()',CuttedTree.GetEntries()
+
+    found = False
+    try:
+        for branch in CuttedTree.GetListOfBranches():
+              if( branch.GetName() == "DY_specialWeight" ):
+                  found = True
+                  break
+        if not found:
+            print "Warning 21347120983: Tree doesn't contrain DY_specialWeight"
+    except TypeError:
+        print 'TypeError: iteration over non-sequence'
+
+    return CuttedTree
 
 #CONFIGURE
 argv = sys.argv
@@ -23,10 +60,18 @@ parser.add_option("-N","--name", dest="set_name", default='',
                       help="Parameter setting name. Output files will have this name")
 parser.add_option("-L","--local",dest="local", default='True',
                       help="True to run it locally. False to run on batch system using config")
+parser.add_option("-m", "--mergeplot", dest="mergeplot", default=False,
+                              help="option to merge")
+parser.add_option("-M", "--mergecachingplot", dest="mergecachingplot", default=False, action='store_true', help="use files from mergecaching")
+parser.add_option("-f", "--filelist", dest="filelist", default="",
+                              help="list of files you want to run on")
 
 (opts, args) = parser.parse_args(argv)
 if opts.config =="":
         opts.config = "config"
+
+print 'mergeplot is', opts.mergeplot
+print 'mergecachingplot is', opts.mergecachingplot
 
 #Import after configure to get help message
 from myutils import BetterConfigParser, mvainfo, ParseInfo, TreeCache
@@ -39,9 +84,10 @@ if os.path.exists("../interface/DrawFunctions_C.so"):
 #load config
 config = BetterConfigParser()
 config.read(opts.config)
-anaTag = config.get("Analysis","tag")
 run=opts.training
 gui=opts.verbose
+
+anaTag = config.get("Analysis","tag")
 
 
 #print "Compile external macros"
@@ -78,6 +124,7 @@ optimisation_training = False
 sample_to_cache_ = None
 subcut_ = None
 par_optimisation = None
+mergeCachingPart = None
 
 data_as_signal = eval(config.get("Analysis","Data_as_signal"))
 if data_as_signal:
@@ -94,6 +141,9 @@ if not  opts.MVAsettings == '':
     if 'CACHING' in opts.MVAsettings:
         sample_to_cache_ = opts.MVAsettings[opts.MVAsettings.find('CACHING')+7:].split('__')[1]
         print '@INFO: Only caching will be performed. The sample to be cached is', sample_to_cache_
+    if 'MERGECACHING' in opts.MVAsettings:
+        mergeCachingPart = int(opts.MVAsettings[opts.MVAsettings.find('CACHING')+7:].split('__')[0].split('_')[-1])
+        print '@INFO: Partially merged caching: this is part', mergeCachingPart
     if 'OPT' in opts.MVAsettings:
         par_optimisation = opts.MVAsettings[opts.MVAsettings.find('OPT')+3:].split('__')[1]
         if par_optimisation == 'mainpar':
@@ -104,7 +154,20 @@ if not  opts.MVAsettings == '':
         #opt_MVAsettings = opts.MVAsettings
         optimisation_training = True
 
+# to avoid argument size limits, filelist can be encoded with 'base64:' + base64(zlib(.)), decode it first in this case
+if opts.filelist.startswith('base64:'):
+    opts.filelist = zlib.decompress(base64.b64decode(opts.filelist[7:]))
+    #print 'zlib decoded file list:', opts.filelist
 
+filelist=filter(None,opts.filelist.replace(' ', '').split(';'))
+# print filelist
+print "len(filelist)",len(filelist),
+if len(filelist)>0:
+    print "filelist[0]:",filelist[0];
+else:
+    print ''
+
+remove_sys_ = eval(config.get('Plot_general','remove_sys'))
 
 
 #setupt MVAsettings
@@ -202,7 +265,7 @@ print "EvalCut:",EvalCut
 cuts = [TCut]
 
 if sample_to_cache_:
-    #Doing splitsubcaching: only one sample shous remain
+    #Doing splitsubcaching: only one sample should remain
     if sample_to_cache_ in signals:
         signals = []
         backgrounds = []
@@ -221,8 +284,22 @@ samples = []
 samples = info.get_samples(signals+backgrounds)
 
 print "XXXXXXXXXXXXXXXX"
+print 'filelist is', filelist
 
-tc = TreeCache(cuts,samples,path,config, [])
+#tc = TreeCache(cuts,samples,path,config, [])
+#to be compatible with mergecaching
+tc = TreeCache(cuts, samples, path, config, filelist=filelist, mergeplot=opts.mergeplot, sample_to_merge=sample_to_cache_, mergeCachingPart=mergeCachingPart, plotMergeCached = opts.mergecachingplot, remove_sys=remove_sys_)  # created cached tree i.e. create new skimmed trees using the list of cuts
+
+#for mergesubcaching step, need to continue even if some root files are missing to perform the caching in parallel
+if sample_to_cache_ or mergeCachingPart:
+    tc = TreeCache(cuts, samples, path, config, filelist=filelist, mergeplot=opts.mergeplot, sample_to_merge=None, mergeCachingPart=mergeCachingPart, plotMergeCached = opts.mergecachingplot, branch_to_keep=None, do_onlypart_n=True,   dccut=None, remove_sys=remove_sys_)
+else:
+    tc = TreeCache(cuts, samples, path, config, filelist=filelist, mergeplot=opts.mergeplot, sample_to_merge=None, mergeCachingPart=mergeCachingPart, plotMergeCached = opts.mergecachingplot, branch_to_keep=None, do_onlypart_n=False, dccut=None, remove_sys=remove_sys_)
+
+##   .tc = TreeCache(self.cuts, samples, path, config, filelist, mergeplot, sample_to_merge, mergeCachingPart,                                         plotMergeCached,                         branch_to_keep,        False,                dccut,        remove_sys)  # created cached tree i.e. create new skimmed trees using the list of cuts
+#
+#    def __init__(self, cutList, sampleList, path, config,filelist=None,mergeplot=False,sample_to_merge=None,mergeCachingPart=-1,                      plotMergeCached=False,                   branch_to_keep=None,   do_onlypart_n= False, dccut = None, remove_sys=None):
+
 #if sample_to_cache_:
 #    print "@INFO: performed caching only. bye"
 #    sys.exit(1)
@@ -255,23 +332,22 @@ for job in signal_samples:
     print 'job.name is', job.name
     if  sample_to_cache_ and sample_to_cache_!= job.name: continue
     print '\tREADING IN %s AS SIG'%job.name
-    #input_sig = ROOT.TFile.Open(tc.get_tree(job,TrainCut),'read')
-    INPUT_SIG.append(ROOT.TFile.Open(tc.get_tree(job,TrainCut),'read'))
-    #Tsignal = input_sig.Get(job.tree)
-    Tsignal = INPUT_SIG[-1].Get(job.tree)
+    #INPUT_SIG.append(ROOT.TFile.Open(tc.get_tree(job,TrainCut),'read'))
+    INPUT_SIG.append(getTree(tc.get_tree(job,TrainCut)))
+    #Tsignal = INPUT_SIG[-1].Get(job.tree)
+    Tsignal = INPUT_SIG[-1]
 
-    #Tsignal = tc.get_tree(job,TrainCut)
     ROOT.gDirectory.Cd(workdir)
     if not data_as_signal:
-        TsScale = tc.get_scale_training(job,config)*global_rescale
+        TsScale = tc.get_scale(job,config)*global_rescale
     else:
         TsScale = 1
     Tsignals.append(Tsignal)
     TsScales.append(TsScale)
-    #input_Esig = ROOT.TFile.Open(tc.get_tree(job,EvalCut),'read')
-    INPUT_ESIG.append(ROOT.TFile.Open(tc.get_tree(job,EvalCut),'read'))
-    #Esignal = input_Esig.Get(job.tree)
-    Esignal = INPUT_ESIG[-1].Get(job.tree)
+    #INPUT_ESIG.append(ROOT.TFile.Open(tc.get_tree(job,EvalCut),'read'))
+    INPUT_ESIG.append(getTree(tc.get_tree(job,EvalCut)))
+    #Esignal = INPUT_ESIG[-1].Get(job.tree)
+    Esignal = INPUT_ESIG[-1]
 
     #Esignal = tc.get_tree(job,EvalCut)
     Esignals.append(Esignal)
@@ -280,20 +356,19 @@ for job in signal_samples:
     print '\t\t\tEval %s events'%Esignal.GetEntries()
 for job in background_samples:
     print '\tREADING IN %s AS BKG'%job.name
-    #input_bkg = ROOT.TFile.Open(tc.get_tree(job,TrainCut),'read')
-    INPUT_BKG.append(ROOT.TFile.Open(tc.get_tree(job,TrainCut),'read'))
-    #Tbackground= input_bkg.Get(job.tree)
-    Tbackground = INPUT_BKG[-1].Get(job.tree)
+    #INPUT_BKG.append(ROOT.TFile.Open(tc.get_tree(job,TrainCut),'read'))
+    INPUT_BKG.append(getTree(tc.get_tree(job,TrainCut)))
+    #Tbackground = INPUT_BKG[-1].Get(job.tree)
+    Tbackground = INPUT_BKG[-1]
 
-    #Tbackground = tc.get_tree(job,TrainCut)
     ROOT.gDirectory.Cd(workdir)
-    TbScale = tc.get_scale_training(job,config)*global_rescale
+    TbScale = tc.get_scale(job,config)*global_rescale
     Tbackgrounds.append(Tbackground)
     TbScales.append(TbScale)
-    #input_Ebkg = ROOT.TFile.Open(tc.get_tree(job,EvalCut),'read')
-    INPUT_EBKG.append(ROOT.TFile.Open(tc.get_tree(job,EvalCut),'read'))
-    #Ebackground = input_Ebkg.Get(job.tree)
-    Ebackground = INPUT_EBKG[-1].Get(job.tree)
+    #INPUT_EBKG.append(ROOT.TFile.Open(tc.get_tree(job,),'read'))
+    INPUT_EBKG.append(getTree(tc.get_tree(job,EvalCut)))
+    #Ebackground = INPUT_EBKG[-1].Get(job.tree)
+    Ebackground = INPUT_EBKG[-1]
 
     #Ebackground = tc.get_tree(job,EvalCut)
     ROOT.gDirectory.Cd(workdir)
@@ -303,7 +378,7 @@ for job in background_samples:
     print '\t\t\tEval %s events'%Ebackground.GetEntries()
 
 
-if sample_to_cache_:
+if sample_to_cache_ or mergeCachingPart:
     print '@INFO:',sample_to_cache_,'has beeen cached and subcached. Exiting.'
     sys.exit(1)
 
@@ -402,7 +477,7 @@ output.Close()
 ##!! here is unlocked
 #
 ##!! Close the output file to avoid memory leak
-output.Close()
+#output.Close()
 
 
 #WRITE INFOFILE

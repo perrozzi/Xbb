@@ -14,13 +14,15 @@ vetoed_datasets = [
 
 #VHBBHeppy_version = 'VHBBHeppyV21bis'
 #VHBBHeppy_version = 'VHBBHeppyV22'
-VHBBHeppy_version = 'VHBBHeppyV23'
+#VHBBHeppy_version = 'VHBBHeppyV23'
+VHBBHeppy_version = 'VHBBHeppyV21'
 
 # intput_file = str(VHBBHeppy_version)+'.txt'
 #intput_file = 'DYB.txt'
 #intput_file = 'V21bis.txt'
 #intput_file = 'V22.txt'
-intput_file = 'V23.txt'
+#intput_file = 'V23.txt'
+intput_file = 'V21.txt'
 
 das = "../das_client.py"
 

@@ -117,9 +117,9 @@ for mva in MVAinfos:
 # print('info',info)
 tmpDir = os.environ["TMPDIR"]
 for job in info:
-    print ('job.name',job.name,'job.identifier',job.identifier,'namelist',namelist)
+    #print ('job.name',job.name,'job.identifier',job.identifier,'namelist',namelist)
     if not job.name in namelist and len([x for x in namelist if x==job.identifier])==0:
-        print ('job.name',job.name,'and job.identifier',job.identifier,'not in namelist',namelist)
+        #print ('job.name',job.name,'and job.identifier',job.identifier,'not in namelist',namelist)
         continue
     print ('\t match - %s' %(job.name))
     inputfiles = []
@@ -142,13 +142,16 @@ for job in info:
         outputfiles.append("%s/%s%s" %(OUTpath,job.prefix,job.identifier+'.root'))
     else:
         for inputFile in filelist:
+            print('file is', inputFile)
             subfolder = inputFile.split('/')[-4]
             filename = inputFile.split('/')[-1]
             filename = filename.split('_')[0]+'_'+subfolder+'_'+filename.split('_')[1]
             hash = hashlib.sha224(filename).hexdigest()
             inputFile = "%s/%s/%s" %(INpath,job.identifier,filename.replace('.root','')+'_'+str(hash)+'.root')
-            inputFile = inputFile.replace('root://t3dcachedb03.psi.ch:1094/','')
-            if not os.path.isfile(inputFile): continue
+            #inputFile = inputFile.replace('root://t3dcachedb03.psi.ch:1094/','')
+            if not os.path.isfile(inputFile.replace('root://t3dcachedb03.psi.ch:1094/','')):
+                print('inputFile', inputFile, 'does not exist')
+                continue
             outputFile = "%s/%s/%s" %(OUTpath,job.identifier,filename.replace('.root','')+'_'+str(hash)+'.root')
             tmpfile = "%s/%s" %(tmpDir,filename.replace('.root','')+'_'+str(hash)+'.root')
             if inputFile in inputfiles: continue
@@ -242,6 +245,12 @@ for job in info:
           print(command)
           subprocess.call([command], shell=True)
         else:
+            #Creat sample directory
+            outputFolder = targetStorage.replace(targetStorage.split('/')[-1],'')
+            command = "uberftp t3se01 'mkdir %s ' " %(outputFolder.replace('root://t3dcachedb03.psi.ch:1094/','').replace('gsidcap://t3se01.psi.ch:22128/','').replace('root://t3dcachedb03.psi.ch:1094/',''))
+            print('mkdir command is', command)
+            subprocess.call([command], shell=True)
+            #
             command = 'srmrm %s' %(targetStorage.replace('root://t3dcachedb03.psi.ch:1094/','srm://t3se01.psi.ch:8443/srm/managerv2?SFN=/'))
             print(command)
             subprocess.call([command], shell=True)

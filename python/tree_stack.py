@@ -6,6 +6,9 @@ import sys, os
 from optparse import OptionParser
 from copy import copy,deepcopy
 from math import sqrt
+import zlib
+import base64
+import time
 ROOT.gROOT.SetBatch(True)
 
 argv = sys.argv
@@ -18,6 +21,8 @@ print "=================="
 print "Start Ploting Step"
 print "==================\n"
 
+begin_time  = time.time()
+
 print "Read Parameters"
 print "===================\n"
 parser = OptionParser()
@@ -29,21 +34,33 @@ parser.add_option("-f", "--filelist", dest="filelist", default="",
                               help="list of files you want to run on")
 parser.add_option("-m", "--mergeplot", dest="mergeplot", default=False,
                               help="option to merge")
+parser.add_option("-M", "--mergecachingplot", dest="mergecachingplot", default=False, action='store_true', help="use files from mergecaching")
 parser.add_option("-s", "--settings", dest="settings", default=False,
                               help="co ntains sample you want to merge, as well as the subcut bin")
 (opts, args) = parser.parse_args(argv)
 if opts.config =="":
         opts.config = "config"
-        
+
+# to avoid argument size limits, filelist can be encoded with 'base64:' + base64(zlib(.)), decode it first in this case
+if opts.filelist.startswith('base64:'):
+    opts.filelist = zlib.decompress(base64.b64decode(opts.filelist[7:]))
+    #print 'zlib decoded file list:', opts.filelist
+
 from myutils import BetterConfigParser, printc, ParseInfo, mvainfo, StackMaker, HistoMaker
 
 print 'opts.settings is', opts.settings
 print 'mergeplot is', opts.mergeplot
+print 'mergecachingplot is', opts.mergecachingplot
 
 sample_to_merge_ = None
 subcut_ =  None
+var_to_plot_ = None
 #This will go in the name of the pdf, png etc file
 subcut_plotname = ''
+
+# reads n files, writes single file. disabled if set to -1
+mergeCachingPart = -1
+
 if opts.settings:
     print 'settings is', opts.settings
     if 'CUTBIN' in opts.settings:
@@ -53,8 +70,14 @@ if opts.settings:
         subcut_plotname = '%s_%s_%s'%(subcut[0],subcut[1],subcut[2])
         print 'subcut_ is', subcut_
     if 'CACHING' in opts.settings:
-        sample_to_merge_ = opts.settings[opts.settings.find('CACHING')+7:].split('__')[1]
+        sample_to_merge_ = '__'.join(opts.settings[opts.settings.find('CACHING')+7:].split('__')[1:])
         print '@INFO: Only caching will be performed. The sample to be cached is', sample_to_merge_
+    if 'MERGECACHING' in opts.settings:
+        mergeCachingPart = int(opts.settings[opts.settings.find('CACHING')+7:].split('__')[0].split('_')[-1])
+        print '@INFO: Partially merged caching: this is part', mergeCachingPart
+    if 'VAR' in opts.settings:
+        var_to_plot_ = opts.settings[opts.settings.find('VAR')+4:]
+        print '@INFO: Only the %s parameter will be ploted' %var_to_plot_
 
 #adds the file vhbbPlotDef.ini to the config list
 #print 'opts.config',opts.config
@@ -107,18 +130,21 @@ if os.path.exists("../interface/VHbbNameSpace_h.so"):
 #----------Histo from trees------------
 #Get the selections and the samples
 def doPlot():
-
     #print "Read Ploting Region information"
     #print "===============================\n"
 
-    vars = (config.get(section, 'vars')).split(',')#get the variables to be ploted in each region 
-    #print "The variables are", vars, "\n"
+    if var_to_plot_:
+        vars = [var_to_plot_]
+    else:
+        vars = (config.get(section, 'vars')).split(',')#get the variables to be ploted in each region
+    print "The variables are", vars, "\n"
     data = eval(config.get(section,'Datas'))# read the data corresponding to each CR (section)
     mc = eval(config.get('Plot_general','samples'))# read the list of mc samples
     total_lumi = eval(config.get('Plot_general','lumi'))
     #print 'total lumi is', total_lumi
     print "The list of mc samples is", mc
 
+    remove_sys_ = eval(config.get('Plot_general','remove_sys'))
     #print "Check if is Signal Region"
     #print "=========================\n"
     SignalRegion = False
@@ -154,7 +180,9 @@ def doPlot():
     #print "================================================================\n"
 
     #Prepare cached files in the temporary (tmpSamples) folder.
-    Plotter=HistoMaker(mcsamples+datasamples,path,config,options,GroupDict,filelist,opts.mergeplot,sample_to_merge_)
+    #def __init__(self, samples, path, config, optionsList, GroupDict=None, filelist=None, mergeplot=False, sample_to_merge=None, mergecaching=False):
+
+    Plotter=HistoMaker(samples=mcsamples+datasamples, path=path, config=config, optionsList=options, GroupDict=GroupDict, filelist=filelist, mergeplot=opts.mergeplot, sample_to_merge=sample_to_merge_, mergeCachingPart=mergeCachingPart, plotMergeCached = opts.mergecachingplot, branch_to_keep=None, dccut=None,remove_sys=remove_sys_)
     if len(filelist)>0 or opts.mergeplot:
         print('ONLY CACHING PERFORMED, EXITING');
         sys.exit(1)
@@ -196,13 +224,15 @@ def doPlot():
 #        cutOverWrite = None
 #        if addBlindingCut:
 #            cutOverWrite = config.get('Cuts',region)+' & ' + addBlindingCut
-        inputs.append((Plotter,"get_histos_from_tree",(job,True, subcut_)))
+        inputs.append((Plotter,"get_histos_from_tree",(job,True, subcut_, '1')))
 
     #print 'inputs are', inputs
     
     # if('pisa' in config.get('Configuration','whereToLaunch')):
     multiprocess=int(config.get('Configuration','nprocesses'))
 #    multiprocess=0
+
+    start_time = time.time()
     outputs = []
     if multiprocess>1:
         from multiprocessing import Pool
@@ -216,20 +246,20 @@ def doPlot():
             outputs.append(getattr(input_[0],input_[1])(*input_[2])) #ie. Plotter.get_histos_from_tree(job)
     #print 'get_histos_from_tree DONE'
     Overlaylist = []
+
+    print "All histograms retrived. DONE in ", str(time.time() - start_time)," s."
+
+    start_time = time.time()
+
     for i,job in enumerate(mcsamples):
-        #print 'job.name',job.name,"mass==",mass
-        #hTempList, typList = Plotter.get_histos_from_tree(job)
         hDictList = outputs[i]
         if job.name in mass:
-            #print 'job.name == mass'
             histoList = []
             for v in range(0,len(vars)):
                 histoCopy = deepcopy(hDictList[v].values()[0])
                 histoCopy.SetTitle(job.name)
                 histoList.append(histoCopy)
             Overlaylist.append(histoList)
-#            Overlaylist.append(deepcopy([hDictList[v].values()[0] for v in range(0,len(vars))]))
-# >>>>>>> silviodonato/master
         for v in range(0,len(vars)):
             Lhistos[v].append(hDictList[v].values()[0])
             Ltyps[v].append(hDictList[v].keys()[0])
@@ -292,10 +322,10 @@ def doPlot():
     for job in datasamples:
         if addBlindingCut:
             if subcut_: dDictList = Plotter.get_histos_from_tree(job,True, config.get('Cuts',region)+' & ' + addBlindingCut +' & ' + subcut_)
-            else: dDictList = Plotter.get_histos_from_tree(job, True, config.get('Cuts',region)+' & ' + addBlindingCut)
+            else: dDictList = Plotter.get_histos_from_tree(job, True, config.get('Cuts',region)+' & ' + addBlindingCut, '1')
         else:
             if subcut_: dDictList = Plotter.get_histos_from_tree(job, True, config.get('Cuts',region)+' & ' + subcut_)
-            else: dDictList = Plotter.get_histos_from_tree(job)
+            else: dDictList = Plotter.get_histos_from_tree(job, True, None, '1')
         #! add the variables list for each job (Samples)
         for v in range(0,len(vars)):
             Ldatas[v].append(dDictList[v].values()[0])
@@ -318,8 +348,12 @@ def doPlot():
         Stacks[v].datas = Ldatas[v]
         Stacks[v].datatyps = Ldatatyps[v]
         Stacks[v].datanames= Ldatanames[v]
-        #if SignalRegion:
-        #    Stacks[v].overlay = Overlaylist[v] ## from 
+        try:
+          if SignalRegion:
+            Stacks[v].overlay = Overlaylist[v] ## from
+        except Exception as e:
+            print "NO OVERLAY LIST:", e
+
         Stacks[v].lumi = lumi
         Stacks[v].jobnames= Ljobnames[v]
         Stacks[v].normalize = eval(config.get(section,'Normalize'))
@@ -337,6 +371,9 @@ def doPlot():
 #        Stacks[v].options['pdfName'] = Stacks[v].options['pdfName'].replace('.pdf','_norm.pdf')
 #        Stacks[v].doPlot()
         print 'i am done!\n'
+
+    print "Last part DONE in ", str(time.time() - start_time)," s."
+    print "tree_stack done in ", str(time.time() - begin_time)," s."
     print 'DOPLOT END'
 #----------------------------------------------------
 doPlot()

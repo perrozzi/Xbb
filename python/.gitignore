@@ -5,10 +5,11 @@
 !myutils/
 luca
 !json
-!*config/
+!*config/*
 */*.swo
 !myutils/
 !csv/*
 csv/*.d
 csv/*.pcm
 csv/*.so
+core.*

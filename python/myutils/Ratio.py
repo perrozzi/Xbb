@@ -28,8 +28,8 @@ def getRatio(hist,reference,min,max,yTitle="",maxUncertainty = 1000.000,restrict
     from ROOT import gROOT,gSystem
     theHist, theReference = renewHist(hist,reference,min,max)
     #gROOT.ProcessLine('.L $CMSSW_BASE/src/Xbb/python/myutils/Ratio.C')
-    #gROOT.ProcessLine('.L /mnt/t3nfs01/data01/shome/gaperrin/VHbb/CMSSW_7_4_3/src/Xbb/python/myutils/Ratio.C+')
-    gROOT.ProcessLine('.L /mnt/t3nfs01/data01/shome/gaperrin/VHbb/CMSSW_7_4_3/src/Xbb/python/myutils/Ratio.C')
+    #gROOT.ProcessLine('.L /mnt/t3nfs01/data01/shome/gaperrin/VHbb/CMSSW_7_4_3/src/Xbb/python/myutils/Ratio.C+') # To make plots
+    gROOT.ProcessLine('.L /mnt/t3nfs01/data01/shome/gaperrin/VHbb/CMSSW_7_4_3/src/Xbb/python/myutils/Ratio.C') # To make postfit plots
     print "AAAAa"
 #    gROOT.Load('$CMSSW_BASE/src/Xbb/python/myutils/Ratio_C.so')
     print "AAAA"

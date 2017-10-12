@@ -1,0 +1,157 @@
+# global parameters
+selprocess = 3               ! select process:  0 = jet jet H
+                             !                  1 = l+  nu  H
+                             !                  2 = nu~ l-  H
+                             !                  3 = l+  l-  H
+                             !                  4 = nu~ nu  H
+nevents = 100000000           ! number of events
+sppbar = 0                   ! p p initial state (1 for p pbar)
+
+# input parameters
+1/alpha0= 137.03599911d0     ! inverse fine structure constant
+1/alphaz= 128.936d0          ! inverse fine structure constant at MZ
+gf=0.11663787d-04            ! Fermi constant
+mz=91.1876d0                 ! Z-boson mass
+gz=2.4952d0                  ! Z-boson width
+mw=80.385d0                  ! W-boson mass
+gw=2.085d0                   ! W-boson width
+#gw=2.1241d0                  ! W-boson width
+#mw=80.425d0                  ! W-boson mass
+#gw=2.124d0                   ! W-boson width
+me=0.510998928d-3            ! electron mass
+mmu=0.1056583715d0            ! muon mass
+mtau=1.77682d0               ! tau mass
+md=0.1d0                    ! down-quark mass
+mu=0.1d0                    ! up-quark mass
+ms=0.1d0                    ! strange-quark mass
+mc=1.51d0                     ! charm-quark mass
+mb=4.92d0                    ! bottom-quark mass
+mt=172.5d0                   ! top-quark mass
+sinthetac=0.225d0            ! sine of the Cabibbo angle
+
+# recombination and cuts for VBF
+#ktpower=-1                   ! kt algorithm (1), anti-kt algorithm (-1), Cambridge-Aachen (0)
+#dparameter=0.4d0             ! D parameter of jet algorithm
+#etacut(parton)=5.0d0         ! pseudorapidity cut on partons in jet algorithm
+#scuts=0                      ! standard cuts (0 for no cuts)
+#ptcut(jet1)=20d0             ! pt cut on jet 1 (leading jet)
+#ptcut(jet2)=20d0             ! pt cut on jet 2 (subleading jet)
+#ycut(jet1)=5.0d0             ! y cut on jet 1
+#ycut(jet2)=5.0d0             ! y cut on jet 2
+#dycut(jet,jet)=3.0d0         ! delta y cut between jets 1 and 2
+#hemispherecut=0              ! y(jet1)*y(jet2) < 0
+#ptmax(jet1)=1d30             ! upper pt cut on jet 1
+#ptmax(jet2)=1d30             ! upper pt cut on jet 2
+#ptmax(jet3)=1d30             ! upper pt cut on jet 3
+#ymin(jet1)=0d0               ! lower y cut on jet 1
+#ymin(jet2)=0d0               ! lower y cut on jet 2
+#ymin(jet3)=0d0               ! lower y cut on jet 3
+#ptcut(visible)=0d0           ! lower cut on pt_jet1+pt_jet2+pt_H (vector sum)
+#ptmax(visible)=1d30          ! upper cut on pt_jet1+pt_jet2+pt_H (vector sum)
+#mlcut(jet,jet)=130d0         ! lower cut on invariant mass of pair of jets 1 and 2
+#mucut(jet,jet)=1d30          ! upper cut on invariant mass of pair of jets 1 and 2
+#dphicut(jet1,higgs)=0d0      ! cut on azimuth between jet 1 and Higgs
+#dphicut(jet2,higgs)=0d0      ! cut on azimuth between jet 2 and Higgs
+#ptcut(higgs)=0d0             ! pt cut on Higgs
+#ycut(higgs)=1d10             ! y cut on Higgs
+#ecut(higgs)=0d0              ! energy cut on Higgs
+#mlcut(higgs)=1d-2            ! minimal invariant mass of Higgs
+#mucut(higgs)=1d30            ! maximal invariant mass of Higgs
+ 
+
+# recombination and cuts for WH/ZH 
+sbarelep=1                   ! leptons are isolated from collinear photons 
+dgammaparameter=0.1d0        ! D parameter of lepton-photon recombination
+scuts=1                      ! standard cuts for detected leptons
+ptcut(lep)=15d0              ! pt cut on leptons
+ycut(lep)=2.5d0              ! y cut on leptons
+ptmax(lep)=1d10              ! upper pt cut on leptons
+ymin(lep)=0d0                ! lower y cut on leptons
+#scuts=2                      ! standard cuts for undetected leptons
+#ptcut(lep)=0d0               ! pt cut on leptons
+#ycut(lep)=1d10               ! y cut on leptons
+#ptmax(lep)=25d0              ! upper pt cut on leptons
+#ymin(lep)=2.5d0              ! lower y cut on leptons
+#scuts=1 or 2
+ptcut(V)=0d0               ! pt cut on V
+ptcut(miss)=0d0             ! cut on missing-pT (pT of neutrino(s))
+drcut(lep,lep)=0d0           ! dR cut between leptons
+drcut(jet,lep)=0d0           ! dR cut between lepton and jet
+mlcut(lep,lep)=75d0           ! lower cut on invariant mass between leptons
+mucut(lep,lep)=105d0          ! upper cut on invariant mass between leptons
+ecut(lep)=0d0                ! energy cut on leptons
+ptcut(higgs)=0d0           ! pt cut on Higgs
+ycut(higgs)=1d10             ! y cut on Higgs
+ecut(higgs)=0d0              ! energy cut on Higgs
+
+# off-shell Higgs boson, decays and corresponding cuts
+shtr=0                       ! on-shell Higgs boson (1 for off-shell, 2 for decay)
+shbw=1                       ! off-shell propagator according to arXiV:1107.0683, eq. (4.6)
+sgh=2                        ! Higgs-boson width according to complex-mass scheme
+gh=0.00421d0                 ! Higgs width (for MH=126 GeV) 
+Hbr=1d0                      ! branching ratio for Higgs decay into singletts
+ptcut(decp)=0d0              ! pt cut on Higgs decay products
+ycut(decp)=1d10              ! y cut on Higgs decay products
+higgsbetweenjets=0           ! y(jet1)<y(decp)<y(jet2)
+
+# pdf set
+spdf=99                      ! parton distributions via LHApdf
+                             ! MRST2004 parton distributions (spdf=1)
+                             ! CTEQ6M parton distributions  (spdf=11)
+                             ! CTEQ6L1 parton distributions (spdf=14)
+                             ! LHApdf parton distributions  (spdf=99)
+pdfname=NNPDF23_nlo_as_0118_qed.LHgrid ! name of pdf set in LHApdf
+pdfmember=0                  ! central value pdf set
+pdfmemberfrom=1              ! all PDF members in the given range are
+pdfmemberto=0                ! evaluated (default: no additional sets)
+
+# factorization and renormalization scales
+sfactqcd=1                   ! MSbar factorization for QCD
+sfactqed=2                   ! DIS factorization for QED
+qcdfacscalefac=1d0           ! multiplicative rescaling of QCD factorization scale
+qcdrenscalefac=1d0           ! multiplicative rescaling of QCD renormalization scale
+qedfacscalefac=1d0           ! multiplicative rescaling of QED factorization scale
+
+# switches for LO contributions
+sborn=1                      ! Born contributions included
+
+# switches for contributions to NLO corrections
+sew=1                        ! electroweak corrections included
+spinc=1                      ! incoming photon contributions included
+sqcd=1                       ! QCD corrections included
+
+# extra switches for contributions to NLO corrections for VBF
+shh2=0                       ! 2-loop heavy Higgs corrections included
+sqcddiag=1                   ! diagonal QCD corrections included
+sqcdnondiag=1                ! nondiagonal QCD corrections included
+sqcdggfus=1                  ! interference with gluon fusion contributions included
+sqcdgsplit=1                 ! interference with gluon-splitting contributions included
+
+# switches for s/t channels, interferences only for VBF
+sscha=1                      ! s-channel contributions included
+stcha=1                      ! t-channel contributions included
+sch2=1                       ! squared diagrams included
+schint=1                     ! interferences included
+
+# switches for b-quark contributions
+sbini=0                      ! initial b quarks included
+sbfin=0                      ! final b quarks included
+
+# input for anomalous HVV couplings
+shvv=0                       ! anomalous HVV couplings in-/excluded
+rsm=1d0                      ! rescaling factor of SM HVV coupling
+d=0.00d0                     ! parameter d from hep-ph/0609075 
+db=0.00d0                    ! parameter d_b from hep-ph/0609075
+dt=0.00d0                    ! parameter tilde d from hep-ph/0609075
+dtb=0.00d0                   ! parameter tilde d_b from hep-ph/0609075
+lambdahvv=-2d0               ! mass scale in formfactor for anomalous couplings
+
+# technical parameters for Monte Carlo
+ranluxseed=0                 ! default initialization of random number generator
+
+# parameters steering the output
+shisto=1                     ! histograms for distributions are produced
+lnoutmc=1                    ! standard output of montecarlo
+
+mh=125.0d0
+energy=13000d0

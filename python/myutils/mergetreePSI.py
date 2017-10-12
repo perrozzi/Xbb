@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#old
 import ROOT,sys,os,subprocess,random,string,hashlib
 ROOT.gROOT.SetBatch(True)
 from printcolor import printc
@@ -99,6 +100,36 @@ def mergetreePSI_def(pathIN,pathOUT,prefix,newprefix,folderName,Aprefix,Acut,con
     print 'outputFolder is', outputFolder
     # command = 'hadd -f -k -O
     # command = 'hadd -f '+tmp_filename+' '
+    #create folder if doesn't exists
+    print 'Create the ouput folder if not existing'
+    mkdir_protocol = outputFolder.replace('root://t3dcachedb03.psi.ch:1094/','')
+    print 'mkdir_protocol',mkdir_protocol
+    _output_folder = ''
+    for _folder in mkdir_protocol.split('/'):
+        #if mkdir_protocol.split('/').index(_folder) < 3: continue
+        print 'checking and/or creating folder',_output_folder
+        _output_folder += '/'+_folder
+        if os.path.exists(_output_folder): print 'exists'
+        else:
+            print 'does not exist'
+            command = "uberftp t3se01 'mkdir %s ' " %(_output_folder)
+            subprocess.call([command], shell = True)
+        if os.path.exists(_output_folder): print 'Folder', _output_folder, 'sucessfully created'
+        else:
+            print '@ERROR: Folder was not created'
+            print 'folder name:', _output_folder
+            print 'Exiting'
+            sys.exit()
+    #path_list = outputFolder.replace('root://t3dcachedb03.psi.ch:1094','').replace('gsidcap://t3se01.psi.ch:22128/','').replace('dcap://t3se01.psi.ch:22125/','').split('/')
+    #check_path = ''
+    #for path_ in path_list:
+    #    if path_ == '': continue
+    #    check_path = check_path +'/'+ path_
+    #    if os.path.isdir(check_path):continue
+    #    else:
+
+
+
     allFiles = []
     for file in os.listdir(outputFolder.replace('root://t3dcachedb03.psi.ch:1094','').replace('gsidcap://t3se01.psi.ch:22128/','').replace('dcap://t3se01.psi.ch:22125/','')):
         if file.startswith('tree') and ( prefix == '' or Aprefix in file):
@@ -110,6 +141,14 @@ def mergetreePSI_def(pathIN,pathOUT,prefix,newprefix,folderName,Aprefix,Acut,con
     #n=100
     #n=50
     n=20
+    #n=10
+    #n=2
+
+    ##if not merging all files
+    #fraction = 0.2
+    #fraction_index = 0.2*len(allFiles)
+    #allFiles = allFiles[0:int(fraction_index)]
+
     allFiles_chunks = [allFiles[i:i+n] for i in range(0, len(allFiles), n)]
     print 'len(allFiles_chunks)',len(allFiles_chunks),'allFiles_chunks[0]',allFiles_chunks[0]
     tmpfile_chunk = __tmpPath+'/'+newprefix+folderName+'_tmpfile_chunk_'
@@ -151,6 +190,7 @@ def mergetreePSI_def(pathIN,pathOUT,prefix,newprefix,folderName,Aprefix,Acut,con
     if not f or f.GetNkeys() == 0 or f.TestBit(ROOT.TFile.kRecovered) or f.IsZombie():
         print 'TERREMOTO AND TRAGEDIA: THE MERGED FILE IS CORRUPTED!!! Deleting it. ERROR: exiting'
         command = 'srmrm %s' %(del_merged)
+        subprocess.call([command], shell=True)
         sys.exit(1)
     f.Close()
 
